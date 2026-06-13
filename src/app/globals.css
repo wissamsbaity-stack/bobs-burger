@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ink text-cream antialiased;
+  }
+
+  ::selection {
+    @apply bg-accent/30 text-cream;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Skip paint for off-screen menu cards — major scroll perf win on mobile */
+  .menu-card-optimized {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 420px;
+  }
+}
