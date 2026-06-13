@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, Bebas_Neue } from "next/font/google";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import { CartProvider } from "@/contexts/CartContext";
@@ -37,6 +37,12 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.svg",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
