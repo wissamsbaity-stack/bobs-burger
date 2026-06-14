@@ -194,29 +194,6 @@ export async function deleteMenuItem(id: string): Promise<ActionResult> {
   return { ok: true };
 }
 
-export async function uploadMenuImage(formData: FormData): Promise<
-  ActionResult & { url?: string }
-> {
-  const { supabase } = await requireAdmin();
-  const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) return fail("No file selected");
-
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const path = `${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ""))}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage
-    .from("menu-images")
-    .upload(path, file, { upsert: false, contentType: file.type });
-
-  if (uploadError) return fail(uploadError.message);
-
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("menu-images").getPublicUrl(path);
-
-  return { ok: true, url: publicUrl };
-}
-
 export async function updateSiteSettings(
   formData: FormData
 ): Promise<ActionResult> {

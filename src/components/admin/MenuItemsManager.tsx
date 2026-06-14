@@ -9,8 +9,8 @@ import {
   createMenuItem,
   updateMenuItem,
   deleteMenuItem,
-  uploadMenuImage,
 } from "@/app/admin/(dashboard)/actions";
+import { uploadMenuImageClient } from "@/lib/admin/client-menu-image-upload";
 import type { CategoryRow, MenuItemRow } from "@/lib/supabase/types";
 import { formatPrice } from "@/lib/utils";
 import { Pencil, Trash2, Upload } from "lucide-react";
@@ -25,6 +25,7 @@ export function MenuItemsManager({
   const [editing, setEditing] = useState<MenuItemRow | null>(null);
   const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [pending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -55,17 +56,20 @@ export function MenuItemsManager({
     });
   }
 
-  function handleUpload(file: File) {
-    const fd = new FormData();
-    fd.set("file", file);
-    startTransition(async () => {
-      const result = await uploadMenuImage(fd);
+  async function handleUpload(file: File) {
+    setError(null);
+    setUploading(true);
+    try {
+      const result = await uploadMenuImageClient(file);
       if (!result.ok) {
         setError(result.error);
         return;
       }
-      if (result.url) setImageUrl(result.url);
-    });
+      setImageUrl(result.url);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
   }
 
   function handleDelete(id: string, name: string) {
@@ -164,11 +168,15 @@ export function MenuItemsManager({
                 variant="outline"
                 size="sm"
                 onClick={() => fileRef.current?.click()}
-                isLoading={pending}
+                isLoading={uploading}
+                disabled={uploading || pending}
               >
                 <Upload className="h-4 w-4" />
                 Upload image
               </Button>
+              <p className="w-full text-xs text-muted sm:w-auto">
+                Images are compressed and uploaded directly (max 5 MB).
+              </p>
               <Input
                 name="image_url"
                 placeholder="Or paste image URL"
