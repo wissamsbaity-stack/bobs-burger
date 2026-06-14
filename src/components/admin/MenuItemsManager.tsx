@@ -81,12 +81,12 @@ export function MenuItemsManager({
   );
 
   return (
-    <div className="space-y-8">
-      <div className="rounded-2xl border border-white/10 bg-surface-raised p-6">
+    <div className="space-y-6 sm:space-y-8">
+      <div className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-cream">
           {editing ? "Edit menu item" : "Add menu item"}
         </h2>
-        <form action={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+        <form action={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Input
             name="name"
             label="Name"
@@ -102,7 +102,7 @@ export function MenuItemsManager({
               name="category_id"
               defaultValue={editing?.category_id ?? categories[0]?.id}
               required
-              className="w-full rounded-xl border border-white/10 bg-ink px-4 py-3 text-cream focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/20"
+              className="min-h-11 w-full rounded-xl border border-white/10 bg-ink px-4 py-3 text-base text-cream focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/20 sm:text-sm"
             >
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -137,7 +137,7 @@ export function MenuItemsManager({
             <label className="block text-sm font-medium text-cream/80">
               Image
             </label>
-            <div className="flex flex-wrap items-center gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               {imageUrl ? (
                 <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-white/10">
                   <Image
@@ -174,35 +174,35 @@ export function MenuItemsManager({
                 placeholder="Or paste image URL"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                className="max-w-md flex-1"
+                className="w-full flex-1 sm:max-w-md"
               />
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-cream/80">
+          <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80">
             <input
               type="checkbox"
               name="is_featured"
               defaultChecked={editing?.is_featured ?? false}
-              className="rounded border-white/20"
+              className="h-5 w-5 rounded border-white/20"
             />
             Featured
           </label>
-          <label className="flex items-center gap-2 text-sm text-cream/80">
+          <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80">
             <input
               type="checkbox"
               name="is_popular"
               defaultChecked={editing?.is_popular ?? false}
-              className="rounded border-white/20"
+              className="h-5 w-5 rounded border-white/20"
             />
             Popular
           </label>
-          <label className="flex items-center gap-2 text-sm text-cream/80 sm:col-span-2">
+          <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80 sm:col-span-2">
             <input
               type="checkbox"
               name="is_available"
               defaultChecked={editing?.is_available ?? true}
-              className="rounded border-white/20"
+              className="h-5 w-5 rounded border-white/20"
             />
             Available on menu
           </label>
@@ -210,8 +210,8 @@ export function MenuItemsManager({
           {error ? (
             <p className="text-sm text-red-400 sm:col-span-2">{error}</p>
           ) : null}
-          <div className="flex gap-3 sm:col-span-2">
-            <Button type="submit" isLoading={pending}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:col-span-2">
+            <Button type="submit" isLoading={pending} className="min-h-11 w-full sm:w-auto">
               {editing ? "Save changes" : "Add item"}
             </Button>
             {editing ? (
@@ -223,11 +223,55 @@ export function MenuItemsManager({
         </form>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-surface-raised p-6">
+      <div className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-cream">
           All items ({items.length})
         </h2>
-        <div className="overflow-x-auto">
+
+        <ul className="divide-y divide-white/5 md:hidden">
+          {items.map((item) => (
+            <li key={item.id} className="flex items-start justify-between gap-3 py-4 first:pt-0 last:pb-0">
+              <div className="min-w-0 flex-1">
+                <p className="truncate font-medium text-cream">{item.name}</p>
+                <p className="mt-0.5 text-sm text-muted">
+                  {categoryMap[item.category_id] ?? item.category_id}
+                </p>
+                <p className="mt-1 text-sm text-cream">
+                  {formatPrice(Number(item.price))}
+                </p>
+                <span
+                  className={
+                    item.is_available
+                      ? "mt-1 inline-block text-xs text-green-400"
+                      : "mt-1 inline-block text-xs text-red-400"
+                  }
+                >
+                  {item.is_available ? "Available" : "Hidden"}
+                </span>
+              </div>
+              <div className="flex shrink-0 gap-1">
+                <button
+                  type="button"
+                  onClick={() => startEdit(item)}
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-cream/60 hover:bg-white/5"
+                  aria-label={`Edit ${item.name}`}
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(item.id, item.name)}
+                  className="flex h-11 w-11 items-center justify-center rounded-lg text-red-400/70 hover:bg-red-500/10"
+                  aria-label={`Delete ${item.name}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead>
               <tr className="border-b border-white/10 text-muted">
@@ -266,14 +310,14 @@ export function MenuItemsManager({
                       <button
                         type="button"
                         onClick={() => startEdit(item)}
-                        className="rounded-lg p-2 text-cream/60 hover:bg-white/5"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg text-cream/60 hover:bg-white/5"
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDelete(item.id, item.name)}
-                        className="rounded-lg p-2 text-red-400/70 hover:bg-red-500/10"
+                        className="flex h-10 w-10 items-center justify-center rounded-lg text-red-400/70 hover:bg-red-500/10"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>

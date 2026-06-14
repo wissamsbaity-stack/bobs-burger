@@ -46,8 +46,8 @@ export function CategoriesManager({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
-      <div className="rounded-2xl border border-white/10 bg-surface-raised p-6">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+      <div className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-cream">
           {editing ? "Edit category" : "Add category"}
         </h2>
@@ -71,8 +71,8 @@ export function CategoriesManager({
             defaultValue={editing?.sort_order ?? categories.length}
           />
           {error ? <p className="text-sm text-red-400">{error}</p> : null}
-          <div className="flex gap-3">
-            <Button type="submit" isLoading={pending}>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button type="submit" isLoading={pending} className="min-h-11 w-full sm:w-auto">
               {editing ? "Save changes" : "Add category"}
             </Button>
             {editing ? (
@@ -91,7 +91,7 @@ export function CategoriesManager({
         </form>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-surface-raised p-6">
+      <div className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
         <h2 className="mb-4 text-lg font-semibold text-cream">
           Categories ({categories.length})
         </h2>
@@ -114,7 +114,7 @@ export function CategoriesManager({
                     setEditing(cat);
                     setError(null);
                   }}
-                  className="rounded-lg p-2 text-cream/60 hover:bg-white/5 hover:text-cream"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-cream/60 hover:bg-white/5 hover:text-cream"
                   aria-label={`Edit ${cat.name}`}
                 >
                   <Pencil className="h-4 w-4" />
@@ -122,7 +122,7 @@ export function CategoriesManager({
                 <button
                   type="button"
                   onClick={() => handleDelete(cat.id, cat.name)}
-                  className="rounded-lg p-2 text-red-400/70 hover:bg-red-500/10 hover:text-red-400"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-red-400/70 hover:bg-red-500/10 hover:text-red-400"
                   aria-label={`Delete ${cat.name}`}
                 >
                   <Trash2 className="h-4 w-4" />

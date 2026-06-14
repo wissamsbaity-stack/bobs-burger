@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/auth/admin";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminShell } from "@/components/admin/AdminShell";
 
 export default async function AdminDashboardLayout({
   children,
@@ -8,12 +8,5 @@ export default async function AdminDashboardLayout({
 }) {
   const { profile } = await requireAdmin();
 
-  return (
-    <div className="flex min-h-screen bg-ink text-cream">
-      <AdminSidebar email={profile.email} />
-      <div className="flex-1 overflow-auto">
-        <div className="mx-auto max-w-6xl px-6 py-8 lg:px-10">{children}</div>
-      </div>
-    </div>
-  );
+  return <AdminShell email={profile.email}>{children}</AdminShell>;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Star } from "lucide-react";
 import { MenuSearch } from "@/components/menu/MenuSearch";
@@ -33,6 +33,17 @@ export default function MenuPageClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [modalItem, setModalItem] = useState<MenuItem | null>(null);
+  const itemsSectionRef = useRef<HTMLElement>(null);
+
+  const handleCategoryChange = useCallback((categoryId: string) => {
+    setActiveCategory(categoryId);
+    requestAnimationFrame(() => {
+      itemsSectionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, []);
 
   useEffect(() => {
     const categorySlug = searchParams.get("category");
@@ -40,7 +51,7 @@ export default function MenuPageClient({
       const match = categories.find((c) => c.slug === categorySlug);
       if (match) setActiveCategory(match.id);
     }
-  }, [searchParams]);
+  }, [searchParams, categories]);
 
   const filterItems = useCallback(
     (items: MenuItem[]) => {
@@ -116,7 +127,7 @@ export default function MenuPageClient({
           <CategoryTabs
             categories={categories}
             activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
+            onCategoryChange={handleCategoryChange}
           />
         </div>
       </div>
@@ -144,7 +155,10 @@ export default function MenuPageClient({
           </section>
         ) : null}
 
-        <section>
+        <section
+          ref={itemsSectionRef}
+          className="scroll-mt-[8.75rem]"
+        >
           <h2 className="mb-6 text-xl font-semibold text-cream">
             {activeCategory === "all"
               ? "All Items"
@@ -158,7 +172,7 @@ export default function MenuPageClient({
                 type="button"
                 onClick={() => {
                   setSearchQuery("");
-                  setActiveCategory("all");
+                  handleCategoryChange("all");
                 }}
                 className="mt-4 text-sm font-medium text-accent hover:underline"
               >

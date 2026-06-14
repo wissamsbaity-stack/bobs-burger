@@ -41,7 +41,7 @@ export function SettingsManager({
   return (
     <form
       action={handleSubmit}
-      className="max-w-3xl space-y-8 rounded-2xl border border-white/10 bg-surface-raised p-6"
+      className="w-full max-w-3xl space-y-6 rounded-2xl border border-white/10 bg-surface-raised p-4 sm:space-y-8 sm:p-6"
     >
       <section className="space-y-4">
         <h2 className="text-lg font-semibold text-cream">Restaurant</h2>
@@ -129,12 +129,13 @@ export function SettingsManager({
       </section>
 
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold text-cream">Opening hours</h2>
           <Button
             type="button"
             variant="outline"
             size="sm"
+            className="min-h-11 w-full sm:w-auto"
             onClick={() =>
               setHours((h) => [...h, { days: "", time: "" }])
             }
@@ -144,7 +145,10 @@ export function SettingsManager({
           </Button>
         </div>
         {hours.map((slot, i) => (
-          <div key={i} className="flex gap-3">
+          <div
+            key={i}
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          >
             <Input
               label={i === 0 ? "Days" : undefined}
               value={slot.days}
@@ -170,7 +174,7 @@ export function SettingsManager({
             <button
               type="button"
               onClick={() => setHours((h) => h.filter((_, j) => j !== i))}
-              className="mt-7 rounded-lg p-2 text-red-400 hover:bg-red-500/10"
+              className="flex h-11 w-11 shrink-0 items-center justify-center self-end rounded-lg text-red-400 hover:bg-red-500/10 sm:mb-0"
               aria-label="Remove hours slot"
             >
               <Trash2 className="h-4 w-4" />
@@ -233,7 +237,7 @@ export function SettingsManager({
         <p className="text-sm text-green-400">Settings saved successfully.</p>
       ) : null}
 
-      <Button type="submit" isLoading={pending}>
+      <Button type="submit" isLoading={pending} className="min-h-11 w-full sm:w-auto">
         Save settings
       </Button>
     </form>
