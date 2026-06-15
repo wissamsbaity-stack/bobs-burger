@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   description: "Complete your order and send it via WhatsApp for fast delivery.",
 };
 
+const CHECKOUT_DESCRIPTION =
+  "Add your delivery details and send your order via WhatsApp. Delivery fees are calculated by the restaurant based on your location and will be confirmed after your order is received.";
+
 export default function CheckoutPage() {
   return (
     <div className="pb-20">
@@ -17,7 +20,7 @@ export default function CheckoutPage() {
           <SectionHeading
             eyebrow="Almost there"
             title="Checkout"
-            description="Add your delivery details and send your order to +961 70 583 901 via WhatsApp."
+            description={CHECKOUT_DESCRIPTION}
             align="center"
           />
         </div>

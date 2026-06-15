@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Truck } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
@@ -148,13 +148,31 @@ export function CheckoutForm() {
         rows={3}
       />
 
+      <div className="rounded-xl border border-white/10 bg-accent/5 p-4 sm:p-5">
+        <div className="flex gap-3 sm:gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
+            <Truck className="h-5 w-5 text-accent" aria-hidden />
+          </div>
+          <div className="min-w-0 space-y-1">
+            <p className="text-sm font-medium text-cream">
+              Delivery fee
+            </p>
+            <p className="text-sm leading-relaxed text-cream/75">
+              Delivery fees are calculated by the restaurant based on your
+              location and will be confirmed after your order is received via
+              WhatsApp.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <Button type="submit" variant="whatsapp" size="lg" className="w-full">
         <MessageCircle className="h-5 w-5" />
         Send Order via WhatsApp
       </Button>
 
       <p className="text-center text-xs text-muted">
-        Order opens in WhatsApp to +961 70 583 901 with all details pre-filled
+        Your order opens in WhatsApp with all details pre-filled
       </p>
     </form>
   );

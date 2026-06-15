@@ -58,7 +58,8 @@ export default function AdminLoginPage() {
             BOB&apos;S ADMIN
           </p>
           <p className="mt-2 text-sm text-muted">
-            Sign in to manage your restaurant
+            Sign in to manage your restaurant. Your session ends when you close
+            the browser.
           </p>
         </div>
 
