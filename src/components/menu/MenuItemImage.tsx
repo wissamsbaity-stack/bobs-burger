@@ -25,7 +25,9 @@ export function MenuItemImage({
     <div
       className={cn(
         "relative overflow-hidden bg-surface-overlay",
-        compact ? "h-24 w-24 shrink-0 rounded-xl" : "aspect-[4/3] w-full",
+        compact
+          ? "h-20 w-20 shrink-0 rounded-lg"
+          : "aspect-[5/4] w-full sm:aspect-[4/3]",
         className
       )}
     >
@@ -44,8 +46,8 @@ export function MenuItemImage({
         decoding="async"
         sizes={
           compact
-            ? "96px"
-            : "(max-width: 640px) 45vw, (max-width: 1024px) 33vw, 280px"
+            ? "80px"
+            : "(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
         }
         className={cn(
           "object-cover transition-opacity duration-300",

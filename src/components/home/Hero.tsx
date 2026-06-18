@@ -66,7 +66,6 @@ export function Hero({ menuItemCount }: { menuItemCount: number }) {
             {[
               { value: `${menuItemCount}+`, label: "Menu items" },
               { value: "5★", label: "Customer rated" },
-              { value: "30m", label: "Avg prep time" },
             ].map((stat) => (
               <div key={stat.label}>
                 <p className="font-display text-3xl font-bold text-accent">

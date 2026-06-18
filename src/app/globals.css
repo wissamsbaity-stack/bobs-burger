@@ -33,6 +33,6 @@
   /* Skip paint for off-screen menu cards — major scroll perf win on mobile */
   .menu-card-optimized {
     content-visibility: auto;
-    contain-intrinsic-size: auto 420px;
+    contain-intrinsic-size: auto 280px;
   }
 }

@@ -14,8 +14,8 @@ export interface MenuItem {
   price: number;
   categoryId: string;
   imageUrl: string;
-  isFeatured: boolean;
   isPopular: boolean;
+  isBestSeller: boolean;
   isAvailable: boolean;
   tags: string[];
 }

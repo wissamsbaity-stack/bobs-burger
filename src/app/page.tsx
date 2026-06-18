@@ -1,13 +1,12 @@
-import { Hero } from "@/components/home/Hero";
+import type { Metadata } from "next";
 import { CategoriesPreview } from "@/components/home/CategoriesPreview";
-import { BurgerHighlights } from "@/components/home/BurgerHighlights";
 import { OrderCTA } from "@/components/home/OrderCTA";
+import { Hero } from "@/components/home/Hero";
 import { menuService } from "@/lib/menu-service";
 
 export default async function HomePage() {
-  const [categories, highlights, menuItems] = await Promise.all([
+  const [categories, menuItems] = await Promise.all([
     menuService.getCategories(),
-    menuService.getHighlightedItems(),
     menuService.getMenuItems(),
   ]);
 
@@ -15,7 +14,6 @@ export default async function HomePage() {
     <>
       <Hero menuItemCount={menuItems.length} />
       <CategoriesPreview categories={categories} />
-      <BurgerHighlights items={highlights} />
       <OrderCTA />
     </>
   );

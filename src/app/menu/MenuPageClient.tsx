@@ -2,21 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Star } from "lucide-react";
 import { MenuSearch } from "@/components/menu/MenuSearch";
 import { CategoryTabs } from "@/components/menu/CategoryTabs";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { AddToCartModal } from "@/components/menu/AddToCartModal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Category, MenuItem } from "@/types/menu";
-
-const BURGER_CATS = new Set(["cat-beef-burgers", "cat-chicken-burgers"]);
-const PLACEHOLDER =
-  "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/2.jpg";
-
-function hasRealImage(item: MenuItem) {
-  return item.imageUrl && item.imageUrl !== PLACEHOLDER;
-}
 
 export default function MenuPageClient({
   categories,
@@ -49,54 +40,25 @@ export default function MenuPageClient({
     }
   }, [searchParams, categories]);
 
-  const filterItems = useCallback(
-    (items: MenuItem[]) => {
-      let filtered = items.filter((item) => item.isAvailable);
+  const filteredItems = useMemo(() => {
+    let filtered = menuItems.filter((item) => item.isAvailable);
 
-      if (activeCategory !== "all") {
-        filtered = filtered.filter((item) => item.categoryId === activeCategory);
-      }
+    if (activeCategory !== "all") {
+      filtered = filtered.filter((item) => item.categoryId === activeCategory);
+    }
 
-      if (searchQuery.trim()) {
-        const q = searchQuery.trim().toLowerCase();
-        filtered = filtered.filter(
-          (item) =>
-            item.name.toLowerCase().includes(q) ||
-            item.description.toLowerCase().includes(q) ||
-            item.tags.some((tag) => tag.toLowerCase().includes(q))
-        );
-      }
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      filtered = filtered.filter(
+        (item) =>
+          item.name.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q) ||
+          item.tags.some((tag) => tag.toLowerCase().includes(q))
+      );
+    }
 
-      return filtered;
-    },
-    [activeCategory, searchQuery]
-  );
-
-  const highlightedItems = useMemo(
-    () =>
-      filterItems(
-        menuItems.filter(
-          (item) => BURGER_CATS.has(item.categoryId) && hasRealImage(item)
-        )
-      ).slice(0, 6),
-    [filterItems]
-  );
-
-  const highlightIds = useMemo(
-    () => new Set(highlightedItems.map((item) => item.id)),
-    [highlightedItems]
-  );
-
-  const allFilteredItems = useMemo(() => {
-    const filtered = filterItems(menuItems);
-    const showSections = !searchQuery && activeCategory === "all";
-    if (!showSections || highlightIds.size === 0) return filtered;
-    return filtered.filter((item) => !highlightIds.has(item.id));
-  }, [filterItems, highlightIds, searchQuery, activeCategory]);
-
-  const showSections = !searchQuery && activeCategory === "all";
-  const totalVisible =
-    allFilteredItems.length + (showSections ? highlightedItems.length : 0);
+    return filtered;
+  }, [activeCategory, searchQuery, menuItems]);
 
   return (
     <div className="pb-20">
@@ -112,7 +74,7 @@ export default function MenuPageClient({
           <MenuSearch
             value={searchQuery}
             onChange={setSearchQuery}
-            resultCount={searchQuery ? totalVisible : undefined}
+            resultCount={searchQuery ? filteredItems.length : undefined}
             className="mx-auto max-w-xl"
           />
         </div>
@@ -128,40 +90,15 @@ export default function MenuPageClient({
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        {showSections && highlightedItems.length > 0 ? (
-          <section className="mb-14">
-            <div className="mb-6 flex items-center gap-2">
-              <Star className="h-5 w-5 text-accent" />
-              <h2 className="text-xl font-semibold text-cream">
-                Burger highlights
-              </h2>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {highlightedItems.map((item) => (
-                <MenuItemCard
-                  key={item.id}
-                  item={item}
-                  highlighted
-                  imagePriority
-                  onCustomize={setModalItem}
-                />
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        <section
-          ref={itemsSectionRef}
-          className="scroll-mt-[8.75rem]"
-        >
-          <h2 className="mb-6 text-xl font-semibold text-cream">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <section ref={itemsSectionRef} className="scroll-mt-[8.75rem]">
+          <h2 className="mb-4 text-lg font-semibold text-cream sm:mb-5 sm:text-xl">
             {activeCategory === "all"
               ? "All Items"
               : categories.find((c) => c.id === activeCategory)?.name}
           </h2>
 
-          {totalVisible === 0 ? (
+          {filteredItems.length === 0 ? (
             <div className="rounded-2xl border border-cream/5 bg-surface-raised py-16 text-center">
               <p className="text-cream/50">No items match your search</p>
               <button
@@ -176,11 +113,12 @@ export default function MenuPageClient({
               </button>
             </div>
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {allFilteredItems.map((item) => (
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {filteredItems.map((item, index) => (
                 <MenuItemCard
                   key={item.id}
                   item={item}
+                  imagePriority={index < 4}
                   onCustomize={setModalItem}
                 />
               ))}

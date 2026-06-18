@@ -16,7 +16,7 @@ export default async function AdminMenuPage() {
     <>
       <AdminHeader
         title="Menu items"
-        description="Manage prices, images, availability, and featured items."
+        description="Manage prices, images, availability, and product badges."
       />
       <MenuItemsManager items={items} categories={categories} />
     </>

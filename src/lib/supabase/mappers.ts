@@ -23,8 +23,8 @@ export function mapMenuItem(row: MenuItemRow): MenuItem {
     price: Number(row.price),
     categoryId: row.category_id,
     imageUrl: row.image_url ?? PLACEHOLDER_IMAGE,
-    isFeatured: row.is_featured,
     isPopular: row.is_popular,
+    isBestSeller: row.is_best_seller,
     isAvailable: row.is_available,
     tags: row.tags ?? [],
   };

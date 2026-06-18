@@ -16,8 +16,8 @@ create table if not exists public.menu_items (
   description text,
   price numeric(10, 2) not null check (price >= 0),
   image_url text,
-  is_featured boolean not null default false,
   is_popular boolean not null default false,
+  is_best_seller boolean not null default false,
   is_available boolean not null default true,
   tags text[] not null default '{}',
   created_at timestamptz not null default now(),
@@ -42,7 +42,7 @@ create table if not exists public.orders (
 );
 
 create index if not exists menu_items_category_id_idx on public.menu_items(category_id);
-create index if not exists menu_items_is_featured_idx on public.menu_items(is_featured) where is_featured = true;
+create index if not exists menu_items_is_best_seller_idx on public.menu_items(is_best_seller) where is_best_seller = true;
 create index if not exists menu_items_is_popular_idx on public.menu_items(is_popular) where is_popular = true;
 create index if not exists orders_status_idx on public.orders(status);
 create index if not exists orders_created_at_idx on public.orders(created_at desc);

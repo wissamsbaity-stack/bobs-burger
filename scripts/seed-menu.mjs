@@ -71,8 +71,9 @@ const menuItems = menuData.menuItems.map((item) => ({
   description: item.description ?? "",
   price: item.price,
   image_url: item.imageUrl,
-  is_featured: item.isFeatured ?? false,
   is_popular: item.isPopular ?? false,
+  is_best_seller: item.isBestSeller ?? item.isFeatured ?? false,
+  is_available: item.isAvailable ?? true,
   is_available: item.isAvailable ?? true,
   tags: item.tags ?? [],
 }));

@@ -231,20 +231,20 @@ export function MenuItemsManager({
           <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80">
             <input
               type="checkbox"
-              name="is_featured"
-              defaultChecked={editing?.is_featured ?? false}
-              className="h-5 w-5 rounded border-white/20"
-            />
-            Featured
-          </label>
-          <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80">
-            <input
-              type="checkbox"
               name="is_popular"
               defaultChecked={editing?.is_popular ?? false}
               className="h-5 w-5 rounded border-white/20"
             />
             Popular
+          </label>
+          <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80">
+            <input
+              type="checkbox"
+              name="is_best_seller"
+              defaultChecked={editing?.is_best_seller ?? false}
+              className="h-5 w-5 rounded border-white/20"
+            />
+            Best Seller
           </label>
           <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80 sm:col-span-2">
             <input

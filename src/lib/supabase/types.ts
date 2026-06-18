@@ -169,8 +169,8 @@ export interface Database {
           description: string | null;
           price: number;
           image_url: string | null;
-          is_featured: boolean;
           is_popular: boolean;
+          is_best_seller: boolean;
           is_available: boolean;
           tags: string[];
           created_at: string;
@@ -184,8 +184,8 @@ export interface Database {
           description?: string | null;
           price: number;
           image_url?: string | null;
-          is_featured?: boolean;
           is_popular?: boolean;
+          is_best_seller?: boolean;
           is_available?: boolean;
           tags?: string[];
           created_at?: string;
@@ -199,8 +199,8 @@ export interface Database {
           description?: string | null;
           price?: number;
           image_url?: string | null;
-          is_featured?: boolean;
           is_popular?: boolean;
+          is_best_seller?: boolean;
           is_available?: boolean;
           tags?: string[];
           created_at?: string;

@@ -4,18 +4,6 @@ import type { Category, MenuItem } from "@/types/menu";
 import type { MenuService } from "@/lib/menu-service.types";
 import { categories as staticCategories, menuItems as staticMenuItems } from "@/data/menu";
 
-const BURGER_CATEGORIES = new Set([
-  "cat-beef-burgers",
-  "cat-chicken-burgers",
-]);
-
-const PLACEHOLDER =
-  "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/2.jpg";
-
-function hasRealImage(item: MenuItem): boolean {
-  return Boolean(item.imageUrl && item.imageUrl !== PLACEHOLDER);
-}
-
 class SupabaseMenuService implements MenuService {
   private async client() {
     const supabase = await createServerClient();
@@ -52,37 +40,6 @@ class SupabaseMenuService implements MenuService {
       .order("name");
     if (error) throw error;
     return (data ?? []).map(mapMenuItem);
-  }
-
-  async getFeaturedItems(): Promise<MenuItem[]> {
-    const supabase = await this.client();
-    const { data, error } = await supabase
-      .from("menu_items")
-      .select("*")
-      .eq("is_featured", true)
-      .eq("is_available", true);
-    if (error) throw error;
-    return (data ?? []).map(mapMenuItem);
-  }
-
-  async getPopularItems(): Promise<MenuItem[]> {
-    const supabase = await this.client();
-    const { data, error } = await supabase
-      .from("menu_items")
-      .select("*")
-      .eq("is_popular", true)
-      .eq("is_available", true);
-    if (error) throw error;
-    return (data ?? []).map(mapMenuItem);
-  }
-
-  async getHighlightedItems(): Promise<MenuItem[]> {
-    const items = await this.getMenuItems();
-    return items
-      .filter(
-        (item) => BURGER_CATEGORIES.has(item.categoryId) && hasRealImage(item)
-      )
-      .slice(0, 6);
   }
 
   async getItemsByCategory(categoryId: string): Promise<MenuItem[]> {
@@ -127,25 +84,6 @@ class StaticMenuService implements MenuService {
 
   async getMenuItems(): Promise<MenuItem[]> {
     return staticMenuItems.filter((item) => item.isAvailable);
-  }
-
-  async getFeaturedItems(): Promise<MenuItem[]> {
-    return staticMenuItems.filter((item) => item.isFeatured && item.isAvailable);
-  }
-
-  async getPopularItems(): Promise<MenuItem[]> {
-    return staticMenuItems.filter((item) => item.isPopular && item.isAvailable);
-  }
-
-  async getHighlightedItems(): Promise<MenuItem[]> {
-    return staticMenuItems
-      .filter(
-        (item) =>
-          item.isAvailable &&
-          BURGER_CATEGORIES.has(item.categoryId) &&
-          hasRealImage(item)
-      )
-      .slice(0, 6);
   }
 
   async getItemsByCategory(categoryId: string): Promise<MenuItem[]> {

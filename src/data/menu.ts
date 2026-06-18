@@ -21,8 +21,8 @@ export const menuItems: MenuItem[] = demoMenu.menuItems.map((item) => ({
   price: item.price,
   categoryId: item.categoryId,
   imageUrl: item.imageUrl,
-  isFeatured: item.isFeatured,
   isPopular: item.isPopular,
+  isBestSeller: item.isBestSeller ?? false,
   isAvailable: item.isAvailable,
   tags: item.tags,
 }));
