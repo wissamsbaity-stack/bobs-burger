@@ -1,5 +1,5 @@
 /**
- * Seed Supabase with menu data from menu-extracted.json
+ * Seed Supabase with BurgerHub demo menu data
  *
  * Usage:
  *   node scripts/seed-menu.mjs
@@ -51,42 +51,26 @@ const supabase = createClient(url, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-const PLACEHOLDER =
-  "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/2.jpg";
-
-const categoryMeta = {
-  "cat-sides": { name: "Sides", description: "Crispy fries, wings, tenders and golden sides" },
-  "cat-baked-potato": { name: "Baked Potato", description: "Oven-baked loaded potatoes" },
-  "cat-wraps-and-subs": { name: "Wraps & Subs", description: "Wraps and Lebanese-style subs" },
-  "cat-beef-burger": { name: "Beef Burgers", description: "Char-grilled beef burgers" },
-  "cat-angus-burgers": { name: "Angus Burgers", description: "Premium black Angus patties" },
-  "cat-chicken-burger": { name: "Chicken Burgers", description: "Grilled and crispy chicken burgers" },
-  "cat-upgrade": { name: "Upgrades", description: "Make it a combo meal" },
-  "cat-soft-drink": { name: "Beverages", description: "Soft drinks and refreshments" },
-  "cat-add-on-s": { name: "Add-Ons", description: "Sauces, dips and extras" },
-  "cat-value-meals": { name: "Value Meals", description: "Special offers and promos" },
-};
-
-const extracted = JSON.parse(
-  readFileSync(join(root, "src/data/menu-extracted.json"), "utf8")
+const menuData = JSON.parse(
+  readFileSync(join(root, "src/data/burgerhub-demo-menu.json"), "utf8")
 );
 
-const categories = extracted.categories.map((cat) => ({
+const categories = menuData.categories.map((cat) => ({
   id: cat.id,
-  name: categoryMeta[cat.id]?.name ?? cat.name,
+  name: cat.name,
   slug: cat.slug,
-  description: categoryMeta[cat.id]?.description ?? cat.description ?? "",
+  description: cat.description ?? "",
   sort_order: cat.sortOrder,
 }));
 
-const menuItems = extracted.menuItems.map((item) => ({
+const menuItems = menuData.menuItems.map((item) => ({
   id: item.id,
   category_id: item.categoryId,
   name: item.name,
   slug: item.slug,
   description: item.description ?? "",
   price: item.price,
-  image_url: item.imageUrl ?? PLACEHOLDER,
+  image_url: item.imageUrl,
   is_featured: item.isFeatured ?? false,
   is_popular: item.isPopular ?? false,
   is_available: item.isAvailable ?? true,
@@ -95,23 +79,29 @@ const menuItems = extracted.menuItems.map((item) => ({
 
 async function seed() {
   console.log("Clearing existing menu data...");
-  await supabase.from("menu_items").delete().neq("id", "");
-  await supabase.from("categories").delete().neq("id", "");
+  const { error: deleteItemsError } = await supabase
+    .from("menu_items")
+    .delete()
+    .neq("id", "");
+  if (deleteItemsError) throw deleteItemsError;
+
+  const { error: deleteCatsError } = await supabase
+    .from("categories")
+    .delete()
+    .neq("id", "");
+  if (deleteCatsError) throw deleteCatsError;
 
   console.log(`Inserting ${categories.length} categories...`);
   const { error: catError } = await supabase.from("categories").insert(categories);
   if (catError) throw catError;
 
   console.log(`Inserting ${menuItems.length} menu items...`);
-  const batchSize = 50;
-  for (let i = 0; i < menuItems.length; i += batchSize) {
-    const batch = menuItems.slice(i, i + batchSize);
-    const { error } = await supabase.from("menu_items").insert(batch);
-    if (error) throw error;
-    console.log(`  ${Math.min(i + batchSize, menuItems.length)} / ${menuItems.length}`);
-  }
+  const { error: itemsError } = await supabase.from("menu_items").insert(menuItems);
+  if (itemsError) throw itemsError;
 
   console.log("Done.");
+  console.log(`  Categories: ${categories.length}`);
+  console.log(`  Menu items: ${menuItems.length}`);
 }
 
 seed().catch((err) => {

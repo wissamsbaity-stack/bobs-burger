@@ -2,20 +2,24 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Beef, Cookie, CupSoda, Sandwich, Flame } from "lucide-react";
+import {
+  ArrowRight,
+  Beef,
+  Cookie,
+  CupSoda,
+  Drumstick,
+  Flame,
+} from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Category } from "@/types/menu";
 import { useSettings } from "@/contexts/SettingsContext";
 
 const categoryIcons: Record<string, React.ReactNode> = {
-  sides: <Cookie className="h-6 w-6" />,
-  "baked-potato": <Flame className="h-6 w-6" />,
-  "wraps-and-subs": <Sandwich className="h-6 w-6" />,
-  "beef-burger": <Beef className="h-6 w-6" />,
-  "angus-burgers": <Beef className="h-6 w-6" />,
-  "chicken-burger": <Flame className="h-6 w-6" />,
-  upgrade: <Sandwich className="h-6 w-6" />,
-  "soft-drink": <CupSoda className="h-6 w-6" />,
+  appetizers: <Cookie className="h-6 w-6" />,
+  "beef-burgers": <Beef className="h-6 w-6" />,
+  "chicken-burgers": <Flame className="h-6 w-6" />,
+  dips: <Drumstick className="h-6 w-6" />,
+  beverages: <CupSoda className="h-6 w-6" />,
 };
 
 interface CategoriesPreviewProps {
@@ -24,9 +28,7 @@ interface CategoriesPreviewProps {
 
 export function CategoriesPreview({ categories }: CategoriesPreviewProps) {
   const settings = useSettings();
-  const preview = categories.filter((c) =>
-    ["sides", "beef-burger", "angus-burgers", "chicken-burger", "wraps-and-subs", "value-meals"].includes(c.slug)
-  );
+  const preview = categories.slice(0, 6);
 
   return (
     <section className="py-16 lg:py-24">
@@ -34,7 +36,7 @@ export function CategoriesPreview({ categories }: CategoriesPreviewProps) {
         <SectionHeading
           eyebrow="Explore"
           title="From the menu"
-          description={`Beef burgers, Angus stacks, Nashville chicken, sides, wraps, and more — all from the live ${settings.name} menu.`}
+          description={`Appetizers, beef and chicken burgers, dips, and drinks — all from the live ${settings.name} menu.`}
           align="center"
           className="mb-12"
         />

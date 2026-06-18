@@ -10,11 +10,7 @@ import { AddToCartModal } from "@/components/menu/AddToCartModal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Category, MenuItem } from "@/types/menu";
 
-const BURGER_CATS = new Set([
-  "cat-beef-burger",
-  "cat-angus-burgers",
-  "cat-chicken-burger",
-]);
+const BURGER_CATS = new Set(["cat-beef-burgers", "cat-chicken-burgers"]);
 const PLACEHOLDER =
   "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/2.jpg";
 

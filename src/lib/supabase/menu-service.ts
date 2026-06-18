@@ -5,9 +5,8 @@ import type { MenuService } from "@/lib/menu-service.types";
 import { categories as staticCategories, menuItems as staticMenuItems } from "@/data/menu";
 
 const BURGER_CATEGORIES = new Set([
-  "cat-beef-burger",
-  "cat-angus-burgers",
-  "cat-chicken-burger",
+  "cat-beef-burgers",
+  "cat-chicken-burgers",
 ]);
 
 const PLACEHOLDER =
