@@ -1,40 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
+import { RestaurantBrand } from "@/components/layout/RestaurantBrand";
+import {
+  formatFullAddress,
+  instagramHandleFromUrl,
+} from "@/lib/settings/helpers";
 
 export function Footer() {
   const settings = useSettings();
-  const fullAddress = `${settings.address.street}, ${settings.address.city}, ${settings.address.country}`;
+  const fullAddress = formatFullAddress(settings.address);
+  const instagramHandle = instagramHandleFromUrl(settings.social.instagram);
 
   return (
     <footer className="border-t border-white/5 bg-surface-raised">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-4">
-            <Link href="/" className="flex items-center gap-3">
-              <div className="relative h-10 w-10 overflow-hidden rounded-lg">
-                <Image
-                  src={settings.branding.logo}
-                  alt={settings.name}
-                  fill
-                  className="object-cover"
-                  sizes="40px"
-                />
-              </div>
-              <div className="leading-none">
-                <span className="block font-display text-base font-bold text-accent">
-                  BOB&apos;S
-                </span>
-                <span className="block font-display text-base font-bold text-cream">
-                  BURGER
-                </span>
-              </div>
-            </Link>
+            <RestaurantBrand size="sm" />
             <p className="text-sm leading-relaxed text-muted">
-              Char-grilled in Aramoun. {settings.tagline}
+              {settings.address.city ? `${settings.address.city}. ` : ""}
+              {settings.tagline}
             </p>
           </div>
 
@@ -128,16 +116,28 @@ export function Footer() {
           <p className="text-sm text-muted">
             &copy; {new Date().getFullYear()} {settings.legalName}
           </p>
-          {settings.social.instagram ? (
-            <a
-              href={settings.social.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-muted transition-colors hover:text-accent"
-            >
-              @bobburger.lb
-            </a>
-          ) : null}
+          <div className="flex items-center gap-4">
+            {settings.social.instagram ? (
+              <a
+                href={settings.social.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted transition-colors hover:text-accent"
+              >
+                {instagramHandle}
+              </a>
+            ) : null}
+            {settings.social.facebook ? (
+              <a
+                href={settings.social.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-muted transition-colors hover:text-accent"
+              >
+                Facebook
+              </a>
+            ) : null}
+          </div>
         </div>
       </div>
     </footer>

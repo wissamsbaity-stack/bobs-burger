@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { updateSiteSettings } from "@/app/admin/(dashboard)/actions";
 import type { OpeningHour, SiteSettingsRow } from "@/lib/supabase/types";
 import { Plus, Trash2 } from "lucide-react";
+import { SettingsImageField } from "@/components/admin/SettingsImageField";
 
 export function SettingsManager({
   settings,
@@ -215,20 +216,23 @@ export function SettingsManager({
           label="Facebook URL"
           defaultValue={settings?.facebook_url ?? ""}
         />
-        <Input
+        <SettingsImageField
           name="logo_url"
-          label="Logo image URL"
+          label="Logo image"
           defaultValue={settings?.logo_url ?? ""}
+          previewAlt={settings?.restaurant_name ?? "Restaurant logo"}
         />
-        <Input
+        <SettingsImageField
           name="cover_url"
-          label="Cover image URL"
+          label="Cover image"
           defaultValue={settings?.cover_url ?? ""}
+          previewAlt={settings?.restaurant_name ?? "Restaurant cover"}
         />
-        <Input
+        <SettingsImageField
           name="hero_image_url"
-          label="Hero burger image URL"
+          label="Hero burger image"
           defaultValue={settings?.hero_image_url ?? ""}
+          previewAlt={settings?.restaurant_name ?? "Hero image"}
         />
       </section>
 

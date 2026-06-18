@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Beef, Cookie, CupSoda, Sandwich, Flame } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { Category } from "@/types/menu";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const categoryIcons: Record<string, React.ReactNode> = {
   sides: <Cookie className="h-6 w-6" />,
@@ -22,6 +23,7 @@ interface CategoriesPreviewProps {
 }
 
 export function CategoriesPreview({ categories }: CategoriesPreviewProps) {
+  const settings = useSettings();
   const preview = categories.filter((c) =>
     ["sides", "beef-burger", "angus-burgers", "chicken-burger", "wraps-and-subs", "value-meals"].includes(c.slug)
   );
@@ -32,7 +34,7 @@ export function CategoriesPreview({ categories }: CategoriesPreviewProps) {
         <SectionHeading
           eyebrow="Explore"
           title="From the menu"
-          description="Beef burgers, Angus stacks, Nashville chicken, sides, wraps, and more — all from our live Aramoun menu."
+          description={`Beef burgers, Angus stacks, Nashville chicken, sides, wraps, and more — all from the live ${settings.name} menu.`}
           align="center"
           className="mb-12"
         />

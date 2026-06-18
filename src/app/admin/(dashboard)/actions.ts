@@ -252,6 +252,8 @@ export async function updateSiteSettings(
 
   revalidatePath("/admin/settings");
   revalidatePath("/", "layout");
+  revalidatePath("/about");
+  revalidatePath("/menu");
   revalidatePath("/contact");
   revalidatePath("/checkout");
   return { ok: true };

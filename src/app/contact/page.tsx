@@ -10,18 +10,29 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { getSiteSettings } from "@/lib/settings/site-settings";
-import { restaurantInfo } from "@/data/restaurant";
+import {
+  formatFullAddress,
+  mapsEmbedUrlFromAddress,
+} from "@/lib/settings/helpers";
+import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description:
-    "Get in touch with Bob's Burger. Find our location, hours, and contact details.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: "Contact",
+    description: `Get in touch with ${settings.name}. Find our location, hours, and contact details.`,
+  };
+}
 
 export default async function ContactPage() {
   const settings = await getSiteSettings();
-  const fullAddress = `${settings.address.street}, ${settings.address.city}, ${settings.address.country}`;
-  const whatsappUrl = `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent("Hi Bob's Burger! I have a question.")}`;
+  const fullAddress = formatFullAddress(settings.address);
+  const whatsappUrl = buildWhatsAppContactUrl(
+    `Hi ${settings.name}! I have a question.`,
+    settings.whatsapp,
+    settings.name
+  );
+  const mapEmbedUrl = mapsEmbedUrlFromAddress(settings.address);
 
   return (
     <div className="pb-20">
@@ -61,7 +72,7 @@ export default async function ContactPage() {
                 {
                   icon: MessageCircle,
                   label: "WhatsApp",
-                  value: "Chat with us",
+                  value: settings.whatsapp,
                   href: whatsappUrl,
                 },
               ].map((item) => (
@@ -126,8 +137,8 @@ export default async function ContactPage() {
 
         <div className="mt-12 overflow-hidden rounded-2xl border border-cream/5">
           <iframe
-            title="Bob's Burger location"
-            src={`https://maps.google.com/maps?q=${restaurantInfo.coordinates.lat},${restaurantInfo.coordinates.lng}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+            title={`${settings.name} location`}
+            src={mapEmbedUrl}
             className="h-80 w-full grayscale-[30%] invert-[90%] contrast-[90%]"
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"

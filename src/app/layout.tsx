@@ -4,7 +4,7 @@ import { SiteChrome } from "@/components/layout/SiteChrome";
 import { CartProvider } from "@/contexts/CartContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { getSiteSettings } from "@/lib/settings/site-settings";
-import { siteConfig } from "@/config/site";
+import { buildRootMetadata } from "@/lib/settings/metadata";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -20,24 +20,10 @@ const bebasNeue = Bebas_Neue({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  keywords: [
-    "burger",
-    "aramoun",
-    "lebanon",
-    "angus burger",
-    "nashville chicken",
-    "whatsapp order",
-  ],
-  icons: {
-    icon: "/favicon.svg",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return buildRootMetadata(settings);
+}
 
 export const viewport: Viewport = {
   width: "device-width",

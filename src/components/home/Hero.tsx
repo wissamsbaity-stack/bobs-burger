@@ -9,7 +9,12 @@ import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
 
 export function Hero({ menuItemCount }: { menuItemCount: number }) {
   const settings = useSettings();
-  const whatsappUrl = buildWhatsAppContactUrl(undefined, settings.whatsapp);
+  const whatsappUrl = buildWhatsAppContactUrl(
+    undefined,
+    settings.whatsapp,
+    settings.name
+  );
+  const locationLabel = settings.address.city || settings.address.street;
 
   return (
     <section className="relative overflow-hidden bg-ink bg-hero-radial">
@@ -24,7 +29,9 @@ export function Hero({ menuItemCount }: { menuItemCount: number }) {
         >
           <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-muted px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
             <Flame className="h-3.5 w-3.5" />
-            Char-grilled in Aramoun since day one
+            {locationLabel
+              ? `Char-grilled in ${locationLabel} since day one`
+              : settings.tagline}
           </div>
 
           <h1 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-cream sm:text-5xl lg:text-6xl xl:text-7xl">
@@ -33,8 +40,8 @@ export function Hero({ menuItemCount }: { menuItemCount: number }) {
 
           <p className="max-w-xl text-lg leading-relaxed text-muted">
             From classic smash patties to black angus stacks and Nashville-fried
-            chicken — every bite at Bob&apos;s is fire-grilled, loaded, and made
-            to order.
+            chicken — every bite at {settings.name} is fire-grilled, loaded, and
+            made to order.
           </p>
 
           <div className="flex flex-wrap gap-4">
@@ -81,7 +88,7 @@ export function Hero({ menuItemCount }: { menuItemCount: number }) {
           <div className="relative aspect-square overflow-hidden rounded-3xl shadow-ember">
             <Image
               src={settings.branding.heroBurger}
-              alt="Bob's Burger signature stack"
+              alt={`${settings.name} signature stack`}
               fill
               className="object-cover"
               priority

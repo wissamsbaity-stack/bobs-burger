@@ -3,18 +3,28 @@ import Image from "next/image";
 import { MapPin, MessageCircle } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { getSiteSettings } from "@/lib/settings/site-settings";
+import { formatFullAddress } from "@/lib/settings/helpers";
 import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
 
-export const metadata: Metadata = {
-  title: "About",
-  description:
-    "Learn about Bob's Burger — char-grilled burgers in Aramoun, Lebanon.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings();
+  return {
+    title: "About",
+    description: `Learn about ${settings.name} — ${settings.tagline || settings.metaDescription}`,
+  };
+}
 
 export default async function AboutPage() {
   const settings = await getSiteSettings();
-  const whatsappUrl = buildWhatsAppContactUrl(undefined, settings.whatsapp);
-  const fullAddress = `${settings.address.street}, ${settings.address.city}, ${settings.address.country}`;
+  const whatsappUrl = buildWhatsAppContactUrl(
+    undefined,
+    settings.whatsapp,
+    settings.name
+  );
+  const fullAddress = formatFullAddress(settings.address);
+  const locationLine = [settings.address.city, settings.address.country]
+    .filter(Boolean)
+    .join(", ");
 
   return (
     <div className="pb-20">
@@ -22,7 +32,7 @@ export default async function AboutPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Our story"
-            title="Bob's Burger & More"
+            title={settings.name}
             description={settings.legalName}
             align="center"
           />
@@ -43,9 +53,9 @@ export default async function AboutPage() {
 
           <div className="space-y-6">
             <p className="text-lg leading-relaxed text-muted">
-              Based in Aramoun, Lebanon, Bob&apos;s Burger serves char-grilled
-              beef burgers, premium black Angus stacks, Nashville-fried chicken,
-              loaded sides, wraps, and value meals — all made to order.
+              {locationLine
+                ? `Based in ${locationLine}, ${settings.name} serves char-grilled beef burgers, premium black Angus stacks, Nashville-fried chicken, loaded sides, wraps, and value meals — all made to order.`
+                : `${settings.name} serves char-grilled beef burgers, premium black Angus stacks, Nashville-fried chicken, loaded sides, wraps, and value meals — all made to order.`}
             </p>
             <p className="leading-relaxed text-muted">
               {settings.tagline}. Order through WhatsApp for fast delivery across

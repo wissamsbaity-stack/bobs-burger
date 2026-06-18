@@ -6,12 +6,14 @@ import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import type { MenuItem } from "@/types/menu";
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface FeaturedSectionProps {
   items: MenuItem[];
 }
 
 export function FeaturedSection({ items }: FeaturedSectionProps) {
+  const settings = useSettings();
   if (items.length === 0) return null;
 
   return (
@@ -21,7 +23,7 @@ export function FeaturedSection({ items }: FeaturedSectionProps) {
           <SectionHeading
             eyebrow="Chef's Selection"
             title="Featured Items"
-            description="Hand-picked favorites that define the Bob's Burger experience."
+            description={`Hand-picked favorites that define the ${settings.name} experience.`}
           />
           <Link href="/menu">
             <Button variant="outline">

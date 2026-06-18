@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/contexts/CartContext";
-import { useSettings } from "@/contexts/SettingsContext";
+import { RestaurantBrand } from "@/components/layout/RestaurantBrand";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -17,40 +16,15 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
-function Logo({ logoUrl }: { logoUrl: string }) {
-  return (
-    <Link href="/" className="group flex items-center gap-3">
-      <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg">
-        <Image
-          src={logoUrl}
-          alt="Bob's Burger"
-          fill
-          className="object-cover"
-          sizes="40px"
-        />
-      </div>
-      <div className="leading-none">
-        <span className="block font-display text-lg font-bold tracking-wide text-accent">
-          BOB&apos;S
-        </span>
-        <span className="block font-display text-lg font-bold tracking-wide text-cream">
-          BURGER
-        </span>
-      </div>
-    </Link>
-  );
-}
-
 export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const { itemCount, openCart } = useCart();
-  const settings = useSettings();
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-ink/90 backdrop-blur-xl">
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Logo logoUrl={settings.branding.logo} />
+        <RestaurantBrand />
 
         <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => (
@@ -104,6 +78,9 @@ export function Header() {
             className="overflow-hidden border-t border-white/5 md:hidden"
           >
             <div className="space-y-1 px-4 py-4">
+              <div className="mb-4 border-b border-white/5 pb-4">
+                <RestaurantBrand asLink={false} />
+              </div>
               {navLinks.map((link) => (
                 <Link
                   key={link.href}

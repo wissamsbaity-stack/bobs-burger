@@ -65,6 +65,7 @@ export function CheckoutForm() {
 
     const url = buildWhatsAppOrderUrl({
       phone: settings.whatsapp,
+      restaurantName: settings.name,
       customer: form,
       items,
       subtotal,
@@ -115,7 +116,7 @@ export function CheckoutForm() {
       <div className="grid gap-5 sm:grid-cols-2">
         <Input
           label="City"
-          placeholder="Aramoun"
+          placeholder={settings.address.city || "City"}
           value={form.city}
           onChange={(e) => updateField("city", e.target.value)}
           error={errors.city}

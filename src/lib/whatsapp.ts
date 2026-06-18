@@ -3,10 +3,9 @@ import type { DeliveryDetails } from "@/types/order";
 import { formatLebanonPhoneForWhatsApp, formatPrice } from "./utils";
 import { siteConfig } from "@/config/site";
 
-const RESTAURANT_NAME = "Bob's Burger";
-
 interface WhatsAppOrderParams {
   phone: string;
+  restaurantName: string;
   customer: DeliveryDetails;
   items: CartItem[];
   subtotal: number;
@@ -15,6 +14,7 @@ interface WhatsAppOrderParams {
 }
 
 export function buildWhatsAppOrderMessage({
+  restaurantName,
   customer,
   items,
   subtotal,
@@ -24,7 +24,7 @@ export function buildWhatsAppOrderMessage({
   const customerPhone = formatLebanonPhoneForWhatsApp(customer.phone);
 
   const lines: string[] = [
-    `🍔 *New Order — ${RESTAURANT_NAME}*`,
+    `🍔 *New Order — ${restaurantName}*`,
     "",
     "*Customer Details*",
     `Name: ${customer.name}`,
@@ -58,13 +58,14 @@ export function buildWhatsAppOrderMessage({
     lines.push(`Delivery: ${formatPrice(deliveryFee)}`);
   }
 
-  lines.push(`*Total: ${formatPrice(total)}*`, "", "Sent via Bob's Burger");
+  lines.push(`*Total: ${formatPrice(total)}*`, "", `Sent via ${restaurantName}`);
 
   return lines.join("\n");
 }
 
 export function buildWhatsAppOrderUrl({
   phone,
+  restaurantName,
   customer,
   items,
   subtotal,
@@ -73,6 +74,7 @@ export function buildWhatsAppOrderUrl({
 }: WhatsAppOrderParams): string {
   const sanitizedPhone = phone.replace(/\D/g, "");
   const message = buildWhatsAppOrderMessage({
+    restaurantName,
     customer,
     items,
     subtotal,
@@ -91,10 +93,13 @@ export function getRestaurantWhatsAppPhone(): string {
 
 export function buildWhatsAppContactUrl(
   message?: string,
-  phone?: string
+  phone?: string,
+  restaurantName?: string
 ): string {
   const resolvedPhone =
     phone ?? process.env.NEXT_PUBLIC_WHATSAPP_PHONE ?? siteConfig.whatsappPhone;
-  const text = message ?? "Hi Bob's Burger! I'd like to place an order.";
+  const name = restaurantName ?? "us";
+  const text =
+    message ?? `Hi ${name}! I'd like to place an order.`;
   return `https://wa.me/${resolvedPhone.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
 }

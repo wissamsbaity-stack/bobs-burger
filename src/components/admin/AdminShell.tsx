@@ -8,9 +8,13 @@ import { cn } from "@/lib/utils";
 
 export function AdminShell({
   email,
+  restaurantName,
+  logoUrl,
   children,
 }: {
   email: string;
+  restaurantName: string;
+  logoUrl: string;
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -18,7 +22,11 @@ export function AdminShell({
   return (
     <div className="flex min-h-screen bg-ink text-cream">
       <div className="hidden shrink-0 lg:block">
-        <AdminSidebar email={email} />
+        <AdminSidebar
+          email={email}
+          restaurantName={restaurantName}
+          logoUrl={logoUrl}
+        />
       </div>
 
       {mobileOpen ? (
@@ -38,6 +46,8 @@ export function AdminShell({
       >
         <AdminSidebar
           email={email}
+          restaurantName={restaurantName}
+          logoUrl={logoUrl}
           onNavigate={() => setMobileOpen(false)}
         />
       </aside>
@@ -58,8 +68,8 @@ export function AdminShell({
                 <Menu className="h-5 w-5" />
               )}
             </button>
-            <p className="font-display text-lg tracking-wide text-accent">
-              BOB&apos;S ADMIN
+            <p className="truncate font-display text-lg tracking-wide text-accent">
+              {restaurantName} Admin
             </p>
           </div>
           <AdminLogoutButton />

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -25,9 +26,13 @@ const navLinkClass =
 
 export function AdminSidebar({
   email,
+  restaurantName,
+  logoUrl,
   onNavigate,
 }: {
   email: string;
+  restaurantName: string;
+  logoUrl: string;
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
@@ -35,10 +40,24 @@ export function AdminSidebar({
   return (
     <aside className="flex h-full w-64 flex-col border-r border-white/10 bg-surface-raised">
       <div className="border-b border-white/10 px-5 py-5 lg:py-6">
-        <p className="font-display text-xl tracking-wide text-accent lg:text-2xl">
-          BOB&apos;S ADMIN
-        </p>
-        <p className="mt-1 truncate text-xs text-muted">{email}</p>
+        <div className="flex items-center gap-3">
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg">
+            <Image
+              src={logoUrl}
+              alt={restaurantName}
+              fill
+              className="object-cover"
+              sizes="40px"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate font-display text-lg tracking-wide text-accent lg:text-xl">
+              {restaurantName}
+            </p>
+            <p className="text-xs text-muted">Admin</p>
+          </div>
+        </div>
+        <p className="mt-3 truncate text-xs text-muted">{email}</p>
       </div>
 
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">

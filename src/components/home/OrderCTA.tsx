@@ -9,7 +9,11 @@ import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
 
 export function OrderCTA() {
   const settings = useSettings();
-  const whatsappUrl = buildWhatsAppContactUrl(undefined, settings.whatsapp);
+  const whatsappUrl = buildWhatsAppContactUrl(
+    undefined,
+    settings.whatsapp,
+    settings.name
+  );
 
   return (
     <section className="py-16 lg:py-24">
@@ -28,8 +32,9 @@ export function OrderCTA() {
                 Hungry? Order in 3 taps.
               </h2>
               <p className="text-muted">
-                Build your cart, add your Aramoun delivery details, and send
-                your order straight to our kitchen via WhatsApp.
+                Build your cart, add your delivery details
+                {settings.address.city ? ` in ${settings.address.city}` : ""}, and
+                send your order straight to our kitchen via WhatsApp.
               </p>
               <div className="flex flex-wrap gap-6 pt-2">
                 <div className="flex items-center gap-2 text-sm text-muted">
