@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition, useEffect } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -13,7 +13,7 @@ import {
 import { uploadMenuImageClient } from "@/lib/admin/client-menu-image-upload";
 import type { CategoryRow, MenuItemRow } from "@/lib/supabase/types";
 import { formatPrice } from "@/lib/utils";
-import { Pencil, Trash2, Upload } from "lucide-react";
+import { Pencil, Trash2, Upload, X } from "lucide-react";
 
 export function MenuItemsManager({
   items,
@@ -28,18 +28,39 @@ export function MenuItemsManager({
   const [uploading, setUploading] = useState(false);
   const [pending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
+  const formSectionRef = useRef<HTMLDivElement>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const shouldScrollToFormRef = useRef(false);
 
   function resetForm() {
     setEditing(null);
     setImageUrl("");
     setError(null);
+    shouldScrollToFormRef.current = false;
   }
 
   function startEdit(item: MenuItemRow) {
     setEditing(item);
     setImageUrl(item.image_url ?? "");
     setError(null);
+    shouldScrollToFormRef.current = true;
   }
+
+  useEffect(() => {
+    if (!editing || !shouldScrollToFormRef.current) return;
+    shouldScrollToFormRef.current = false;
+
+    formSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+
+    const focusTimer = window.setTimeout(() => {
+      nameInputRef.current?.focus({ preventScroll: true });
+    }, 350);
+
+    return () => window.clearTimeout(focusTimer);
+  }, [editing]);
 
   function handleSubmit(formData: FormData) {
     setError(null);
@@ -86,12 +107,32 @@ export function MenuItemsManager({
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      <div className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
-        <h2 className="mb-4 text-lg font-semibold text-cream">
-          {editing ? "Edit menu item" : "Add menu item"}
-        </h2>
-        <form action={handleSubmit} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div
+        ref={formSectionRef}
+        id="menu-item-form"
+        className={`scroll-mt-20 rounded-2xl border bg-surface-raised p-4 transition-colors sm:p-6 ${
+          editing
+            ? "border-accent/50 ring-2 ring-accent/20 shadow-[0_0_0_1px_rgba(255,92,0,0.15)]"
+            : "border-white/10"
+        }`}
+      >
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold text-cream">
+            {editing ? "Edit menu item" : "Add menu item"}
+          </h2>
+          {editing ? (
+            <span className="inline-flex items-center rounded-full bg-accent/15 px-3 py-1 text-xs font-medium text-accent">
+              Editing: {editing.name}
+            </span>
+          ) : null}
+        </div>
+        <form
+          key={editing?.id ?? "new"}
+          action={handleSubmit}
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+        >
           <Input
+            ref={nameInputRef}
             name="name"
             label="Name"
             defaultValue={editing?.name ?? ""}
@@ -224,7 +265,8 @@ export function MenuItemsManager({
             </Button>
             {editing ? (
               <Button type="button" variant="ghost" onClick={resetForm}>
-                Cancel
+                <X className="h-4 w-4" />
+                Cancel edit
               </Button>
             ) : null}
           </div>

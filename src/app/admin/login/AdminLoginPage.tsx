@@ -3,10 +3,17 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { AdminBrandMark } from "@/components/admin/AdminBrandMark";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 
-export default function AdminLoginPage() {
+export default function AdminLoginPage({
+  restaurantName,
+  logoUrl,
+}: {
+  restaurantName: string;
+  logoUrl: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "/admin";
@@ -53,11 +60,13 @@ export default function AdminLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-ink px-4">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-surface-raised p-8 shadow-card">
-        <div className="mb-8 text-center">
-          <p className="font-display text-3xl tracking-wide text-accent">
-            BOB&apos;S ADMIN
-          </p>
-          <p className="mt-2 text-sm text-muted">
+        <div className="mb-8">
+          <AdminBrandMark
+            restaurantName={restaurantName}
+            logoUrl={logoUrl}
+            layout="centered"
+          />
+          <p className="mt-4 text-center text-sm text-muted">
             Sign in to manage your restaurant. Your session ends when you close
             the browser.
           </p>

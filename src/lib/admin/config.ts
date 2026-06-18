@@ -3,7 +3,7 @@
  */
 export const adminConfig = {
   basePath: "/admin",
-  title: "Bob's Burger Admin",
+  title: "Admin",
   routes: {
     dashboard: "/admin",
     menu: "/admin/menu",
