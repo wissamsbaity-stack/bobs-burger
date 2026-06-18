@@ -68,9 +68,11 @@ export function AdminShell({
                 <Menu className="h-5 w-5" />
               )}
             </button>
-            <p className="truncate font-display text-lg tracking-wide text-accent">
-              {restaurantName} Admin
-            </p>
+            {!mobileOpen ? (
+              <p className="truncate font-display text-lg tracking-wide text-accent">
+                {restaurantName} Admin
+              </p>
+            ) : null}
           </div>
           <AdminLogoutButton />
         </header>

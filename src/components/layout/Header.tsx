@@ -24,7 +24,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-ink/90 backdrop-blur-xl">
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <RestaurantBrand />
+        <div className={cn(mobileOpen && "max-md:hidden")}>
+          <RestaurantBrand />
+        </div>
 
         <nav className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => (
