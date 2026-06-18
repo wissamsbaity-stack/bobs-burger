@@ -5,6 +5,7 @@
       "name": "Appetizers",
       "slug": "appetizers",
       "description": "Golden starters and shareable bites to kick off your meal",
+      "icon": "cookie",
       "sortOrder": 1
     },
     {
@@ -12,6 +13,7 @@
       "name": "Beef Burgers",
       "slug": "beef-burgers",
       "description": "Smash-grilled beef patties stacked with premium toppings",
+      "icon": "beef",
       "sortOrder": 2
     },
     {
@@ -19,6 +21,7 @@
       "name": "Chicken Burgers",
       "slug": "chicken-burgers",
       "description": "Crispy, grilled, and sauced chicken burgers made to order",
+      "icon": "flame",
       "sortOrder": 3
     },
     {
@@ -26,6 +29,7 @@
       "name": "Dips",
       "slug": "dips",
       "description": "House-made sauces and dips for burgers, fries, and more",
+      "icon": "droplet",
       "sortOrder": 4
     },
     {
@@ -33,6 +37,7 @@
       "name": "Beverages",
       "slug": "beverages",
       "description": "Cold drinks, fresh lemonade, and refreshments",
+      "icon": "cup-soda",
       "sortOrder": 5
     }
   ],

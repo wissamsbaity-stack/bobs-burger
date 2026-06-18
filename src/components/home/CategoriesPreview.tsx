@@ -2,25 +2,11 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  ArrowRight,
-  Beef,
-  Cookie,
-  CupSoda,
-  Drumstick,
-  Flame,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { CategoryIcon } from "@/components/menu/CategoryIcon";
 import type { Category } from "@/types/menu";
 import { useSettings } from "@/contexts/SettingsContext";
-
-const categoryIcons: Record<string, React.ReactNode> = {
-  appetizers: <Cookie className="h-6 w-6" />,
-  "beef-burgers": <Beef className="h-6 w-6" />,
-  "chicken-burgers": <Flame className="h-6 w-6" />,
-  dips: <Drumstick className="h-6 w-6" />,
-  beverages: <CupSoda className="h-6 w-6" />,
-};
 
 interface CategoriesPreviewProps {
   categories: Category[];
@@ -55,9 +41,7 @@ export function CategoriesPreview({ categories }: CategoriesPreviewProps) {
                 className="group flex flex-col rounded-2xl border border-white/5 bg-surface-raised p-6 transition-all hover:border-accent/30 hover:shadow-card"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent-muted text-accent transition-colors group-hover:bg-accent group-hover:text-white">
-                  {categoryIcons[category.slug] ?? (
-                    <Beef className="h-6 w-6" />
-                  )}
+                  <CategoryIcon icon={category.icon} size={24} />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-cream">
                   {category.name}

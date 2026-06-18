@@ -1,5 +1,6 @@
 "use client";
 
+import { CategoryIcon } from "@/components/menu/CategoryIcon";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types/menu";
 
@@ -19,7 +20,7 @@ export function CategoryTabs({
   return (
     <div
       className={cn(
-        "flex gap-2 overflow-x-auto pb-2 scrollbar-none",
+        "flex gap-2 overflow-x-auto pb-1 scrollbar-none",
         className
       )}
     >
@@ -27,7 +28,7 @@ export function CategoryTabs({
         type="button"
         onClick={() => onCategoryChange("all")}
         className={cn(
-          "shrink-0 rounded-full px-5 py-3 text-sm font-medium transition-all min-h-11",
+          "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all min-h-11",
           activeCategory === "all"
             ? "bg-accent text-white shadow-ember"
             : "bg-white/5 text-muted hover:bg-white/10 hover:text-cream"
@@ -41,13 +42,22 @@ export function CategoryTabs({
           type="button"
           onClick={() => onCategoryChange(category.id)}
           className={cn(
-            "shrink-0 rounded-full px-5 py-3 text-sm font-medium transition-all min-h-11",
+            "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all min-h-11",
             activeCategory === category.id
               ? "bg-accent text-white shadow-ember"
               : "bg-white/5 text-muted hover:bg-white/10 hover:text-cream"
           )}
         >
-          {category.name}
+          <CategoryIcon
+            icon={category.icon}
+            size={16}
+            className={
+              activeCategory === category.id
+                ? "text-white"
+                : "text-muted group-hover:text-cream"
+            }
+          />
+          <span>{category.name}</span>
         </button>
       ))}
     </div>

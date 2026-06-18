@@ -4,6 +4,7 @@ export interface Category {
   slug: string;
   description: string;
   sortOrder: number;
+  icon: string | null;
 }
 
 export interface MenuItem {

@@ -10,6 +10,7 @@ export const categories: Category[] = demoMenu.categories
     slug: cat.slug,
     description: cat.description,
     sortOrder: cat.sortOrder,
+    icon: cat.icon ?? null,
   }))
   .sort((a, b) => a.sortOrder - b.sortOrder);
 

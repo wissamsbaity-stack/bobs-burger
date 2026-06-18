@@ -7,6 +7,14 @@
     scroll-behavior: smooth;
   }
 
+  :root {
+    --site-header-height: 4.5rem;
+    --menu-category-nav-height: 4.75rem;
+    --menu-category-scroll-offset: calc(
+      var(--site-header-height) + var(--menu-category-nav-height) + 0.75rem
+    );
+  }
+
   body {
     @apply bg-ink text-cream antialiased;
   }

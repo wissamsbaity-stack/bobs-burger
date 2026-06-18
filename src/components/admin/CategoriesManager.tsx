@@ -10,6 +10,8 @@ import {
   deleteCategory,
 } from "@/app/admin/(dashboard)/actions";
 import type { CategoryRow } from "@/lib/supabase/types";
+import { CategoryIconPicker } from "@/components/admin/CategoryIconPicker";
+import { CategoryIcon } from "@/components/menu/CategoryIcon";
 import { Pencil, Trash2 } from "lucide-react";
 
 export function CategoriesManager({
@@ -51,7 +53,11 @@ export function CategoriesManager({
         <h2 className="mb-4 text-lg font-semibold text-cream">
           {editing ? "Edit category" : "Add category"}
         </h2>
-        <form action={handleSubmit} className="space-y-4">
+        <form
+          key={editing?.id ?? "new"}
+          action={handleSubmit}
+          className="space-y-4"
+        >
           <Input
             name="name"
             label="Name"
@@ -64,6 +70,7 @@ export function CategoriesManager({
             defaultValue={editing?.description ?? ""}
             rows={3}
           />
+          <CategoryIconPicker defaultValue={editing?.icon} />
           <Input
             name="sort_order"
             label="Sort order"
@@ -101,11 +108,16 @@ export function CategoriesManager({
               key={cat.id}
               className="flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0"
             >
-              <div>
-                <p className="font-medium text-cream">{cat.name}</p>
-                <p className="text-xs text-muted">
-                  {cat.slug} · order {cat.sort_order}
-                </p>
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent">
+                  <CategoryIcon icon={cat.icon} size={18} />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-medium text-cream">{cat.name}</p>
+                  <p className="text-xs text-muted">
+                    {cat.slug} · order {cat.sort_order}
+                  </p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <button

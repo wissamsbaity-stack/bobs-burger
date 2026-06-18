@@ -60,6 +60,7 @@ const categories = menuData.categories.map((cat) => ({
   name: cat.name,
   slug: cat.slug,
   description: cat.description ?? "",
+  icon: cat.icon ?? null,
   sort_order: cat.sortOrder,
 }));
 

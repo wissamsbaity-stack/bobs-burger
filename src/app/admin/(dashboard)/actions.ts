@@ -47,6 +47,7 @@ export async function createCategory(formData: FormData): Promise<ActionResult> 
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const sortOrder = Number(formData.get("sort_order") ?? 0);
+  const icon = String(formData.get("icon") ?? "").trim() || null;
 
   if (!name) return fail("Category name is required");
 
@@ -57,6 +58,7 @@ export async function createCategory(formData: FormData): Promise<ActionResult> 
     name,
     slug,
     description: description || null,
+    icon,
     sort_order: sortOrder,
   });
 
@@ -73,6 +75,7 @@ export async function updateCategory(formData: FormData): Promise<ActionResult> 
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim();
   const sortOrder = Number(formData.get("sort_order") ?? 0);
+  const icon = String(formData.get("icon") ?? "").trim() || null;
 
   if (!id || !name) return fail("Category id and name are required");
 
@@ -83,6 +86,7 @@ export async function updateCategory(formData: FormData): Promise<ActionResult> 
       name,
       slug: slugify(name),
       description: description || null,
+      icon,
       sort_order: sortOrder,
     },
     "id",

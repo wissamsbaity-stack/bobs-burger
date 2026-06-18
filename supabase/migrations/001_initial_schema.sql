@@ -3,6 +3,7 @@ create table if not exists public.categories (
   name text not null,
   slug text not null unique,
   description text,
+  icon text,
   sort_order integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

@@ -20,25 +20,35 @@ export default function MenuPageClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [modalItem, setModalItem] = useState<MenuItem | null>(null);
-  const itemsSectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
-  const handleCategoryChange = useCallback((categoryId: string) => {
-    setActiveCategory(categoryId);
+  const scrollToCategoryTitle = useCallback(() => {
     requestAnimationFrame(() => {
-      itemsSectionRef.current?.scrollIntoView({
+      titleRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
     });
   }, []);
 
+  const handleCategoryChange = useCallback(
+    (categoryId: string) => {
+      setActiveCategory(categoryId);
+      scrollToCategoryTitle();
+    },
+    [scrollToCategoryTitle]
+  );
+
   useEffect(() => {
     const categorySlug = searchParams.get("category");
     if (categorySlug) {
       const match = categories.find((c) => c.slug === categorySlug);
-      if (match) setActiveCategory(match.id);
+      if (match) {
+        setActiveCategory(match.id);
+        scrollToCategoryTitle();
+      }
     }
-  }, [searchParams, categories]);
+  }, [searchParams, categories, scrollToCategoryTitle]);
 
   const filteredItems = useMemo(() => {
     let filtered = menuItems.filter((item) => item.isAvailable);
@@ -60,6 +70,11 @@ export default function MenuPageClient({
     return filtered;
   }, [activeCategory, searchQuery, menuItems]);
 
+  const activeCategoryName =
+    activeCategory === "all"
+      ? "All Items"
+      : categories.find((c) => c.id === activeCategory)?.name;
+
   return (
     <div className="pb-20">
       <section className="border-b border-cream/5 bg-surface-raised/30 py-12 lg:py-16">
@@ -80,8 +95,11 @@ export default function MenuPageClient({
         </div>
       </section>
 
-      <div className="sticky top-[72px] z-40 border-b border-white/5 bg-ink/[0.98]">
-        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+      <div
+        id="menu-category-nav"
+        className="sticky top-[var(--site-header-height)] z-40 border-b border-white/5 bg-ink/[0.98] shadow-sm shadow-black/10"
+      >
+        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
           <CategoryTabs
             categories={categories}
             activeCategory={activeCategory}
@@ -90,12 +108,13 @@ export default function MenuPageClient({
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-        <section ref={itemsSectionRef} className="scroll-mt-[8.75rem]">
-          <h2 className="mb-4 text-lg font-semibold text-cream sm:mb-5 sm:text-xl">
-            {activeCategory === "all"
-              ? "All Items"
-              : categories.find((c) => c.id === activeCategory)?.name}
+      <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 sm:pt-6 lg:px-8">
+        <section>
+          <h2
+            ref={titleRef}
+            className="scroll-mt-[var(--menu-category-scroll-offset)] mb-4 text-lg font-semibold text-cream sm:mb-5 sm:text-xl"
+          >
+            {activeCategoryName}
           </h2>
 
           {filteredItems.length === 0 ? (

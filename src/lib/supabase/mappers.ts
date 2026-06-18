@@ -11,6 +11,7 @@ export function mapCategory(row: CategoryRow): Category {
     slug: row.slug,
     description: row.description ?? "",
     sortOrder: row.sort_order,
+    icon: row.icon,
   };
 }
 

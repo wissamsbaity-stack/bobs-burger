@@ -23,8 +23,8 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-ink/90 backdrop-blur-xl">
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <div className={cn(mobileOpen && "max-md:hidden")}>
+      <div className="mx-auto flex h-[var(--site-header-height)] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className={cn("min-w-0", mobileOpen && "max-md:hidden")}>
           <RestaurantBrand />
         </div>
 
@@ -45,7 +45,7 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={openCart}
@@ -60,14 +60,16 @@ export function Header() {
             ) : null}
           </button>
 
-          <button
-            type="button"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-full text-cream md:hidden"
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          {!mobileOpen ? (
+            <button
+              type="button"
+              onClick={() => setMobileOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-full text-cream md:hidden"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -79,10 +81,19 @@ export function Header() {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden border-t border-white/5 md:hidden"
           >
+            <div className="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3">
+              <RestaurantBrand asLink={false} className="min-w-0" />
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-cream hover:bg-white/5"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
             <div className="space-y-1 px-4 py-4">
-              <div className="mb-4 border-b border-white/5 pb-4">
-                <RestaurantBrand asLink={false} />
-              </div>
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
