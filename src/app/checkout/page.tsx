@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 const CHECKOUT_DESCRIPTION =
-  "Add your delivery details and send your order via WhatsApp. Delivery fees are calculated by the restaurant based on your location and will be confirmed after your order is received.";
+  "Add your delivery details and send your order via WhatsApp.";
 
 export default function CheckoutPage() {
   return (
