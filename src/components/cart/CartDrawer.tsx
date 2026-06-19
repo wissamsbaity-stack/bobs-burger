@@ -6,6 +6,7 @@ import { ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { CartItemRow } from "@/components/cart/CartItemRow";
 import { Button } from "@/components/ui/Button";
+import { drawerSpring, overlayFade } from "@/lib/motion-presets";
 import { formatPrice } from "@/lib/utils";
 
 export function CartDrawer() {
@@ -23,18 +24,23 @@ export function CartDrawer() {
     <AnimatePresence>
       {isOpen ? (
         <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <motion.button
+            type="button"
+            aria-label="Close cart"
+            key="cart-backdrop"
+            initial={overlayFade.initial}
+            animate={overlayFade.animate}
+            exit={overlayFade.exit}
+            transition={overlayFade.transition}
             onClick={closeCart}
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
           />
           <motion.aside
+            key="cart-drawer"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            transition={drawerSpring}
             className="fixed bottom-0 right-0 top-0 z-50 flex w-full max-w-md flex-col border-l border-cream/5 bg-surface shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-cream/5 px-5 py-4">
@@ -52,7 +58,7 @@ export function CartDrawer() {
               <button
                 type="button"
                 onClick={closeCart}
-                className="rounded-full p-2 text-cream/50 transition-colors hover:bg-cream/10 hover:text-cream"
+                className="rounded-full p-2 text-cream/50 transition-colors hover:bg-cream/10 hover:text-cream motion-safe:active:scale-90"
                 aria-label="Close cart"
               >
                 <X className="h-5 w-5" />

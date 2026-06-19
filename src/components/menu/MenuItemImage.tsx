@@ -50,9 +50,10 @@ export function MenuItemImage({
             : "(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
         }
         className={cn(
-          "object-cover transition-opacity duration-300",
+          "object-cover transition-[opacity,transform,filter] duration-300 ease-out",
           loaded ? "opacity-100" : "opacity-0",
-          "motion-safe:md:group-hover:scale-[1.03]"
+          "motion-safe:md:group-hover:scale-[1.04]",
+          "motion-safe:md:group-hover:brightness-[1.05]"
         )}
         onLoad={() => setLoaded(true)}
       />

@@ -5,6 +5,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: var(--menu-category-scroll-offset);
   }
 
   @media (prefers-reduced-motion: reduce) {

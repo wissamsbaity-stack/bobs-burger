@@ -1,12 +1,13 @@
 "use client";
 
 import { memo, useCallback, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { MenuItemImage } from "@/components/menu/MenuItemImage";
 import { MenuItemBadges } from "@/components/menu/MenuItemBadges";
 import { Button } from "@/components/ui/Button";
 import { useCart } from "@/contexts/CartContext";
+import { cardReveal, revealStagger } from "@/lib/motion-presets";
 import { formatPrice } from "@/lib/utils";
 import type { MenuItem } from "@/types/menu";
 
@@ -15,6 +16,7 @@ interface MenuItemCardProps {
   onCustomize?: (item: MenuItem) => void;
   compact?: boolean;
   imagePriority?: boolean;
+  revealIndex?: number;
 }
 
 const cardBaseClass =
@@ -25,9 +27,11 @@ function MenuItemCardComponent({
   onCustomize,
   compact = false,
   imagePriority = false,
+  revealIndex = 0,
 }: MenuItemCardProps) {
   const { addItem } = useCart();
   const [justAdded, setJustAdded] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
 
   const handleAdd = useCallback(() => {
     if (onCustomize) {
@@ -47,9 +51,27 @@ function MenuItemCardComponent({
     window.setTimeout(() => setJustAdded(false), 500);
   }, [addItem, item, onCustomize]);
 
+  const revealProps = prefersReducedMotion
+    ? {}
+    : {
+        initial: cardReveal.initial,
+        whileInView: cardReveal.whileInView,
+        viewport: cardReveal.viewport,
+        transition: revealStagger(revealIndex),
+      };
+
   if (compact) {
     return (
-      <article className={`${cardBaseClass} flex gap-3 p-2.5`}>
+      <motion.article
+        {...revealProps}
+        animate={justAdded ? { scale: [1, 0.97, 1.02, 1] } : undefined}
+        transition={
+          justAdded
+            ? { duration: 0.35, ease: "easeOut" }
+            : revealProps.transition
+        }
+        className={`${cardBaseClass} flex gap-3 p-2.5`}
+      >
         <div className="relative shrink-0">
           <MenuItemImage
             src={item.imageUrl}
@@ -82,16 +104,23 @@ function MenuItemCardComponent({
             Add
           </Button>
         </div>
-      </article>
+      </motion.article>
     );
   }
 
   return (
     <motion.article
+      {...revealProps}
       animate={
-        justAdded ? { scale: [1, 0.97, 1.02, 1] } : { scale: 1 }
+        justAdded && !prefersReducedMotion
+          ? { scale: [1, 0.97, 1.02, 1] }
+          : undefined
       }
-      transition={{ duration: 0.35, ease: "easeOut" }}
+      transition={
+        justAdded
+          ? { duration: 0.35, ease: "easeOut" }
+          : revealProps.transition
+      }
       className={`${cardBaseClass} flex flex-col`}
     >
       <div className="relative">

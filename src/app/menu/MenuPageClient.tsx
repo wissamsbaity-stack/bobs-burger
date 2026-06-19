@@ -2,11 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import { MenuSearch } from "@/components/menu/MenuSearch";
 import { CategoryTabs } from "@/components/menu/CategoryTabs";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { AddToCartModal } from "@/components/menu/AddToCartModal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { categoryCrossFade } from "@/lib/motion-presets";
 import type { Category, MenuItem } from "@/types/menu";
 
 export default function MenuPageClient({
@@ -75,6 +77,8 @@ export default function MenuPageClient({
       ? "All Items"
       : categories.find((c) => c.id === activeCategory)?.name;
 
+  const gridKey = `${activeCategory}-${searchQuery.trim().toLowerCase()}`;
+
   return (
     <div className="pb-20">
       <section className="border-b border-cream/5 bg-surface-raised/30 py-12 lg:py-16">
@@ -110,45 +114,71 @@ export default function MenuPageClient({
 
       <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 sm:pt-6 lg:px-8">
         <section>
-          <h2
+          <div
             ref={titleRef}
-            className="scroll-mt-[var(--menu-category-scroll-offset)] mb-4 text-lg font-semibold text-cream sm:mb-5 sm:text-xl"
+            className="scroll-mt-[var(--menu-category-scroll-offset)] mb-4 sm:mb-5"
           >
-            {activeCategoryName}
-          </h2>
-
-          {filteredItems.length === 0 ? (
-            <div className="rounded-2xl border border-cream/5 bg-surface-raised py-16 text-center">
-              <p className="text-cream/50">No items match your search</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchQuery("");
-                  handleCategoryChange("all");
-                }}
-                className="mt-4 text-sm font-medium text-accent hover:underline"
+            <AnimatePresence mode="wait">
+              <motion.h2
+                key={activeCategoryName ?? "all"}
+                initial={categoryCrossFade.initial}
+                animate={categoryCrossFade.animate}
+                exit={categoryCrossFade.exit}
+                transition={categoryCrossFade.transition}
+                className="text-lg font-semibold text-cream sm:text-xl"
               >
-                Clear filters
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-              {filteredItems.map((item, index) => (
-                <MenuItemCard
-                  key={item.id}
-                  item={item}
-                  imagePriority={index < 4}
-                  onCustomize={setModalItem}
-                />
-              ))}
-            </div>
-          )}
+                {activeCategoryName}
+              </motion.h2>
+            </AnimatePresence>
+          </div>
+
+          <AnimatePresence mode="wait">
+            {filteredItems.length === 0 ? (
+              <motion.div
+                key="empty"
+                initial={categoryCrossFade.initial}
+                animate={categoryCrossFade.animate}
+                exit={categoryCrossFade.exit}
+                transition={categoryCrossFade.transition}
+                className="rounded-2xl border border-cream/5 bg-surface-raised py-16 text-center"
+              >
+                <p className="text-cream/50">No items match your search</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    handleCategoryChange("all");
+                  }}
+                  className="mt-4 text-sm font-medium text-accent hover:underline"
+                >
+                  Clear filters
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key={gridKey}
+                initial={categoryCrossFade.initial}
+                animate={categoryCrossFade.animate}
+                exit={categoryCrossFade.exit}
+                transition={categoryCrossFade.transition}
+                className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
+              >
+                {filteredItems.map((item, index) => (
+                  <MenuItemCard
+                    key={item.id}
+                    item={item}
+                    revealIndex={index}
+                    imagePriority={index < 4}
+                    onCustomize={setModalItem}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </section>
       </div>
 
-      {modalItem ? (
-        <AddToCartModal item={modalItem} onClose={() => setModalItem(null)} />
-      ) : null}
+      <AddToCartModal item={modalItem} onClose={() => setModalItem(null)} />
     </div>
   );
 }
