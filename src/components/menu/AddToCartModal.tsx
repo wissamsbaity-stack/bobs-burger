@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, m } from "@/lib/motion";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { useCart } from "@/contexts/CartContext";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useIsMobile } from "@/hooks/useIsMobile";
 import { modalSpring, overlayFade } from "@/lib/motion-presets";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import type { MenuItem } from "@/types/menu";
 
 interface AddToCartModalProps {
@@ -16,10 +19,25 @@ interface AddToCartModalProps {
   onClose: () => void;
 }
 
+const sheetSpring = {
+  type: "spring" as const,
+  stiffness: 380,
+  damping: 36,
+  mass: 0.9,
+};
+
 export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
   const [notes, setNotes] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [mounted, setMounted] = useState(false);
   const { addItem } = useCart();
+  const isMobile = useIsMobile();
+
+  useBodyScrollLock(Boolean(item));
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (item) {
@@ -27,6 +45,17 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
       setQuantity(1);
     }
   }, [item]);
+
+  useEffect(() => {
+    if (!item) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [item, onClose]);
 
   const handleAdd = () => {
     if (!item) return;
@@ -42,10 +71,12 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
     onClose();
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {item ? (
-        <>
+        <div className="fixed inset-0 z-[60]" role="presentation">
           <m.button
             type="button"
             aria-label="Close modal"
@@ -55,42 +86,64 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
             exit={overlayFade.exit}
             transition={overlayFade.transition}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
           />
+
           <div
-            className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center pointer-events-none"
+            className={cn(
+              "absolute inset-0 flex pointer-events-none",
+              isMobile ? "items-end" : "items-center justify-center p-4 sm:p-6"
+            )}
           >
             <m.div
               key={`add-to-cart-panel-${item.id}`}
               role="dialog"
               aria-modal="true"
               aria-labelledby="add-to-cart-title"
-              initial={{ opacity: 0, y: 32, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.97 }}
-              transition={modalSpring}
+              initial={
+                isMobile
+                  ? { y: "100%" }
+                  : { opacity: 0, y: 28, scale: 0.97 }
+              }
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={
+                isMobile
+                  ? { y: "100%", opacity: 1, scale: 1 }
+                  : { opacity: 0, y: 20, scale: 0.97 }
+              }
+              transition={isMobile ? sheetSpring : modalSpring}
               onClick={(e) => e.stopPropagation()}
-              className="pointer-events-auto w-full max-w-lg overflow-hidden rounded-3xl border border-cream/10 bg-surface-raised shadow-2xl"
+              className={cn(
+                "pointer-events-auto flex w-full flex-col overflow-hidden border border-cream/10 bg-surface-raised shadow-2xl",
+                isMobile
+                  ? "max-h-[88vh] rounded-t-3xl"
+                  : "max-h-[90vh] max-w-lg rounded-3xl"
+              )}
             >
-              <div className="relative aspect-video">
-                <Image
-                  src={item.imageUrl}
-                  alt={item.name}
-                  fill
-                  className="object-cover"
-                  sizes="512px"
-                />
+              <div className="relative shrink-0">
+                <div className="relative aspect-[16/10] max-h-[36vh] sm:aspect-video sm:max-h-none">
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, 512px"
+                    priority
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="absolute right-4 top-4 rounded-full bg-surface/80 p-2 text-cream backdrop-blur-sm transition-colors hover:bg-surface motion-safe:active:scale-90"
+                  className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-cream backdrop-blur-sm transition-colors hover:bg-black/70 motion-safe:active:scale-90 sm:right-4 sm:top-4"
                   aria-label="Close"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="space-y-5 p-6">
+              <div
+                className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-5 sm:p-6"
+              >
                 <div>
                   <h3
                     id="add-to-cart-title"
@@ -150,8 +203,9 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
               </div>
             </m.div>
           </div>
-        </>
+        </div>
       ) : null}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
