@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "@/lib/motion";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
@@ -46,7 +46,7 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
     <AnimatePresence>
       {item ? (
         <>
-          <motion.button
+          <m.button
             type="button"
             aria-label="Close modal"
             key="add-to-cart-backdrop"
@@ -60,7 +60,7 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
           <div
             className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center pointer-events-none"
           >
-            <motion.div
+            <m.div
               key={`add-to-cart-panel-${item.id}`}
               role="dialog"
               aria-modal="true"
@@ -148,7 +148,7 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
                   Add to Cart — {formatPrice(item.price * quantity)}
                 </Button>
               </div>
-            </motion.div>
+            </m.div>
           </div>
         </>
       ) : null}

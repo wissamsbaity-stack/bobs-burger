@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "@/lib/motion";
 import { ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { CartItemRow } from "@/components/cart/CartItemRow";
@@ -24,7 +24,7 @@ export function CartDrawer() {
     <AnimatePresence>
       {isOpen ? (
         <>
-          <motion.button
+          <m.button
             type="button"
             aria-label="Close cart"
             key="cart-backdrop"
@@ -35,7 +35,7 @@ export function CartDrawer() {
             onClick={closeCart}
             className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
           />
-          <motion.aside
+          <m.aside
             key="cart-drawer"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
@@ -80,11 +80,13 @@ export function CartDrawer() {
                   </Link>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {items.map((item) => (
-                    <CartItemRow key={item.id} item={item} />
-                  ))}
-                </div>
+                <m.div layout className="space-y-4">
+                  <AnimatePresence initial={false}>
+                    {items.map((item) => (
+                      <CartItemRow key={item.id} item={item} />
+                    ))}
+                  </AnimatePresence>
+                </m.div>
               )}
             </div>
 
@@ -111,7 +113,7 @@ export function CartDrawer() {
                 </Link>
               </div>
             ) : null}
-          </motion.aside>
+          </m.aside>
         </>
       ) : null}
     </AnimatePresence>

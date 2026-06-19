@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { m } from "@/lib/motion";
 import { MessageCircle, Truck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -18,7 +18,7 @@ export function OrderCTA() {
   return (
     <section className="py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -62,7 +62,7 @@ export function OrderCTA() {
               </Link>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

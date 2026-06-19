@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "@/lib/motion";
 import { useCart } from "@/contexts/CartContext";
 import { CartCountBadge } from "@/components/cart/CartCountBadge";
 import { RestaurantBrand } from "@/components/layout/RestaurantBrand";
@@ -85,7 +85,7 @@ export function Header() {
       <AnimatePresence>
         {mobileOpen ? (
           <>
-            <motion.button
+            <m.button
               type="button"
               aria-label="Close menu"
               initial={{ opacity: 0 }}
@@ -95,7 +95,7 @@ export function Header() {
               className="fixed inset-0 z-40 bg-black/55 md:hidden"
               onClick={() => setMobileOpen(false)}
             />
-            <motion.nav
+            <m.nav
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -14 }}
@@ -116,7 +116,7 @@ export function Header() {
 
               <div className="mx-auto max-w-7xl space-y-1 px-4 py-4">
                 {navLinks.map((link, index) => (
-                  <motion.div
+                  <m.div
                     key={link.href}
                     initial={{ opacity: 0, x: -12 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -138,9 +138,9 @@ export function Header() {
                     >
                       {link.label}
                     </Link>
-                  </motion.div>
+                  </m.div>
                 ))}
-                <motion.div
+                <m.div
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{
@@ -166,9 +166,9 @@ export function Header() {
                       />
                     ) : null}
                   </button>
-                </motion.div>
+                </m.div>
               </div>
-            </motion.nav>
+            </m.nav>
           </>
         ) : null}
       </AnimatePresence>

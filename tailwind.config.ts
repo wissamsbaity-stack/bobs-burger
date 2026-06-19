@@ -37,6 +37,14 @@ const config: Config = {
         "hero-radial":
           "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 92, 0, 0.08) 0%, transparent 70%)",
       },
+      keyframes: {
+        shimmer: {
+          "100%": { transform: "translateX(100%)" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 1.6s ease-in-out infinite",
+      },
     },
   },
   plugins: [],

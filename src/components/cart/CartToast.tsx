@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "@/lib/motion";
 import { Check, ShoppingBag, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
@@ -31,7 +31,7 @@ export function CartToast({
           className="pointer-events-none fixed inset-x-0 z-50 flex justify-center pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))] sm:pl-6 sm:pr-6"
           style={{ bottom: "max(1.5rem, env(safe-area-inset-bottom, 0px))" }}
         >
-          <motion.div
+          <m.div
             role="status"
             aria-live="polite"
             initial={{ opacity: 0, y: 24, scale: 0.92 }}
@@ -44,7 +44,7 @@ export function CartToast({
               className="flex cursor-pointer items-center gap-3 overflow-hidden rounded-2xl border border-accent/25 bg-surface-raised p-3 shadow-2xl shadow-accent/10 sm:gap-4 sm:p-4"
               onClick={onClose}
             >
-              <motion.div
+              <m.div
                 initial={{ scale: 0, rotate: -20 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{
@@ -56,9 +56,9 @@ export function CartToast({
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/15"
               >
                 <Check className="h-5 w-5 text-accent" aria-hidden />
-              </motion.div>
+              </m.div>
               <div className="min-w-0 flex-1 overflow-hidden">
-                <motion.p
+                <m.p
                   initial={{ opacity: 0, x: -6 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.2, delay: 0.05 }}
@@ -66,7 +66,7 @@ export function CartToast({
                   title={itemName}
                 >
                   {itemName}
-                </motion.p>
+                </m.p>
                 <p className="truncate text-sm text-cream/50">Added to cart</p>
               </div>
               <Button
@@ -95,7 +95,7 @@ export function CartToast({
                 <X className="h-4 w-4" aria-hidden />
               </button>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       ) : null}
     </AnimatePresence>

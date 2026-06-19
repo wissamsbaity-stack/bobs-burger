@@ -1,13 +1,18 @@
 "use client";
 
 import { memo, useCallback, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import type { Transition } from "framer-motion";
+import { m, useReducedMotion } from "@/lib/motion";
 import { Plus } from "lucide-react";
 import { MenuItemImage } from "@/components/menu/MenuItemImage";
 import { MenuItemBadges } from "@/components/menu/MenuItemBadges";
 import { Button } from "@/components/ui/Button";
 import { useCart } from "@/contexts/CartContext";
-import { cardReveal, revealStagger } from "@/lib/motion-presets";
+import {
+  cardReveal,
+  revealStagger,
+  staggerItemVariants,
+} from "@/lib/motion-presets";
 import { formatPrice } from "@/lib/utils";
 import type { MenuItem } from "@/types/menu";
 
@@ -17,6 +22,8 @@ interface MenuItemCardProps {
   compact?: boolean;
   imagePriority?: boolean;
   revealIndex?: number;
+  /** Use parent StaggerGrid stagger instead of individual whileInView */
+  stagger?: boolean;
 }
 
 const cardBaseClass =
@@ -28,6 +35,7 @@ function MenuItemCardComponent({
   compact = false,
   imagePriority = false,
   revealIndex = 0,
+  stagger = false,
 }: MenuItemCardProps) {
   const { addItem } = useCart();
   const [justAdded, setJustAdded] = useState(false);
@@ -53,23 +61,27 @@ function MenuItemCardComponent({
 
   const revealProps = prefersReducedMotion
     ? {}
-    : {
-        initial: cardReveal.initial,
-        whileInView: cardReveal.whileInView,
-        viewport: cardReveal.viewport,
-        transition: revealStagger(revealIndex),
-      };
+    : stagger
+      ? { variants: staggerItemVariants }
+      : {
+          initial: cardReveal.initial,
+          whileInView: cardReveal.whileInView,
+          viewport: cardReveal.viewport,
+          transition: revealStagger(revealIndex),
+        };
+
+  const pulseTransition: Transition | undefined = justAdded
+    ? { duration: 0.35, ease: "easeOut" }
+    : stagger
+      ? undefined
+      : revealStagger(revealIndex);
 
   if (compact) {
     return (
-      <motion.article
+      <m.article
         {...revealProps}
         animate={justAdded ? { scale: [1, 0.97, 1.02, 1] } : undefined}
-        transition={
-          justAdded
-            ? { duration: 0.35, ease: "easeOut" }
-            : revealProps.transition
-        }
+        transition={pulseTransition}
         className={`${cardBaseClass} flex gap-3 p-2.5`}
       >
         <div className="relative shrink-0">
@@ -104,23 +116,19 @@ function MenuItemCardComponent({
             Add
           </Button>
         </div>
-      </motion.article>
+      </m.article>
     );
   }
 
   return (
-    <motion.article
+    <m.article
       {...revealProps}
       animate={
         justAdded && !prefersReducedMotion
           ? { scale: [1, 0.97, 1.02, 1] }
           : undefined
       }
-      transition={
-        justAdded
-          ? { duration: 0.35, ease: "easeOut" }
-          : revealProps.transition
-      }
+      transition={pulseTransition}
       className={`${cardBaseClass} flex flex-col`}
     >
       <div className="relative">
@@ -159,7 +167,7 @@ function MenuItemCardComponent({
           Add to Cart
         </Button>
       </div>
-    </motion.article>
+    </m.article>
   );
 }
 

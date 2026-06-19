@@ -1,6 +1,6 @@
 /** Shared motion presets — fast, subtle, mobile-friendly */
 
-import type { Transition } from "framer-motion";
+import type { Transition, Variants } from "framer-motion";
 
 const easeOut = [0.25, 0.1, 0.25, 1] as const;
 
@@ -9,13 +9,6 @@ export const overlayFade = {
   animate: { opacity: 1 },
   exit: { opacity: 0 },
   transition: { duration: 0.2, ease: "easeOut" } satisfies Transition,
-};
-
-export const panelSpring = {
-  type: "spring" as const,
-  stiffness: 400,
-  damping: 34,
-  mass: 0.85,
 };
 
 export const drawerSpring = {
@@ -37,6 +30,45 @@ export const categoryCrossFade = {
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -6 },
   transition: { duration: 0.22, ease: easeOut } satisfies Transition,
+};
+
+export const pageEnter = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -6 },
+  transition: { duration: 0.28, ease: easeOut } satisfies Transition,
+};
+
+export const staggerContainerVariants: Variants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.04,
+      delayChildren: 0.03,
+    },
+  },
+};
+
+export const staggerItemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.32, ease: easeOut },
+  },
+};
+
+export const popInVariants: Variants = {
+  initial: { scale: 0.85, opacity: 0 },
+  animate: { scale: 1, opacity: 1 },
+  exit: { scale: 0.9, opacity: 0 },
+};
+
+export const popInTransition: Transition = {
+  type: "spring",
+  stiffness: 500,
+  damping: 28,
+  mass: 0.8,
 };
 
 export function revealStagger(index: number): Transition {

@@ -2,11 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "@/lib/motion";
 import { MenuSearch } from "@/components/menu/MenuSearch";
 import { CategoryTabs } from "@/components/menu/CategoryTabs";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { AddToCartModal } from "@/components/menu/AddToCartModal";
+import { StaggerGrid } from "@/components/motion/StaggerGrid";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { categoryCrossFade } from "@/lib/motion-presets";
 import type { Category, MenuItem } from "@/types/menu";
@@ -119,7 +120,7 @@ export default function MenuPageClient({
             className="scroll-mt-[var(--menu-category-scroll-offset)] mb-4 sm:mb-5"
           >
             <AnimatePresence mode="wait">
-              <motion.h2
+              <m.h2
                 key={activeCategoryName ?? "all"}
                 initial={categoryCrossFade.initial}
                 animate={categoryCrossFade.animate}
@@ -128,13 +129,13 @@ export default function MenuPageClient({
                 className="text-lg font-semibold text-cream sm:text-xl"
               >
                 {activeCategoryName}
-              </motion.h2>
+              </m.h2>
             </AnimatePresence>
           </div>
 
           <AnimatePresence mode="wait">
             {filteredItems.length === 0 ? (
-              <motion.div
+              <m.div
                 key="empty"
                 initial={categoryCrossFade.initial}
                 animate={categoryCrossFade.animate}
@@ -153,26 +154,29 @@ export default function MenuPageClient({
                 >
                   Clear filters
                 </button>
-              </motion.div>
+              </m.div>
             ) : (
-              <motion.div
+              <m.div
                 key={gridKey}
                 initial={categoryCrossFade.initial}
                 animate={categoryCrossFade.animate}
                 exit={categoryCrossFade.exit}
                 transition={categoryCrossFade.transition}
-                className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
               >
-                {filteredItems.map((item, index) => (
-                  <MenuItemCard
-                    key={item.id}
-                    item={item}
-                    revealIndex={index}
-                    imagePriority={index < 4}
-                    onCustomize={setModalItem}
-                  />
-                ))}
-              </motion.div>
+                <StaggerGrid
+                  className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
+                >
+                  {filteredItems.map((item, index) => (
+                    <MenuItemCard
+                      key={item.id}
+                      item={item}
+                      stagger
+                      imagePriority={index < 4}
+                      onCustomize={setModalItem}
+                    />
+                  ))}
+                </StaggerGrid>
+              </m.div>
             )}
           </AnimatePresence>
         </section>

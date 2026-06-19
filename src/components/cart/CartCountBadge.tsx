@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "@/lib/motion";
 
 interface CartCountBadgeProps {
   count: number;
@@ -14,7 +14,7 @@ export function CartCountBadge({ count, className }: CartCountBadgeProps) {
 
   return (
     <AnimatePresence mode="popLayout">
-      <motion.span
+      <m.span
         key={label}
         initial={{ scale: 0.4, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -28,7 +28,7 @@ export function CartCountBadge({ count, className }: CartCountBadgeProps) {
         className={className}
       >
         {label}
-      </motion.span>
+      </m.span>
     </AnimatePresence>
   );
 }

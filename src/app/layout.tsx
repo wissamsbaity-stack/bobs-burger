@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Bebas_Neue } from "next/font/google";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import { SiteChrome } from "@/components/layout/SiteChrome";
 import { CartProvider } from "@/contexts/CartContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -41,11 +42,13 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${dmSans.variable} ${bebasNeue.variable}`}>
       <body className="min-h-screen font-sans">
-        <SettingsProvider settings={settings}>
-          <CartProvider>
-            <SiteChrome>{children}</SiteChrome>
-          </CartProvider>
-        </SettingsProvider>
+        <MotionProvider>
+          <SettingsProvider settings={settings}>
+            <CartProvider>
+              <SiteChrome>{children}</SiteChrome>
+            </CartProvider>
+          </SettingsProvider>
+        </MotionProvider>
       </body>
     </html>
   );

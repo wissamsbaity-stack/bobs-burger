@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ShoppingBag } from "lucide-react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { m, AnimatePresence, useReducedMotion } from "@/lib/motion";
 import { useCart } from "@/contexts/CartContext";
 import { CartCountBadge } from "@/components/cart/CartCountBadge";
 import { cn } from "@/lib/utils";
@@ -24,7 +24,7 @@ export function FloatingCartButton() {
   return (
     <AnimatePresence>
       {itemCount > 0 ? (
-        <motion.button
+        <m.button
           type="button"
           initial={{ opacity: 0, y: 20, scale: 0.9 }}
           animate={{
@@ -50,7 +50,7 @@ export function FloatingCartButton() {
             count={itemCount}
             className="flex h-6 min-w-6 items-center justify-center rounded-full bg-white/20 px-1.5 text-xs font-bold"
           />
-        </motion.button>
+        </m.button>
       ) : null}
     </AnimatePresence>
   );

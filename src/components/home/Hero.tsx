@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { m } from "@/lib/motion";
 import { Flame, MessageCircle } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
@@ -21,7 +21,7 @@ export function Hero({ menuItemCount }: { menuItemCount: number }) {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,92,0,0.06)_0%,transparent_65%)]" />
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
@@ -75,9 +75,9 @@ export function Hero({ menuItemCount }: { menuItemCount: number }) {
               </div>
             ))}
           </div>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, delay: 0.15 }}
@@ -95,7 +95,7 @@ export function Hero({ menuItemCount }: { menuItemCount: number }) {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
           </div>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

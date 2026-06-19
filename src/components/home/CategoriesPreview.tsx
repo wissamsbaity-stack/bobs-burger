@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { m } from "@/lib/motion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { CategoryIcon } from "@/components/menu/CategoryIcon";
+import { StaggerGrid } from "@/components/motion/StaggerGrid";
+import { staggerItemVariants } from "@/lib/motion-presets";
 import type { Category } from "@/types/menu";
 import { useSettings } from "@/contexts/SettingsContext";
 
@@ -27,18 +29,12 @@ export function CategoriesPreview({ categories }: CategoriesPreviewProps) {
           className="mb-12"
         />
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {preview.map((category, index) => (
-            <motion.div
-              key={category.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.08 }}
-            >
+        <StaggerGrid className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {preview.map((category) => (
+            <m.div key={category.id} variants={staggerItemVariants}>
               <Link
                 href={`/menu?category=${category.slug}`}
-                className="group flex flex-col rounded-2xl border border-white/5 bg-surface-raised p-6 transition-all hover:border-accent/30 hover:shadow-card"
+                className="group flex flex-col rounded-2xl border border-white/5 bg-surface-raised p-6 transition-all hover:border-accent/30 hover:shadow-card motion-safe:active:scale-[0.98]"
               >
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-accent-muted text-accent transition-colors group-hover:bg-accent group-hover:text-white">
                   <CategoryIcon icon={category.icon} size={24} />
@@ -54,9 +50,9 @@ export function CategoriesPreview({ categories }: CategoriesPreviewProps) {
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </span>
               </Link>
-            </motion.div>
+            </m.div>
           ))}
-        </div>
+        </StaggerGrid>
       </div>
     </section>
   );
