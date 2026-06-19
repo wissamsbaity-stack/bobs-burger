@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, m } from "@/lib/motion";
 import { ChevronDown, X } from "lucide-react";
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
+import { AddToCartButton } from "@/components/menu/AddToCartButton";
 import { Textarea } from "@/components/ui/Textarea";
 import { useCart } from "@/contexts/CartContext";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
@@ -106,7 +106,6 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
       notes,
       quantity,
     });
-    onClose();
   };
 
   if (!mounted) return null;
@@ -243,14 +242,15 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
                   </div>
                 </div>
 
-                <Button
+                <AddToCartButton
+                  onAdd={handleAdd}
+                  onConfirmed={onClose}
                   variant="primary"
                   size="lg"
-                  className="w-full"
-                  onClick={handleAdd}
-                >
-                  Add to Cart — {formatPrice(item.price * quantity)}
-                </Button>
+                  fullWidth
+                  idleLabel={`Add to Cart — ${formatPrice(item.price * quantity)}`}
+                  addedLabel="Added"
+                />
               </div>
             </m.div>
           </div>

@@ -16,7 +16,6 @@ export function cartReducer(
       if (existing) {
         return {
           ...state,
-          isOpen: true,
           items: state.items.map((item) =>
             item.id === existing.id
               ? {
@@ -40,7 +39,6 @@ export function cartReducer(
 
       return {
         ...state,
-        isOpen: true,
         items: [...state.items, newItem],
       };
     }

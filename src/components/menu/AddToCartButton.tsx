@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 
 /**
  * Total time the button stays in its green "Added" state before reverting.
- * Kept within the 800–1200ms premium-feedback window.
+ * Kept within the 1–1.5s premium-feedback window (min 1s).
  */
-const SUCCESS_DURATION_MS = 1100;
+const SUCCESS_DURATION_MS = 1200;
 
 interface AddToCartButtonProps {
   /** Performs the actual add. Called on every click. */
@@ -20,16 +20,38 @@ interface AddToCartButtonProps {
    * (the modal handles its own confirmation).
    */
   confirm?: boolean;
+  /**
+   * Fired once the success state finishes (only when `confirm` is true).
+   * Useful for closing a modal *after* the user has seen the confirmation.
+   */
+  onConfirmed?: () => void;
+  variant?: "outline" | "primary";
+  size?: "sm" | "lg";
   fullWidth?: boolean;
   idleIcon?: ReactNode;
-  idleLabel?: string;
+  idleLabel?: ReactNode;
   addedLabel?: string;
   className?: string;
 }
 
+const sizeClasses = {
+  sm: "h-9 px-3 text-sm gap-1.5",
+  lg: "h-12 px-7 text-base gap-2",
+};
+
+const idleVariantClasses = {
+  outline:
+    "border border-white/20 bg-transparent text-cream hover:border-accent/50 hover:bg-accent-muted focus-visible:ring-accent/50",
+  primary:
+    "border border-transparent bg-accent text-white hover:bg-accent-hover focus-visible:ring-accent/50",
+};
+
 export function AddToCartButton({
   onAdd,
   confirm = true,
+  onConfirmed,
+  variant = "outline",
+  size = "sm",
   fullWidth = false,
   idleIcon,
   idleLabel = "Add to Cart",
@@ -39,6 +61,8 @@ export function AddToCartButton({
   const [added, setAdded] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onConfirmedRef = useRef(onConfirmed);
+  onConfirmedRef.current = onConfirmed;
 
   useEffect(
     () => () => {
@@ -56,8 +80,11 @@ export function AddToCartButton({
     timerRef.current = setTimeout(() => {
       setAdded(false);
       timerRef.current = null;
+      onConfirmedRef.current?.();
     }, SUCCESS_DURATION_MS);
   }, [onAdd, confirm]);
+
+  const checkSizeClass = size === "lg" ? "h-5 w-5" : "h-4 w-4";
 
   return (
     <m.button
@@ -71,15 +98,16 @@ export function AddToCartButton({
       }
       transition={
         added
-          ? { duration: 0.42, ease: "easeOut", times: [0, 0.3, 0.65, 1] }
+          ? { duration: 0.45, ease: "easeOut", times: [0, 0.3, 0.65, 1] }
           : { duration: 0.18 }
       }
-      aria-label={added ? addedLabel : undefined}
+      aria-label={added ? `${addedLabel} to cart` : undefined}
       className={cn(
-        "relative inline-flex h-9 items-center justify-center gap-1.5 overflow-hidden rounded-full px-3 text-sm font-semibold transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-ink",
+        "relative inline-flex items-center justify-center overflow-hidden rounded-full font-semibold transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-ink",
+        sizeClasses[size],
         added
           ? "border border-transparent bg-emerald-500 text-white focus-visible:ring-emerald-400/50"
-          : "border border-white/20 bg-transparent text-cream hover:border-accent/50 hover:bg-accent-muted focus-visible:ring-accent/50",
+          : idleVariantClasses[variant],
         fullWidth ? "w-full" : "w-fit",
         className
       )}
@@ -92,21 +120,24 @@ export function AddToCartButton({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.16 }}
-            className="inline-flex items-center gap-1.5"
+            className={cn(
+              "inline-flex items-center",
+              size === "lg" ? "gap-2" : "gap-1.5"
+            )}
           >
+            {addedLabel}
             <m.span
               initial={prefersReducedMotion ? false : { scale: 0, rotate: -35 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={
                 prefersReducedMotion
                   ? { duration: 0 }
-                  : { type: "spring", stiffness: 520, damping: 17, delay: 0.03 }
+                  : { type: "spring", stiffness: 520, damping: 17, delay: 0.04 }
               }
               className="inline-flex"
             >
-              <Check className="h-4 w-4" aria-hidden />
+              <Check className={checkSizeClass} aria-hidden />
             </m.span>
-            {addedLabel}
           </m.span>
         ) : (
           <m.span
@@ -115,7 +146,10 @@ export function AddToCartButton({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.16 }}
-            className="inline-flex items-center gap-1.5"
+            className={cn(
+              "inline-flex items-center",
+              size === "lg" ? "gap-2" : "gap-1.5"
+            )}
           >
             {idleIcon}
             {idleLabel}
