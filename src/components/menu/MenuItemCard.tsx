@@ -6,7 +6,7 @@ import { m, useReducedMotion } from "@/lib/motion";
 import { Plus } from "lucide-react";
 import { MenuItemImage } from "@/components/menu/MenuItemImage";
 import { MenuItemBadges } from "@/components/menu/MenuItemBadges";
-import { Button } from "@/components/ui/Button";
+import { AddToCartButton } from "@/components/menu/AddToCartButton";
 import { useCart } from "@/contexts/CartContext";
 import {
   cardReveal,
@@ -56,7 +56,7 @@ function MenuItemCardComponent({
     });
 
     setJustAdded(true);
-    window.setTimeout(() => setJustAdded(false), 500);
+    window.setTimeout(() => setJustAdded(false), 600);
   }, [addItem, item, onCustomize]);
 
   const revealProps = prefersReducedMotion
@@ -106,15 +106,13 @@ function MenuItemCardComponent({
           <p className="mb-2 line-clamp-1 text-xs text-muted">
             {item.description}
           </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleAdd}
-            className="mt-auto w-fit"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add
-          </Button>
+          <AddToCartButton
+            onAdd={handleAdd}
+            confirm={!onCustomize}
+            idleIcon={<Plus className="h-3.5 w-3.5" />}
+            idleLabel="Add"
+            className="mt-auto"
+          />
         </div>
       </m.article>
     );
@@ -157,15 +155,14 @@ function MenuItemCardComponent({
           {item.description}
         </p>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleAdd}
-          className="mt-auto w-full"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Add to Cart
-        </Button>
+        <AddToCartButton
+          onAdd={handleAdd}
+          confirm={!onCustomize}
+          fullWidth
+          idleIcon={<Plus className="h-3.5 w-3.5" />}
+          idleLabel="Add to Cart"
+          className="mt-auto"
+        />
       </div>
     </m.article>
   );
