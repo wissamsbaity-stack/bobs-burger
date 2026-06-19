@@ -45,7 +45,7 @@ export default async function RootLayout({
     <html lang="en" className={`${dmSans.variable} ${bebasNeue.variable}`}>
       <body className="min-h-screen font-sans">
         <Script id="splash-preflight" strategy="beforeInteractive">
-          {`try{if(!sessionStorage.getItem("${SPLASH_STORAGE_KEY}")){document.documentElement.classList.add("splash-active");}}catch(e){}`}
+          {`try{if(sessionStorage.getItem("${SPLASH_STORAGE_KEY}")){document.documentElement.classList.add("splash-seen");}}catch(e){}`}
         </Script>
         <MotionProvider>
           <SettingsProvider settings={settings}>

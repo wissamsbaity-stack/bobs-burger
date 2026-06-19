@@ -14,14 +14,10 @@
     }
   }
 
-  html.splash-active {
-    overflow: hidden;
-    background: #000;
-  }
-
-  html.splash-active #app-root {
-    opacity: 0;
-    pointer-events: none;
+  /* Returning visitors (this session) never see the splash, not even for a
+     single frame — handled purely in CSS so it works without JS. */
+  html.splash-seen .splash-screen {
+    display: none !important;
   }
 
   :root {
@@ -34,10 +30,6 @@
 
   body {
     @apply bg-ink text-cream antialiased;
-  }
-
-  #app-root {
-    transition: opacity 0.25s ease-out;
   }
 
   ::selection {
@@ -86,6 +78,19 @@
   }
 
   /* Branded splash — CSS-only for smooth low-end performance */
+
+  /* Absolute safety net: even if JS never hydrates or throws, the overlay is
+     forced out of the way after a fixed delay so the site is never blocked.
+     Only touches visibility/pointer-events (not opacity) so it never fights
+     the JS-driven fade-out animation. */
+  @keyframes splash-failsafe {
+    to {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+
   @keyframes splash-logo-in {
     from {
       opacity: 0;
@@ -142,6 +147,10 @@
     }
   }
 
+  .splash-screen {
+    animation: splash-failsafe 0.4s ease 2800ms forwards;
+  }
+
   .splash-screen .splash-logo {
     opacity: 0;
     transform: scale(0.92);
@@ -150,15 +159,16 @@
 
   .splash-screen--visible .splash-logo {
     opacity: 1;
-    animation: splash-logo-in 0.5s ease-out forwards;
+    animation: splash-logo-in 0.4s ease-out forwards;
   }
 
   .splash-screen--exit .splash-logo {
-    animation: splash-logo-out 0.35s ease-in forwards;
+    animation: splash-logo-out 0.4s ease-in forwards;
   }
 
+  /* Overrides the base failsafe animation with the real fade-out. */
   .splash-screen--exit {
-    animation: splash-screen-out 0.35s ease-in forwards;
+    animation: splash-screen-out 0.4s ease-in forwards;
   }
 
   .splash-glow {
