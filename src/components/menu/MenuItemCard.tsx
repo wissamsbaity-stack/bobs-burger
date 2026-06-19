@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
+import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import { MenuItemImage } from "@/components/menu/MenuItemImage";
 import { MenuItemBadges } from "@/components/menu/MenuItemBadges";
@@ -26,6 +27,7 @@ function MenuItemCardComponent({
   imagePriority = false,
 }: MenuItemCardProps) {
   const { addItem } = useCart();
+  const [justAdded, setJustAdded] = useState(false);
 
   const handleAdd = useCallback(() => {
     if (onCustomize) {
@@ -40,6 +42,9 @@ function MenuItemCardComponent({
       imageUrl: item.imageUrl,
       notes: "",
     });
+
+    setJustAdded(true);
+    window.setTimeout(() => setJustAdded(false), 500);
   }, [addItem, item, onCustomize]);
 
   if (compact) {
@@ -82,7 +87,13 @@ function MenuItemCardComponent({
   }
 
   return (
-    <article className={`${cardBaseClass} flex flex-col`}>
+    <motion.article
+      animate={
+        justAdded ? { scale: [1, 0.97, 1.02, 1] } : { scale: 1 }
+      }
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className={`${cardBaseClass} flex flex-col`}
+    >
       <div className="relative">
         <MenuItemImage
           src={item.imageUrl}
@@ -119,7 +130,7 @@ function MenuItemCardComponent({
           Add to Cart
         </Button>
       </div>
-    </article>
+    </motion.article>
   );
 }
 

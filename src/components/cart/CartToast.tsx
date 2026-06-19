@@ -11,6 +11,13 @@ interface CartToastProps {
   onViewCart: () => void;
 }
 
+const toastSpring = {
+  type: "spring" as const,
+  stiffness: 420,
+  damping: 30,
+  mass: 0.85,
+};
+
 export function CartToast({
   show,
   itemName,
@@ -27,23 +34,39 @@ export function CartToast({
           <motion.div
             role="status"
             aria-live="polite"
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+            initial={{ opacity: 0, y: 24, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 14, scale: 0.94 }}
+            transition={toastSpring}
             className="pointer-events-auto w-auto max-w-[90vw] sm:max-w-md"
           >
             <div
-              className="flex cursor-pointer items-center gap-3 overflow-hidden rounded-2xl border border-accent/20 bg-surface-raised p-3 shadow-2xl sm:gap-4 sm:p-4"
+              className="flex cursor-pointer items-center gap-3 overflow-hidden rounded-2xl border border-accent/25 bg-surface-raised p-3 shadow-2xl shadow-accent/10 sm:gap-4 sm:p-4"
               onClick={onClose}
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/15">
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 500,
+                  damping: 22,
+                  delay: 0.06,
+                }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/15"
+              >
                 <Check className="h-5 w-5 text-accent" aria-hidden />
-              </div>
+              </motion.div>
               <div className="min-w-0 flex-1 overflow-hidden">
-                <p className="truncate font-medium text-cream" title={itemName}>
+                <motion.p
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.2, delay: 0.05 }}
+                  className="truncate font-medium text-cream"
+                  title={itemName}
+                >
                   {itemName}
-                </p>
+                </motion.p>
                 <p className="truncate text-sm text-cream/50">Added to cart</p>
               </div>
               <Button
@@ -63,7 +86,7 @@ export function CartToast({
               <button
                 type="button"
                 aria-label="Dismiss notification"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-cream/50 transition-colors hover:bg-white/10 hover:text-cream"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-cream/50 transition-colors hover:bg-white/10 hover:text-cream motion-safe:active:scale-90"
                 onClick={(e) => {
                   e.stopPropagation();
                   onClose();
