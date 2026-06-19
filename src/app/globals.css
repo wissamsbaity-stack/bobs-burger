@@ -89,7 +89,7 @@
   @keyframes splash-logo-in {
     from {
       opacity: 0;
-      transform: scale(0.9);
+      transform: scale(0.92);
     }
     to {
       opacity: 1;
@@ -104,7 +104,7 @@
     }
     to {
       opacity: 0;
-      transform: scale(0.94);
+      transform: scale(0.96);
     }
   }
 
@@ -120,12 +120,12 @@
   @keyframes splash-glow-pulse {
     0%,
     100% {
-      opacity: 0.35;
+      opacity: 0.55;
       transform: scale(1);
     }
     50% {
-      opacity: 0.55;
-      transform: scale(1.12);
+      opacity: 0.78;
+      transform: scale(1.14);
     }
   }
 
@@ -144,25 +144,26 @@
 
   .splash-screen .splash-logo {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.92);
     will-change: opacity, transform;
   }
 
   .splash-screen--visible .splash-logo {
-    animation: splash-logo-in 0.45s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+    opacity: 1;
+    animation: splash-logo-in 0.5s ease-out forwards;
   }
 
   .splash-screen--exit .splash-logo {
-    animation: splash-logo-out 0.3s ease-in forwards;
+    animation: splash-logo-out 0.35s ease-in forwards;
   }
 
   .splash-screen--exit {
-    animation: splash-screen-out 0.3s ease-in forwards;
+    animation: splash-screen-out 0.35s ease-in forwards;
   }
 
   .splash-glow {
-    filter: blur(40px);
-    opacity: 0.4;
+    filter: blur(48px);
+    opacity: 0.6;
     will-change: opacity, transform;
   }
 
@@ -204,7 +205,7 @@
     }
 
     .splash-glow {
-      opacity: 0.4;
+      opacity: 0.55;
     }
   }
 }

@@ -1,14 +1,19 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useSettings } from "@/contexts/SettingsContext";
-import { SPLASH_STORAGE_KEY } from "@/lib/splash";
+import {
+  SPLASH_FADE_IN_MS,
+  SPLASH_EXIT_MS,
+  SPLASH_HOLD_MS,
+  SPLASH_STORAGE_KEY,
+} from "@/lib/splash";
 import { cn } from "@/lib/utils";
 
-const VISIBLE_MS = 1050;
-const EXIT_MS = 300;
-const REDUCED_VISIBLE_MS = 400;
+const REDUCED_HOLD_MS = 500;
+const REDUCED_EXIT_MS = 200;
+const LOGO_LOAD_TIMEOUT_MS = 2500;
 
 type SplashPhase = "initial" | "visible" | "exit" | "done";
 
@@ -19,12 +24,17 @@ function clearSplashLock() {
 export function SplashScreen() {
   const settings = useSettings();
   const [phase, setPhase] = useState<SplashPhase>("initial");
+  const [shouldRun, setShouldRun] = useState(false);
+  const [logoReady, setLogoReady] = useState(false);
+  const logoReadyRef = useRef(false);
+
+  const markLogoReady = useCallback(() => {
+    if (logoReadyRef.current) return;
+    logoReadyRef.current = true;
+    setLogoReady(true);
+  }, []);
 
   useLayoutEffect(() => {
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
     try {
       if (sessionStorage.getItem(SPLASH_STORAGE_KEY)) {
         clearSplashLock();
@@ -32,26 +42,44 @@ export function SplashScreen() {
         return;
       }
       sessionStorage.setItem(SPLASH_STORAGE_KEY, "1");
+      setShouldRun(true);
     } catch {
       clearSplashLock();
       setPhase("done");
-      return;
     }
+  }, []);
+
+  useEffect(() => {
+    if (!shouldRun || logoReady) return;
+
+    const fallback = window.setTimeout(markLogoReady, LOGO_LOAD_TIMEOUT_MS);
+    return () => window.clearTimeout(fallback);
+  }, [shouldRun, logoReady, markLogoReady]);
+
+  useEffect(() => {
+    if (!shouldRun || !logoReady || phase !== "initial") return;
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    const fadeIn = reducedMotion ? 0 : SPLASH_FADE_IN_MS;
+    const hold = reducedMotion ? REDUCED_HOLD_MS : SPLASH_HOLD_MS;
+    const exit = reducedMotion ? REDUCED_EXIT_MS : SPLASH_EXIT_MS;
 
     setPhase("visible");
 
-    const visibleDuration = reducedMotion ? REDUCED_VISIBLE_MS : VISIBLE_MS;
-    const exitTimer = window.setTimeout(() => setPhase("exit"), visibleDuration);
+    const exitTimer = window.setTimeout(() => setPhase("exit"), fadeIn + hold);
     const doneTimer = window.setTimeout(() => {
       setPhase("done");
       clearSplashLock();
-    }, visibleDuration + EXIT_MS);
+    }, fadeIn + hold + exit);
 
     return () => {
       window.clearTimeout(exitTimer);
       window.clearTimeout(doneTimer);
     };
-  }, []);
+  }, [shouldRun, logoReady, phase]);
 
   if (phase === "done") return null;
 
@@ -65,20 +93,27 @@ export function SplashScreen() {
       aria-hidden="true"
     >
       <div className="splash-logo-wrap relative flex items-center justify-center">
-        <div className="splash-glow pointer-events-none absolute h-32 w-32 rounded-full bg-accent/50 sm:h-40 sm:w-40" />
-        <div className="relative h-24 w-24 overflow-hidden rounded-2xl sm:h-28 sm:w-28">
+        <div
+          className="splash-glow pointer-events-none absolute z-0 h-44 w-44 rounded-full bg-accent/70 sm:h-52 sm:w-52"
+          aria-hidden
+        />
+        <div
+          className="relative z-10 h-[120px] w-[120px] overflow-hidden rounded-2xl shadow-[0_0_32px_rgba(255,92,0,0.25)] sm:h-36 sm:w-36"
+        >
           <Image
             src={settings.branding.logo}
             alt={settings.name}
             fill
             priority
             className="splash-logo object-cover"
-            sizes="112px"
+            sizes="(max-width: 640px) 120px, 144px"
+            onLoadingComplete={markLogoReady}
+            onLoad={markLogoReady}
           />
         </div>
       </div>
 
-      <div className="splash-dots mt-8 flex items-center gap-2">
+      <div className="splash-dots mt-10 flex items-center gap-2.5">
         <span className="splash-dot" />
         <span className="splash-dot" />
         <span className="splash-dot" />
