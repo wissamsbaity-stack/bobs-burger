@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, m } from "@/lib/motion";
-import { X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
@@ -25,6 +25,44 @@ const sheetSpring = {
   damping: 36,
   mass: 0.9,
 };
+
+const quantityButtonClass =
+  "flex h-9 w-9 items-center justify-center rounded-full text-cream/70 hover:bg-cream/10 motion-safe:active:scale-90";
+
+function CollapsibleDescription({ text }: { text: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = text.length > 72;
+
+  if (!text.trim()) return null;
+
+  return (
+    <div className="mt-1.5">
+      <p
+        className={cn(
+          "text-sm leading-snug text-cream/50",
+          !expanded && isLong && "line-clamp-2"
+        )}
+      >
+        {text}
+      </p>
+      {isLong ? (
+        <button
+          type="button"
+          onClick={() => setExpanded((open) => !open)}
+          className="mt-1 inline-flex items-center gap-0.5 text-xs font-medium text-accent hover:underline"
+        >
+          {expanded ? "Show less" : "Show more"}
+          <ChevronDown
+            className={cn(
+              "h-3.5 w-3.5 transition-transform",
+              expanded && "rotate-180"
+            )}
+          />
+        </button>
+      ) : null}
+    </div>
+  );
+}
 
 export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
   const [notes, setNotes] = useState("");
@@ -116,21 +154,25 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
               className={cn(
                 "pointer-events-auto flex w-full flex-col overflow-hidden border border-cream/10 bg-surface-raised shadow-2xl",
                 isMobile
-                  ? "max-h-[88vh] rounded-t-3xl"
+                  ? "h-[85vh] max-h-[88vh] rounded-t-3xl"
                   : "max-h-[90vh] max-w-lg rounded-3xl"
               )}
             >
-              <div className="relative shrink-0">
-                <div className="relative aspect-[16/10] max-h-[36vh] sm:aspect-video sm:max-h-none">
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 100vw, 512px"
-                    priority
-                  />
-                </div>
+              <div
+                className={cn(
+                  "relative shrink-0 overflow-hidden",
+                  "max-sm:h-[30vh] max-sm:max-h-[32%]",
+                  "sm:aspect-video sm:max-h-[220px]"
+                )}
+              >
+                <Image
+                  src={item.imageUrl}
+                  alt={item.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 512px"
+                  priority
+                />
                 <button
                   type="button"
                   onClick={onClose}
@@ -141,51 +183,60 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
                 </button>
               </div>
 
+              <div className="shrink-0 px-4 pt-3 pb-2 sm:px-6 sm:pt-4 sm:pb-3">
+                <h3
+                  id="add-to-cart-title"
+                  className="text-lg font-bold leading-tight text-cream sm:text-xl"
+                >
+                  {item.name}
+                </h3>
+                <p className="mt-1 text-base font-semibold text-mustard sm:text-lg">
+                  {formatPrice(item.price)}
+                </p>
+              </div>
+
               <div
-                className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain p-5 sm:p-6"
+                className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-2 sm:px-6 sm:pb-3"
               >
-                <div>
-                  <h3
-                    id="add-to-cart-title"
-                    className="text-xl font-bold text-cream"
-                  >
-                    {item.name}
-                  </h3>
-                  <p className="mt-1 text-sm text-cream/50">
-                    {item.description}
-                  </p>
-                  <p className="mt-2 text-lg font-semibold text-mustard">
-                    {formatPrice(item.price)}
-                  </p>
-                </div>
+                <CollapsibleDescription
+                  key={item.id}
+                  text={item.description}
+                />
 
                 <Textarea
                   label="Special instructions"
-                  placeholder="No pickles, extra sauce, well done..."
+                  placeholder="No pickles, extra sauce..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  rows={3}
+                  rows={2}
+                  className="mt-3 min-h-[4.5rem] resize-none py-2.5 sm:mt-4"
                 />
+              </div>
 
-                <div className="flex items-center justify-between">
+              <div
+                className="shrink-0 border-t border-cream/10 bg-surface-raised px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:py-4"
+              >
+                <div className="mb-3 flex items-center justify-between sm:mb-3">
                   <span className="text-sm font-medium text-cream/70">
                     Quantity
                   </span>
-                  <div className="flex items-center gap-3 rounded-full border border-cream/10 bg-surface p-1">
+                  <div className="flex items-center gap-2 rounded-full border border-cream/10 bg-surface p-1">
                     <button
                       type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="flex h-9 w-9 items-center justify-center rounded-full text-cream/70 hover:bg-cream/10 motion-safe:active:scale-90"
+                      className={quantityButtonClass}
+                      aria-label="Decrease quantity"
                     >
                       −
                     </button>
-                    <span className="w-6 text-center font-semibold text-cream">
+                    <span className="w-6 text-center text-sm font-semibold text-cream">
                       {quantity}
                     </span>
                     <button
                       type="button"
                       onClick={() => setQuantity(quantity + 1)}
-                      className="flex h-9 w-9 items-center justify-center rounded-full text-cream/70 hover:bg-cream/10 motion-safe:active:scale-90"
+                      className={quantityButtonClass}
+                      aria-label="Increase quantity"
                     >
                       +
                     </button>
