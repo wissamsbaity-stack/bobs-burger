@@ -7,6 +7,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { CartToastProvider } from "@/components/cart/CartToastProvider";
 import { FloatingCartButton } from "@/components/cart/FloatingCartButton";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { SplashScreen } from "@/components/layout/SplashScreen";
 
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -18,6 +19,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      <SplashScreen />
       <Header />
       <main>
         <PageTransition>{children}</PageTransition>
