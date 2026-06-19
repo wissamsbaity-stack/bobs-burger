@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { m } from "@/lib/motion";
-import { Flame, MessageCircle } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
 
@@ -14,87 +14,82 @@ export function Hero({ menuItemCount }: { menuItemCount: number }) {
     settings.whatsapp,
     settings.name
   );
-  const locationLabel = settings.address.city || settings.address.street;
+
+  const stats = [
+    { value: `${menuItemCount}+`, label: "Menu items" },
+    { value: "5★", label: "Customer rated" },
+  ];
 
   return (
     <section className="relative overflow-hidden bg-ink bg-hero-radial">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,92,0,0.06)_0%,transparent_65%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,92,0,0.08)_0%,transparent_65%)]" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
+      <div className="relative mx-auto flex max-w-3xl flex-col items-center px-4 py-20 text-center sm:px-6 sm:py-24 lg:py-32">
         <m.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
-          className="space-y-8"
+          className="relative"
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent-muted px-4 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-accent">
-            <Flame className="h-3.5 w-3.5" />
-            {locationLabel
-              ? `Char-grilled in ${locationLabel} since day one`
-              : settings.tagline}
-          </div>
-
-          <h1 className="font-display text-4xl font-bold leading-[1.05] tracking-tight text-cream sm:text-5xl lg:text-6xl xl:text-7xl">
-            Burgers built for serious cravings.
-          </h1>
-
-          <p className="max-w-xl text-lg leading-relaxed text-muted">
-            From classic smash patties to black angus stacks and Nashville-fried
-            chicken — every bite at {settings.name} is fire-grilled, loaded, and
-            made to order.
-          </p>
-
-          <div className="flex flex-wrap gap-4">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-whatsapp px-6 py-3.5 text-sm font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <MessageCircle className="h-5 w-5" />
-              Order on WhatsApp
-            </a>
-            <Link
-              href="/menu"
-              className="inline-flex items-center rounded-full border border-white/20 px-6 py-3.5 text-sm font-semibold text-cream transition-colors hover:border-white/40 hover:bg-white/5"
-            >
-              Browse the menu
-            </Link>
-          </div>
-
-          <div className="flex flex-wrap gap-10 border-t border-white/5 pt-8">
-            {[
-              { value: `${menuItemCount}+`, label: "Menu items" },
-              { value: "5★", label: "Customer rated" },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <p className="font-display text-3xl font-bold text-accent">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-sm text-muted">{stat.label}</p>
-              </div>
-            ))}
+          <div className="absolute inset-0 rounded-full bg-accent/25 blur-[60px]" />
+          <div className="relative h-24 w-24 overflow-hidden rounded-3xl shadow-ember ring-1 ring-white/10 sm:h-28 sm:w-28">
+            <Image
+              src={settings.branding.logo}
+              alt={settings.name}
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 640px) 96px, 112px"
+            />
           </div>
         </m.div>
 
-        <m.div
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="relative"
+        <m.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="mt-10 font-display text-4xl font-bold leading-[1.05] tracking-tight text-cream sm:text-6xl lg:text-7xl"
         >
-          <div className="absolute inset-0 rounded-full bg-accent/20 blur-[100px]" />
-          <div className="relative aspect-square overflow-hidden rounded-3xl shadow-ember">
-            <Image
-              src={settings.branding.heroBurger}
-              alt={`${settings.name} signature stack`}
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
-          </div>
+          Burgers built for serious cravings.
+        </m.h1>
+
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:justify-center sm:gap-4"
+        >
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-whatsapp px-7 py-4 text-base font-semibold text-white transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <MessageCircle className="h-5 w-5" />
+            Order on WhatsApp
+          </a>
+          <Link
+            href="/menu"
+            className="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-4 text-base font-semibold text-cream transition-colors hover:border-white/40 hover:bg-white/5"
+          >
+            Browse the menu
+          </Link>
+        </m.div>
+
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-14 flex items-center gap-12 border-t border-white/5 pt-8"
+        >
+          {stats.map((stat) => (
+            <div key={stat.label} className="text-center">
+              <p className="font-display text-3xl font-bold text-accent">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-sm text-muted">{stat.label}</p>
+            </div>
+          ))}
         </m.div>
       </div>
     </section>
