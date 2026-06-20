@@ -2582,7 +2582,7 @@
                                        "state":  "Lebanon",
                                        "city":  "Aramoun"
                                    },
-                       "currencySymbol":  "LL",
+                       "currencySymbol":  "$",
                        "brandLogo":  "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/2.jpg",
                        "legalName":  "BOB\u0027S BURGER \u0026 MORE S.A.R.L",
                        "coordinates":  {
@@ -2598,7 +2598,7 @@
                                   ],
                        "tagline":  "For Delivery",
                        "logo":  "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/pda_menus/ysf07740.png",
-                       "currency":  "LBP",
+                       "currency":  "USD",
                        "whatsappOrder":  "96170583901",
                        "sourceMenuUrl":  "https://menu.omegasoftware.ca/bobs",
                        "coverImage":  "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/cover8_2.jpg",

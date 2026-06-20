@@ -189,16 +189,18 @@ export function SettingsManager({
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             name="delivery_fee"
-            label="Delivery fee (LBP)"
+            label="Delivery fee (USD)"
             type="number"
             min={0}
+            step={0.5}
             defaultValue={settings?.delivery_fee ?? 0}
           />
           <Input
             name="min_order"
-            label="Minimum order (LBP)"
+            label="Minimum order (USD)"
             type="number"
             min={0}
+            step={0.5}
             defaultValue={settings?.min_order ?? 0}
           />
         </div>

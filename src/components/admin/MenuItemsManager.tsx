@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition, useEffect } from "react";
+import { useMemo, useRef, useState, useTransition, useEffect } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -12,8 +12,8 @@ import {
 } from "@/app/admin/(dashboard)/actions";
 import { uploadMenuImageClient } from "@/lib/admin/client-menu-image-upload";
 import type { CategoryRow, MenuItemRow } from "@/lib/supabase/types";
-import { formatPrice } from "@/lib/utils";
-import { Pencil, Trash2, Upload, X } from "lucide-react";
+import { cn, formatPrice } from "@/lib/utils";
+import { Pencil, Search, Trash2, Upload, X } from "lucide-react";
 
 export function MenuItemsManager({
   items,
@@ -26,6 +26,8 @@ export function MenuItemsManager({
   const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterQuery, setFilterQuery] = useState("");
   const [pending, startTransition] = useTransition();
   const fileRef = useRef<HTMLInputElement>(null);
   const formSectionRef = useRef<HTMLDivElement>(null);
@@ -105,6 +107,32 @@ export function MenuItemsManager({
     categories.map((c) => [c.id, c.name])
   );
 
+  const countByCategory = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const item of items) {
+      counts[item.category_id] = (counts[item.category_id] ?? 0) + 1;
+    }
+    return counts;
+  }, [items]);
+
+  const filteredItems = useMemo(() => {
+    const q = filterQuery.trim().toLowerCase();
+    return items.filter((item) => {
+      const matchesCategory =
+        filterCategory === "all" || item.category_id === filterCategory;
+      const matchesQuery = !q || item.name.toLowerCase().includes(q);
+      return matchesCategory && matchesQuery;
+    });
+  }, [items, filterCategory, filterQuery]);
+
+  const pillClass = (active: boolean) =>
+    cn(
+      "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",
+      active
+        ? "bg-accent text-white"
+        : "bg-white/5 text-cream/70 hover:bg-white/10 hover:text-cream"
+    );
+
   return (
     <div className="space-y-6 sm:space-y-8">
       <div
@@ -165,10 +193,10 @@ export function MenuItemsManager({
           />
           <Input
             name="price"
-            label="Price (LBP)"
+            label="Price (USD)"
             type="number"
             min={0}
-            step={1000}
+            step={0.5}
             defaultValue={editing?.price ?? ""}
             required
           />
@@ -274,12 +302,58 @@ export function MenuItemsManager({
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
-        <h2 className="mb-4 text-lg font-semibold text-cream">
-          All items ({items.length})
-        </h2>
+        <div className="mb-4 flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-lg font-semibold text-cream">Menu items</h2>
+            <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-muted">
+              Showing {filteredItems.length} of {items.length}
+            </span>
+          </div>
 
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+            <input
+              type="search"
+              value={filterQuery}
+              onChange={(e) => setFilterQuery(e.target.value)}
+              placeholder="Search items by name..."
+              className="min-h-11 w-full rounded-xl border border-white/10 bg-ink py-2.5 pl-10 pr-4 text-base text-cream placeholder:text-muted focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/20 sm:text-sm"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setFilterCategory("all")}
+              className={pillClass(filterCategory === "all")}
+            >
+              All Items
+              <span className="text-xs opacity-70">{items.length}</span>
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => setFilterCategory(cat.id)}
+                className={pillClass(filterCategory === cat.id)}
+              >
+                {cat.name}
+                <span className="text-xs opacity-70">
+                  {countByCategory[cat.id] ?? 0}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {filteredItems.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted">
+            No items match your filters.
+          </p>
+        ) : (
+          <>
         <ul className="divide-y divide-white/5 md:hidden">
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <li key={item.id} className="flex items-start justify-between gap-3 py-4 first:pt-0 last:pb-0">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium text-cream">{item.name}</p>
@@ -321,30 +395,30 @@ export function MenuItemsManager({
           ))}
         </ul>
 
-        <div className="hidden overflow-x-auto md:block">
+        <div className="hidden max-h-[60vh] overflow-auto rounded-xl border border-white/5 md:block">
           <table className="w-full min-w-[640px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-muted">
-                <th className="pb-3 pr-4 font-medium">Item</th>
-                <th className="pb-3 pr-4 font-medium">Category</th>
-                <th className="pb-3 pr-4 font-medium">Price</th>
-                <th className="pb-3 pr-4 font-medium">Status</th>
-                <th className="pb-3 font-medium">Actions</th>
+            <thead className="sticky top-0 z-10">
+              <tr className="text-muted">
+                <th className="border-b border-white/10 bg-surface-raised px-4 py-3 font-medium">Item</th>
+                <th className="border-b border-white/10 bg-surface-raised px-4 py-3 font-medium">Category</th>
+                <th className="border-b border-white/10 bg-surface-raised px-4 py-3 font-medium">Price</th>
+                <th className="border-b border-white/10 bg-surface-raised px-4 py-3 font-medium">Status</th>
+                <th className="border-b border-white/10 bg-surface-raised px-4 py-3 font-medium">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td className="py-3 pr-4">
+              {filteredItems.map((item) => (
+                <tr key={item.id} className="transition-colors hover:bg-white/[0.02]">
+                  <td className="px-4 py-3">
                     <p className="font-medium text-cream">{item.name}</p>
                   </td>
-                  <td className="py-3 pr-4 text-muted">
+                  <td className="px-4 py-3 text-muted">
                     {categoryMap[item.category_id] ?? item.category_id}
                   </td>
-                  <td className="py-3 pr-4 text-cream">
+                  <td className="px-4 py-3 text-cream">
                     {formatPrice(Number(item.price))}
                   </td>
-                  <td className="py-3 pr-4">
+                  <td className="px-4 py-3">
                     <span
                       className={
                         item.is_available
@@ -355,7 +429,7 @@ export function MenuItemsManager({
                       {item.is_available ? "Available" : "Hidden"}
                     </span>
                   </td>
-                  <td className="py-3">
+                  <td className="px-4 py-3">
                     <div className="flex gap-2">
                       <button
                         type="button"
@@ -378,6 +452,8 @@ export function MenuItemsManager({
             </tbody>
           </table>
         </div>
+          </>
+        )}
       </div>
     </div>
   );

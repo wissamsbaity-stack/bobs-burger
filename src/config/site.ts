@@ -6,6 +6,6 @@ export const siteConfig = {
   deliveryFee: 0,
   minOrder: 0,
   whatsappPhone: "96170583901",
-  currency: "LBP",
-  currencySymbol: "LL",
+  currency: "USD",
+  currencySymbol: "$",
 };
