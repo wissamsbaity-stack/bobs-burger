@@ -35,7 +35,7 @@ const config: Config = {
       },
       backgroundImage: {
         "hero-radial":
-          "radial-gradient(ellipse 80% 60% at 50% 40%, rgba(255, 92, 0, 0.08) 0%, transparent 70%)",
+          "radial-gradient(ellipse 120% 90% at 50% 0%, rgba(255, 92, 0, 0.14) 0%, rgba(255, 92, 0, 0.06) 35%, rgba(255, 92, 0, 0.02) 55%, transparent 80%)",
       },
       keyframes: {
         shimmer: {
