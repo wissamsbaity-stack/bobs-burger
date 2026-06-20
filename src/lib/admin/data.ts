@@ -23,14 +23,12 @@ export async function getAdminMenuItems(): Promise<MenuItemRow[]> {
 
 export async function getAdminStats() {
   const { supabase } = await requireAdmin();
-  const [categories, items, orders] = await Promise.all([
+  const [categories, items] = await Promise.all([
     supabase.from("categories").select("id", { count: "exact", head: true }),
     supabase.from("menu_items").select("id", { count: "exact", head: true }),
-    supabase.from("orders").select("id", { count: "exact", head: true }),
   ]);
   return {
     categories: categories.count ?? 0,
     menuItems: items.count ?? 0,
-    orders: orders.count ?? 0,
   };
 }

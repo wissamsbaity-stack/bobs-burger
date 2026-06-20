@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { getAdminStats } from "@/lib/admin/data";
-import { FolderOpen, UtensilsCrossed, Settings, ShoppingBag } from "lucide-react";
+import { FolderOpen, UtensilsCrossed, Settings } from "lucide-react";
 
 export const metadata = {
   title: "Admin Dashboard",
@@ -24,12 +24,6 @@ export default async function AdminDashboardPage() {
       icon: UtensilsCrossed,
     },
     {
-      label: "Orders",
-      value: stats.orders,
-      href: "/admin",
-      icon: ShoppingBag,
-    },
-    {
       label: "Settings",
       value: "—",
       href: "/admin/settings",
@@ -43,18 +37,18 @@ export default async function AdminDashboardPage() {
         title="Dashboard"
         description="Manage your restaurant menu, settings, and content."
       />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-3">
         {cards.map(({ label, value, href, icon: Icon }) => (
           <Link
             key={label}
             href={href}
-            className="rounded-2xl border border-white/10 bg-surface-raised p-5 transition-colors hover:border-accent/30"
+            className="rounded-2xl border border-white/10 bg-surface-raised p-6 transition-colors hover:border-accent/30 motion-safe:hover:scale-[1.01]"
           >
-            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-accent/15">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15">
               <Icon className="h-5 w-5 text-accent" />
             </div>
-            <p className="text-2xl font-semibold text-cream">{value}</p>
-            <p className="text-sm text-muted">{label}</p>
+            <p className="text-3xl font-semibold text-cream">{value}</p>
+            <p className="mt-1 text-sm text-muted">{label}</p>
           </Link>
         ))}
       </div>

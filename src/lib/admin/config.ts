@@ -8,7 +8,6 @@ export const adminConfig = {
     dashboard: "/admin",
     menu: "/admin/menu",
     categories: "/admin/categories",
-    orders: "/admin/orders",
     settings: "/admin/settings",
   },
 } as const;
