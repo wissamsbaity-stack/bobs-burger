@@ -28,10 +28,9 @@ class SupabaseMenuService implements MenuService {
       .from("menu_items")
       .select("*")
       .eq("is_available", true)
-      .order("display_order", { ascending: true })
       .order("name", { ascending: true });
     if (error) throw error;
-    return (data ?? []).map(mapMenuItem);
+    return sortMenuItems((data ?? []).map(mapMenuItem));
   }
 
   async getAllMenuItems(): Promise<MenuItem[]> {
@@ -39,10 +38,9 @@ class SupabaseMenuService implements MenuService {
     const { data, error } = await supabase
       .from("menu_items")
       .select("*")
-      .order("display_order", { ascending: true })
       .order("name", { ascending: true });
     if (error) throw error;
-    return (data ?? []).map(mapMenuItem);
+    return sortMenuItems((data ?? []).map(mapMenuItem));
   }
 
   async getItemsByCategory(categoryId: string): Promise<MenuItem[]> {
@@ -52,21 +50,22 @@ class SupabaseMenuService implements MenuService {
       .select("*")
       .eq("category_id", categoryId)
       .eq("is_available", true)
-      .order("display_order", { ascending: true })
       .order("name", { ascending: true });
     if (error) throw error;
-    return (data ?? []).map(mapMenuItem);
+    return sortMenuItems((data ?? []).map(mapMenuItem));
   }
 
   async searchItems(query: string): Promise<MenuItem[]> {
     const items = await this.getMenuItems();
     const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter(
-      (item) =>
-        item.name.toLowerCase().includes(q) ||
-        item.description.toLowerCase().includes(q) ||
-        item.tags.some((t) => t.toLowerCase().includes(q))
+    return sortMenuItems(
+      items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(q) ||
+          item.description.toLowerCase().includes(q) ||
+          (item.tags ?? []).some((t) => t.toLowerCase().includes(q))
+      )
     );
   }
 
@@ -110,7 +109,7 @@ class StaticMenuService implements MenuService {
         (item) =>
           item.name.toLowerCase().includes(normalized) ||
           item.description.toLowerCase().includes(normalized) ||
-          item.tags.some((tag) => tag.toLowerCase().includes(normalized))
+          (item.tags ?? []).some((tag) => tag.toLowerCase().includes(normalized))
       )
     );
   }
@@ -131,10 +130,38 @@ export const menuService: MenuService = isSupabaseConfigured()
   ? new SupabaseMenuService()
   : new StaticMenuService();
 
-export async function getMenuData() {
-  const [categories, menuItems] = await Promise.all([
-    menuService.getCategories(),
-    menuService.getMenuItems(),
-  ]);
-  return { categories, menuItems };
+export async function getMenuData(): Promise<{
+  categories: Category[];
+  menuItems: MenuItem[];
+}> {
+  try {
+    const [categories, menuItems] = await Promise.all([
+      menuService.getCategories(),
+      menuService.getMenuItems(),
+    ]);
+    return {
+      categories: categories ?? [],
+      menuItems: menuItems ?? [],
+    };
+  } catch (error) {
+    console.error("[getMenuData] Failed to load menu:", error);
+
+    if (isSupabaseConfigured()) {
+      try {
+        const fallback = new StaticMenuService();
+        const [categories, menuItems] = await Promise.all([
+          fallback.getCategories(),
+          fallback.getMenuItems(),
+        ]);
+        return {
+          categories: categories ?? [],
+          menuItems: menuItems ?? [],
+        };
+      } catch (fallbackError) {
+        console.error("[getMenuData] Static fallback failed:", fallbackError);
+      }
+    }
+
+    return { categories: [], menuItems: [] };
+  }
 }

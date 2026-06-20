@@ -25,3 +25,15 @@ export function mapsEmbedUrlFromAddress(
   const query = encodeURIComponent(formatFullAddress(address));
   return `https://maps.google.com/maps?q=${query}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 }
+
+/** Opens Google Maps — uses admin link when set, otherwise address search. */
+export function getGoogleMapsUrl(settings: {
+  googleMapsUrl?: string;
+  address: PublicSiteSettings["address"];
+}): string {
+  const custom = settings.googleMapsUrl?.trim();
+  if (custom) return custom;
+
+  const query = encodeURIComponent(formatFullAddress(settings.address));
+  return `https://www.google.com/maps/search/?api=1&query=${query}`;
+}

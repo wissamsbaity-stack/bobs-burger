@@ -4,7 +4,9 @@ import type { Category, MenuItem } from "@/types/menu";
 export function compareMenuItems(a: MenuItem, b: MenuItem): number {
   const orderDiff = (a.displayOrder ?? 0) - (b.displayOrder ?? 0);
   if (orderDiff !== 0) return orderDiff;
-  return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+  return (a.name ?? "").localeCompare(b.name ?? "", undefined, {
+    sensitivity: "base",
+  });
 }
 
 export function sortMenuItems(items: MenuItem[]): MenuItem[] {
@@ -12,7 +14,9 @@ export function sortMenuItems(items: MenuItem[]): MenuItem[] {
 }
 
 export function sortCategories(categories: Category[]): Category[] {
-  return [...categories].sort((a, b) => a.sortOrder - b.sortOrder);
+  return [...(categories ?? [])].sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+  );
 }
 
 /** Group items under their category in category sortOrder (Appetizers → Beverages). */

@@ -239,6 +239,8 @@ export async function updateSiteSettings(
     logo_url: String(formData.get("logo_url") ?? "").trim() || null,
     hero_image_url:
       String(formData.get("hero_image_url") ?? "").trim() || null,
+    google_maps_url:
+      String(formData.get("google_maps_url") ?? "").trim() || null,
     site_url: String(formData.get("site_url") ?? "").trim() || null,
     meta_description:
       String(formData.get("meta_description") ?? "").trim() || null,

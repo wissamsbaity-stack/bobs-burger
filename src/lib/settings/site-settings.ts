@@ -30,6 +30,7 @@ export interface PublicSiteSettings {
   };
   metaDescription: string;
   siteUrl: string;
+  googleMapsUrl: string;
 }
 
 function fromStatic(): PublicSiteSettings {
@@ -49,6 +50,7 @@ function fromStatic(): PublicSiteSettings {
     branding: { logo: restaurantInfo.branding.logo, heroImage: "" },
     metaDescription: siteConfig.description,
     siteUrl: siteConfig.url,
+    googleMapsUrl: "",
   };
 }
 
@@ -80,6 +82,7 @@ function mapRow(row: SiteSettingsRow): PublicSiteSettings {
     },
     metaDescription: row.meta_description ?? siteConfig.description,
     siteUrl: row.site_url ?? siteConfig.url,
+    googleMapsUrl: row.google_maps_url ?? "",
   };
 }
 

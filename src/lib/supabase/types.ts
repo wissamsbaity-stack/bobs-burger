@@ -68,6 +68,7 @@ export interface Database {
           facebook_url: string | null;
           logo_url: string | null;
           hero_image_url: string | null;
+          google_maps_url: string | null;
           site_url: string | null;
           meta_description: string | null;
           created_at: string;
@@ -94,6 +95,7 @@ export interface Database {
           facebook_url?: string | null;
           logo_url?: string | null;
           hero_image_url?: string | null;
+          google_maps_url?: string | null;
           site_url?: string | null;
           meta_description?: string | null;
           created_at?: string;
@@ -120,6 +122,7 @@ export interface Database {
           facebook_url?: string | null;
           logo_url?: string | null;
           hero_image_url?: string | null;
+          google_maps_url?: string | null;
           site_url?: string | null;
           meta_description?: string | null;
           created_at?: string;

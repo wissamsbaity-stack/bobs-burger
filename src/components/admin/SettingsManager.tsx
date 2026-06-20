@@ -127,6 +127,16 @@ export function SettingsManager({
           label="Country"
           defaultValue={settings?.address_country ?? "Lebanon"}
         />
+        <Input
+          name="google_maps_url"
+          label="Google Maps link (optional)"
+          placeholder="https://maps.google.com/..."
+          defaultValue={settings?.google_maps_url ?? ""}
+        />
+        <p className="text-xs text-muted">
+          Used by the mobile menu Location button. Leave empty to open a search
+          from the address above.
+        </p>
       </section>
 
       <section className="space-y-4">

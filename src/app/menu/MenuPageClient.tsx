@@ -44,12 +44,14 @@ function MenuItemGrid({
 }
 
 export default function MenuPageClient({
-  categories,
-  menuItems,
+  categories: categoriesProp,
+  menuItems: menuItemsProp,
 }: {
   categories: Category[];
   menuItems: MenuItem[];
 }) {
+  const categories = categoriesProp ?? [];
+  const menuItems = menuItemsProp ?? [];
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
@@ -95,24 +97,25 @@ export default function MenuPageClient({
       const q = searchQuery.trim().toLowerCase();
       filtered = filtered.filter(
         (item) =>
-          item.name.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q) ||
-          item.tags.some((tag) => tag.toLowerCase().includes(q))
+          (item.name ?? "").toLowerCase().includes(q) ||
+          (item.description ?? "").toLowerCase().includes(q) ||
+          (item.tags ?? []).some((tag) => tag.toLowerCase().includes(q))
       );
     }
 
     return sortMenuItems(filtered);
   }, [activeCategory, searchQuery, menuItems]);
 
-  const showGrouped = activeCategory === "all";
-
   const groupedSections = useMemo(
     () =>
-      showGrouped
+      activeCategory === "all"
         ? groupMenuItemsByCategory(filteredItems, categories)
         : [],
-    [showGrouped, filteredItems, categories]
+    [activeCategory, filteredItems, categories]
   );
+
+  const showGrouped =
+    activeCategory === "all" && groupedSections.length > 0;
 
   const activeCategoryName =
     activeCategory === "all"
@@ -120,6 +123,9 @@ export default function MenuPageClient({
       : categories.find((c) => c.id === activeCategory)?.name;
 
   const gridKey = `${activeCategory}-${searchQuery.trim().toLowerCase()}`;
+
+  const hasActiveFilters =
+    searchQuery.trim() !== "" || activeCategory !== "all";
 
   return (
     <div className="pb-20">
@@ -184,17 +190,23 @@ export default function MenuPageClient({
                 transition={categoryCrossFade.transition}
                 className="rounded-2xl border border-cream/5 bg-surface-raised py-16 text-center"
               >
-                <p className="text-cream/50">No items match your search</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    handleCategoryChange("all");
-                  }}
-                  className="mt-4 text-sm font-medium text-accent hover:underline"
-                >
-                  Clear filters
-                </button>
+                <p className="text-cream/50">
+                  {hasActiveFilters
+                    ? "No items match your search"
+                    : "Menu items are not available right now"}
+                </p>
+                {hasActiveFilters ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      handleCategoryChange("all");
+                    }}
+                    className="mt-4 text-sm font-medium text-accent hover:underline"
+                  >
+                    Clear filters
+                  </button>
+                ) : null}
               </m.div>
             ) : showGrouped ? (
               <m.div
