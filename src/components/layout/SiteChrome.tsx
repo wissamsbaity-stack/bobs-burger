@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { FloatingCartButton } from "@/components/cart/FloatingCartButton";
+import { FloatingWhatsAppButton } from "@/components/layout/FloatingWhatsAppButton";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { SplashScreen } from "@/components/layout/SplashScreen";
 
@@ -26,6 +27,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       <Footer />
       <CartDrawer />
       <FloatingCartButton />
+      <FloatingWhatsAppButton />
     </>
   );
 }

@@ -7,6 +7,7 @@ import { useCart } from "@/contexts/CartContext";
 import { CartItemRow } from "@/components/cart/CartItemRow";
 import { Button } from "@/components/ui/Button";
 import { drawerSpring, overlayFade } from "@/lib/motion-presets";
+import { useOverlayLock } from "@/lib/overlay-store";
 import { formatPrice } from "@/lib/utils";
 
 export function CartDrawer() {
@@ -19,6 +20,8 @@ export function CartDrawer() {
     total,
     itemCount,
   } = useCart();
+
+  useOverlayLock(isOpen);
 
   return (
     <AnimatePresence>

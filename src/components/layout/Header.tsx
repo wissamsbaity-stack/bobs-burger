@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, MessageCircle, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { m, AnimatePresence } from "@/lib/motion";
-import { useSettings } from "@/contexts/SettingsContext";
-import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
+import { useOverlayLock } from "@/lib/overlay-store";
 import { RestaurantBrand } from "@/components/layout/RestaurantBrand";
 import { cn } from "@/lib/utils";
 
@@ -25,14 +24,9 @@ const panelSpring = {
 
 export function Header() {
   const pathname = usePathname();
-  const settings = useSettings();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const whatsappUrl = buildWhatsAppContactUrl(
-    undefined,
-    settings.whatsapp,
-    settings.name
-  );
+  useOverlayLock(mobileOpen);
 
   return (
     <>
@@ -57,15 +51,6 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-1 inline-flex items-center gap-2 rounded-full bg-whatsapp px-5 py-2 text-sm font-semibold text-white transition-colors hover:brightness-110 motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]"
-            >
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp
-            </a>
           </nav>
 
           <div className="flex shrink-0 items-center md:hidden">
@@ -141,26 +126,6 @@ export function Header() {
                     </Link>
                   </m.div>
                 ))}
-                <m.div
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    delay: 0.04 + navLinks.length * 0.04,
-                    duration: 0.22,
-                    ease: "easeOut",
-                  }}
-                >
-                  <a
-                    href={whatsappUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setMobileOpen(false)}
-                    className="flex w-full items-center gap-2 rounded-xl bg-whatsapp px-4 py-3 text-base font-semibold text-white motion-safe:transition-transform motion-safe:duration-150 motion-safe:active:scale-[0.98]"
-                  >
-                    <MessageCircle className="h-5 w-5" />
-                    WhatsApp
-                  </a>
-                </m.div>
               </div>
             </m.nav>
           </>

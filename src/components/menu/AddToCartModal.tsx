@@ -9,6 +9,7 @@ import { AddToCartButton } from "@/components/menu/AddToCartButton";
 import { Textarea } from "@/components/ui/Textarea";
 import { useCart } from "@/contexts/CartContext";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useOverlayLock } from "@/lib/overlay-store";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { modalSpring, overlayFade } from "@/lib/motion-presets";
 import { cn, formatPrice } from "@/lib/utils";
@@ -72,6 +73,7 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
   const isMobile = useIsMobile();
 
   useBodyScrollLock(Boolean(item));
+  useOverlayLock(Boolean(item));
 
   useEffect(() => {
     setMounted(true);
