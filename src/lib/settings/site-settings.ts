@@ -26,8 +26,6 @@ export interface PublicSiteSettings {
   };
   branding: {
     logo: string;
-    cover: string;
-    heroBurger: string;
   };
   metaDescription: string;
   siteUrl: string;
@@ -77,8 +75,6 @@ function mapRow(row: SiteSettingsRow): PublicSiteSettings {
     },
     branding: {
       logo: row.logo_url ?? restaurantInfo.branding.logo,
-      cover: row.cover_url ?? restaurantInfo.branding.cover,
-      heroBurger: row.hero_image_url ?? restaurantInfo.branding.heroBurger,
     },
     metaDescription: row.meta_description ?? siteConfig.description,
     siteUrl: row.site_url ?? siteConfig.url,

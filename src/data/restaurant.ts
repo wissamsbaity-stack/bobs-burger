@@ -20,8 +20,5 @@ export const restaurantInfo = {
   },
   branding: {
     logo: "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/2.jpg",
-    cover: "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/cover8_2.jpg",
-    heroBurger:
-      "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/SalesItems/ysf03919_2.png",
   },
 } as const;
