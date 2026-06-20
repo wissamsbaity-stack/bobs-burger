@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import { ShoppingBag } from "lucide-react";
 import { m, AnimatePresence, useReducedMotion } from "@/lib/motion";
 import { useCart } from "@/contexts/CartContext";
-import { CartCountBadge } from "@/components/cart/CartCountBadge";
-import { cn } from "@/lib/utils";
 
 export function FloatingCartButton() {
   const { itemCount, openCart } = useCart();
@@ -30,7 +28,7 @@ export function FloatingCartButton() {
           animate={{
             opacity: 1,
             y: 0,
-            scale: bump && !prefersReducedMotion ? [1, 1.06, 1] : 1,
+            scale: bump && !prefersReducedMotion ? [1, 1.08, 1] : 1,
           }}
           exit={{ opacity: 0, y: 20, scale: 0.9 }}
           transition={{
@@ -38,18 +36,12 @@ export function FloatingCartButton() {
             default: { type: "spring", stiffness: 420, damping: 28 },
           }}
           onClick={openCart}
-          className={cn(
-            "fixed bottom-6 right-4 z-40 flex items-center gap-2 rounded-full bg-accent px-5 py-3.5 text-sm font-semibold text-white shadow-float motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-105 motion-safe:active:scale-95 md:hidden"
-          )}
+          className="fixed bottom-6 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_-4px_rgba(255,92,0,0.55),0_0_22px_rgba(255,92,0,0.35)] ring-1 ring-accent/40 motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-105 motion-safe:active:scale-95 sm:right-6"
           style={{ bottom: "max(1.5rem, env(safe-area-inset-bottom, 0px))" }}
           aria-label={`Open cart, ${itemCount} items`}
         >
-          <ShoppingBag className="h-5 w-5" />
-          Cart
-          <CartCountBadge
-            count={itemCount}
-            className="flex h-6 min-w-6 items-center justify-center rounded-full bg-white/20 px-1.5 text-xs font-bold"
-          />
+          <ShoppingBag className="h-4 w-4" />
+          Cart ({itemCount})
         </m.button>
       ) : null}
     </AnimatePresence>

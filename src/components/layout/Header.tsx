@@ -2,18 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, ShoppingBag, X } from "lucide-react";
+import { Menu, MessageCircle, X } from "lucide-react";
 import { useState } from "react";
 import { m, AnimatePresence } from "@/lib/motion";
-import { useCart } from "@/contexts/CartContext";
-import { CartCountBadge } from "@/components/cart/CartCountBadge";
+import { useSettings } from "@/contexts/SettingsContext";
+import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
 import { RestaurantBrand } from "@/components/layout/RestaurantBrand";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
-  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -26,8 +25,14 @@ const panelSpring = {
 
 export function Header() {
   const pathname = usePathname();
+  const settings = useSettings();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { itemCount, openCart } = useCart();
+
+  const whatsappUrl = buildWhatsAppContactUrl(
+    undefined,
+    settings.whatsapp,
+    settings.name
+  );
 
   return (
     <>
@@ -52,27 +57,23 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-1 inline-flex items-center gap-2 rounded-full bg-whatsapp px-5 py-2 text-sm font-semibold text-white transition-colors hover:brightness-110 motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]"
+            >
+              <MessageCircle className="h-4 w-4" />
+              WhatsApp
+            </a>
           </nav>
 
-          <div className="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              onClick={openCart}
-              className="hidden items-center gap-2 rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-accent-hover motion-safe:transition-transform motion-safe:duration-150 motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.97] sm:flex"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              Cart
-              <CartCountBadge
-                count={itemCount}
-                className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white/20 px-1 text-xs font-bold"
-              />
-            </button>
-
+          <div className="flex shrink-0 items-center md:hidden">
             {!mobileOpen ? (
               <button
                 type="button"
                 onClick={() => setMobileOpen(true)}
-                className="flex h-10 w-10 items-center justify-center rounded-full text-cream motion-safe:transition-transform motion-safe:duration-150 motion-safe:active:scale-90 md:hidden"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-cream motion-safe:transition-transform motion-safe:duration-150 motion-safe:active:scale-90"
                 aria-label="Open menu"
               >
                 <Menu className="h-5 w-5" />
@@ -149,23 +150,16 @@ export function Header() {
                     ease: "easeOut",
                   }}
                 >
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileOpen(false);
-                      openCart();
-                    }}
-                    className="flex w-full items-center gap-2 rounded-xl bg-accent px-4 py-3 text-base font-semibold text-white motion-safe:transition-transform motion-safe:duration-150 motion-safe:active:scale-[0.98]"
+                  <a
+                    href={whatsappUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex w-full items-center gap-2 rounded-xl bg-whatsapp px-4 py-3 text-base font-semibold text-white motion-safe:transition-transform motion-safe:duration-150 motion-safe:active:scale-[0.98]"
                   >
-                    <ShoppingBag className="h-5 w-5" />
-                    Cart
-                    {itemCount > 0 ? (
-                      <CartCountBadge
-                        count={itemCount}
-                        className="flex h-6 min-w-6 items-center justify-center rounded-full bg-white/20 px-1.5 text-xs font-bold"
-                      />
-                    ) : null}
-                  </button>
+                    <MessageCircle className="h-5 w-5" />
+                    WhatsApp
+                  </a>
                 </m.div>
               </div>
             </m.nav>
