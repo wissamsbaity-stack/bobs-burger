@@ -92,7 +92,12 @@ export function cartReducer(
 }
 
 export function getCartSubtotal(items: CartItem[]): number {
-  return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  return items.reduce((sum, item) => sum + getCartLineTotal(item), 0);
+}
+
+export function getCartLineTotal(item: CartItem): number {
+  const quantity = Math.max(1, Number(item.quantity) || 1);
+  return item.price * quantity;
 }
 
 export function getCartItemCount(items: CartItem[]): number {
@@ -107,7 +112,12 @@ export function loadCartFromStorage(): CartItem[] {
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (!stored) return [];
-    return JSON.parse(stored) as CartItem[];
+    const parsed = JSON.parse(stored) as CartItem[];
+    return parsed.map((item) => ({
+      ...item,
+      quantity: Math.max(1, Number(item.quantity) || 1),
+      price: Number(item.price) || 0,
+    }));
   } catch {
     return [];
   }

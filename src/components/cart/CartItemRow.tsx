@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { m, AnimatePresence } from "@/lib/motion";
 import { useCart } from "@/contexts/CartContext";
+import { getCartLineTotal } from "@/lib/cart";
 import { popInTransition, popInVariants } from "@/lib/motion-presets";
 import { formatPrice } from "@/lib/utils";
 import type { CartItem } from "@/types/cart";
@@ -17,6 +18,7 @@ const actionButtonClass =
 
 export function CartItemRow({ item }: CartItemRowProps) {
   const { updateQuantity, updateNotes, removeItem } = useCart();
+  const lineTotal = getCartLineTotal(item);
 
   return (
     <m.div
@@ -89,7 +91,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
         </div>
         <AnimatePresence mode="popLayout" initial={false}>
           <m.p
-            key={item.price * item.quantity}
+            key={lineTotal}
             variants={popInVariants}
             initial="initial"
             animate="animate"
@@ -97,7 +99,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
             transition={popInTransition}
             className="text-sm font-semibold text-cream"
           >
-            {formatPrice(item.price * item.quantity)}
+            {formatPrice(lineTotal)}
           </m.p>
         </AnimatePresence>
       </div>

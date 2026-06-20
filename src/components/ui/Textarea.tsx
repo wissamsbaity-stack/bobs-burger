@@ -4,11 +4,12 @@ import { cn } from "@/lib/utils";
 export interface TextareaProps
   extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
+  labelHint?: string;
   error?: string;
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, label, error, id, ...props }, ref) => {
+  ({ className, label, labelHint, error, id, ...props }, ref) => {
     const inputId = id ?? label?.toLowerCase().replace(/\s+/g, "-");
 
     return (
@@ -19,6 +20,11 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             className="block text-sm font-medium text-cream/80"
           >
             {label}
+            {labelHint ? (
+              <span className="ml-1.5 text-xs font-normal text-muted">
+                {labelHint}
+              </span>
+            ) : null}
           </label>
         ) : null}
         <textarea

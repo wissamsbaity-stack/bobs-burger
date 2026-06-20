@@ -1,5 +1,6 @@
 import type { CartItem } from "@/types/cart";
 import type { DeliveryDetails } from "@/types/order";
+import { getCartLineTotal } from "@/lib/cart";
 import { formatLebanonPhoneForWhatsApp, formatPrice } from "./utils";
 import { siteConfig } from "@/config/site";
 
@@ -43,7 +44,7 @@ export function buildWhatsAppOrderMessage({
   lines.push("", "*Order Items*");
 
   items.forEach((item, index) => {
-    const lineTotal = item.price * item.quantity;
+    const lineTotal = getCartLineTotal(item);
     lines.push(
       `${index + 1}. ${item.name} x${item.quantity} — ${formatPrice(lineTotal)}`
     );

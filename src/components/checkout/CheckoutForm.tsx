@@ -6,6 +6,7 @@ import { MessageCircle, Truck } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
+import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import {
@@ -143,11 +144,14 @@ export function CheckoutForm() {
 
       <Textarea
         label="Delivery Instructions"
+        labelHint="(Optional)"
         placeholder="Ring the doorbell, gate code, landmarks..."
         value={form.deliveryInstructions}
         onChange={(e) => updateField("deliveryInstructions", e.target.value)}
         rows={3}
       />
+
+      <OrderSummary />
 
       <div className="rounded-xl border border-white/10 bg-accent/5 p-4 sm:p-5">
         <div className="flex gap-3 sm:gap-4">
@@ -155,13 +159,9 @@ export function CheckoutForm() {
             <Truck className="h-5 w-5 text-accent" aria-hidden />
           </div>
           <div className="min-w-0 space-y-1">
-            <p className="text-sm font-medium text-cream">
-              Delivery fee
-            </p>
-            <p className="text-sm leading-relaxed text-cream/75">
-              Delivery fees are calculated by the restaurant based on your
-              location and will be confirmed after your order is received via
-              WhatsApp.
+            <p className="text-sm font-medium text-cream">Delivery fee</p>
+            <p className="text-sm text-cream/75">
+              Delivery fee confirmed via WhatsApp.
             </p>
           </div>
         </div>
