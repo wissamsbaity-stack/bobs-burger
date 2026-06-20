@@ -81,6 +81,7 @@ function MenuItemCardComponent({
       <m.article
         {...revealProps}
         animate={justAdded ? { scale: [1, 0.97, 1.02, 1] } : undefined}
+        whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
         transition={pulseTransition}
         className={`${cardBaseClass} flex gap-3 p-2.5`}
       >
@@ -99,7 +100,7 @@ function MenuItemCardComponent({
             <h3 className="text-sm font-semibold leading-snug text-cream">
               {item.name}
             </h3>
-            <p className="mt-0.5 text-sm font-semibold text-accent">
+            <p className="mt-0.5 text-base font-bold text-accent">
               {formatPrice(item.price)}
             </p>
           </div>
@@ -126,6 +127,7 @@ function MenuItemCardComponent({
           ? { scale: [1, 0.97, 1.02, 1] }
           : undefined
       }
+      whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
       transition={pulseTransition}
       className={`${cardBaseClass} flex flex-col`}
     >
@@ -146,7 +148,7 @@ function MenuItemCardComponent({
           >
             {item.name}
           </h3>
-          <p className="mt-1 text-sm font-semibold text-accent">
+          <p className="mt-1 text-base font-bold text-accent sm:text-lg">
             {formatPrice(item.price)}
           </p>
         </div>

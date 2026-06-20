@@ -224,6 +224,12 @@ export function SettingsManager({
           defaultValue={settings?.logo_url ?? ""}
           previewAlt={settings?.restaurant_name ?? "Restaurant logo"}
         />
+        <SettingsImageField
+          name="hero_image_url"
+          label="Restaurant hero image"
+          defaultValue={settings?.hero_image_url ?? ""}
+          previewAlt={settings?.restaurant_name ?? "Restaurant hero image"}
+        />
       </section>
 
       {error ? <p className="text-sm text-red-400">{error}</p> : null}

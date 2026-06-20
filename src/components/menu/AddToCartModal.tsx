@@ -155,14 +155,14 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
               className={cn(
                 "pointer-events-auto flex w-full flex-col overflow-hidden border border-cream/10 bg-surface-raised shadow-2xl",
                 isMobile
-                  ? "h-[85vh] max-h-[88vh] rounded-t-3xl"
-                  : "max-h-[90vh] max-w-lg rounded-3xl"
+                  ? "h-[85dvh] max-h-[88dvh] rounded-t-3xl"
+                  : "max-h-[90dvh] max-w-lg rounded-3xl"
               )}
             >
               <div
                 className={cn(
                   "relative shrink-0 overflow-hidden",
-                  "max-sm:h-[30vh] max-sm:max-h-[32%]",
+                  "max-sm:h-[28dvh] max-sm:max-h-[30%]",
                   "sm:aspect-video sm:max-h-[220px]"
                 )}
               >

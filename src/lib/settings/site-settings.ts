@@ -26,6 +26,7 @@ export interface PublicSiteSettings {
   };
   branding: {
     logo: string;
+    heroImage: string;
   };
   metaDescription: string;
   siteUrl: string;
@@ -45,7 +46,7 @@ function fromStatic(): PublicSiteSettings {
     deliveryFee: siteConfig.deliveryFee,
     minOrder: siteConfig.minOrder,
     social: { ...restaurantInfo.social },
-    branding: { ...restaurantInfo.branding },
+    branding: { logo: restaurantInfo.branding.logo, heroImage: "" },
     metaDescription: siteConfig.description,
     siteUrl: siteConfig.url,
   };
@@ -75,6 +76,7 @@ function mapRow(row: SiteSettingsRow): PublicSiteSettings {
     },
     branding: {
       logo: row.logo_url ?? restaurantInfo.branding.logo,
+      heroImage: row.hero_image_url ?? "",
     },
     metaDescription: row.meta_description ?? siteConfig.description,
     siteUrl: row.site_url ?? siteConfig.url,

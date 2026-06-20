@@ -8,8 +8,8 @@ interface BadgeProps {
 
 const variants = {
   default: "bg-cream/10 text-cream/80",
-  popular: "bg-accent/90 text-white shadow-sm",
-  bestSeller: "bg-cream text-ink shadow-sm",
+  popular: "bg-accent/90 text-white shadow-sm backdrop-blur-sm",
+  bestSeller: "bg-cream/95 text-ink shadow-sm backdrop-blur-sm",
   tag: "bg-surface-overlay text-cream/60",
 };
 

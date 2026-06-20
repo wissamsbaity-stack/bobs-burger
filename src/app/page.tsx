@@ -5,14 +5,11 @@ import { Hero } from "@/components/home/Hero";
 import { menuService } from "@/lib/menu-service";
 
 export default async function HomePage() {
-  const [categories, menuItems] = await Promise.all([
-    menuService.getCategories(),
-    menuService.getMenuItems(),
-  ]);
+  const categories = await menuService.getCategories();
 
   return (
     <>
-      <Hero menuItemCount={menuItems.length} />
+      <Hero />
       <CategoriesPreview categories={categories} />
       <OrderCTA />
     </>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { useSettings } from "@/contexts/SettingsContext";
 import { cn } from "@/lib/utils";
 
 interface MenuItemImageProps {
@@ -19,7 +20,13 @@ export function MenuItemImage({
   compact = false,
   className,
 }: MenuItemImageProps) {
+  const settings = useSettings();
+  const fallback = settings.branding.logo;
+
   const [loaded, setLoaded] = useState(false);
+  // If the item image fails (or is missing), fall back to the restaurant logo
+  // so a card never renders an empty black box.
+  const [currentSrc, setCurrentSrc] = useState(src || fallback);
 
   return (
     <div
@@ -27,7 +34,7 @@ export function MenuItemImage({
         "relative overflow-hidden bg-surface-overlay",
         compact
           ? "h-20 w-20 shrink-0 rounded-lg"
-          : "aspect-[5/4] w-full sm:aspect-[4/3]",
+          : "aspect-square w-full",
         className
       )}
     >
@@ -38,7 +45,7 @@ export function MenuItemImage({
         />
       ) : null}
       <Image
-        src={src}
+        src={currentSrc}
         alt={alt}
         fill
         priority={priority}
@@ -56,6 +63,13 @@ export function MenuItemImage({
           "motion-safe:md:group-hover:brightness-[1.05]"
         )}
         onLoad={() => setLoaded(true)}
+        onError={() => {
+          if (currentSrc !== fallback) {
+            setCurrentSrc(fallback);
+          } else {
+            setLoaded(true);
+          }
+        }}
       />
     </div>
   );

@@ -67,6 +67,7 @@ export interface Database {
           instagram_url: string | null;
           facebook_url: string | null;
           logo_url: string | null;
+          hero_image_url: string | null;
           site_url: string | null;
           meta_description: string | null;
           created_at: string;
@@ -92,6 +93,7 @@ export interface Database {
           instagram_url?: string | null;
           facebook_url?: string | null;
           logo_url?: string | null;
+          hero_image_url?: string | null;
           site_url?: string | null;
           meta_description?: string | null;
           created_at?: string;
@@ -117,6 +119,7 @@ export interface Database {
           instagram_url?: string | null;
           facebook_url?: string | null;
           logo_url?: string | null;
+          hero_image_url?: string | null;
           site_url?: string | null;
           meta_description?: string | null;
           created_at?: string;
