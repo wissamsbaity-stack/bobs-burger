@@ -47,18 +47,37 @@ export function SplashScreen() {
       timers.push(window.setTimeout(fn, ms));
     };
 
+    // Prevent the page underneath from scrolling while the splash is visible,
+    // and always restore to the top when the site is revealed.
+    const revealSite = () => {
+      document.documentElement.style.overflow = "";
+      document.documentElement.style.scrollBehavior = "auto";
+      window.scrollTo(0, 0);
+      document.documentElement.style.scrollBehavior = "";
+    };
+
+    const lockScroll = () => {
+      document.documentElement.style.overflow = "hidden";
+    };
+
+    lockScroll();
+
     // Fade the overlay out, then unmount it. Safe to call from any failure path.
     const finish = () => {
       if (cancelled) return;
       setPhase("exit");
       addTimer(() => {
-        if (!cancelled) setPhase("done");
+        if (!cancelled) {
+          setPhase("done");
+          revealSite();
+        }
       }, SPLASH_FADE_OUT_MS);
     };
 
     const cleanup = () => {
       cancelled = true;
       timers.forEach((id) => window.clearTimeout(id));
+      document.documentElement.style.overflow = "";
     };
 
     // 1. Only play once per session. Never throw — fall through to showing site.
@@ -72,6 +91,7 @@ export function SplashScreen() {
 
     if (alreadySeen) {
       setPhase("done");
+      revealSite();
       return cleanup;
     }
 
