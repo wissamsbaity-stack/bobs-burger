@@ -1,5 +1,6 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { mapCategory, mapMenuItem } from "@/lib/supabase/mappers";
+import { sortMenuItems } from "@/lib/menu-order";
 import type { Category, MenuItem } from "@/types/menu";
 import type { MenuService } from "@/lib/menu-service.types";
 import { categories as staticCategories, menuItems as staticMenuItems } from "@/data/menu";
@@ -27,7 +28,8 @@ class SupabaseMenuService implements MenuService {
       .from("menu_items")
       .select("*")
       .eq("is_available", true)
-      .order("name");
+      .order("display_order", { ascending: true })
+      .order("name", { ascending: true });
     if (error) throw error;
     return (data ?? []).map(mapMenuItem);
   }
@@ -37,7 +39,8 @@ class SupabaseMenuService implements MenuService {
     const { data, error } = await supabase
       .from("menu_items")
       .select("*")
-      .order("name");
+      .order("display_order", { ascending: true })
+      .order("name", { ascending: true });
     if (error) throw error;
     return (data ?? []).map(mapMenuItem);
   }
@@ -48,7 +51,9 @@ class SupabaseMenuService implements MenuService {
       .from("menu_items")
       .select("*")
       .eq("category_id", categoryId)
-      .eq("is_available", true);
+      .eq("is_available", true)
+      .order("display_order", { ascending: true })
+      .order("name", { ascending: true });
     if (error) throw error;
     return (data ?? []).map(mapMenuItem);
   }
@@ -83,24 +88,30 @@ class StaticMenuService implements MenuService {
   }
 
   async getMenuItems(): Promise<MenuItem[]> {
-    return staticMenuItems.filter((item) => item.isAvailable);
+    return sortMenuItems(
+      staticMenuItems.filter((item) => item.isAvailable)
+    );
   }
 
   async getItemsByCategory(categoryId: string): Promise<MenuItem[]> {
-    return staticMenuItems.filter(
-      (item) => item.categoryId === categoryId && item.isAvailable
+    return sortMenuItems(
+      staticMenuItems.filter(
+        (item) => item.categoryId === categoryId && item.isAvailable
+      )
     );
   }
 
   async searchItems(query: string): Promise<MenuItem[]> {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return this.getMenuItems();
-    return staticMenuItems.filter(
-      (item) =>
-        item.isAvailable &&
-        (item.name.toLowerCase().includes(normalized) ||
+    const available = staticMenuItems.filter((item) => item.isAvailable);
+    if (!normalized) return sortMenuItems(available);
+    return sortMenuItems(
+      available.filter(
+        (item) =>
+          item.name.toLowerCase().includes(normalized) ||
           item.description.toLowerCase().includes(normalized) ||
-          item.tags.some((tag) => tag.toLowerCase().includes(normalized)))
+          item.tags.some((tag) => tag.toLowerCase().includes(normalized))
+      )
     );
   }
 

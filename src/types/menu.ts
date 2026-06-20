@@ -19,6 +19,8 @@ export interface MenuItem {
   isBestSeller: boolean;
   isAvailable: boolean;
   tags: string[];
+  /** Lower numbers appear first within a category; ties break alphabetically. */
+  displayOrder: number;
 }
 
 export interface MenuItemWithCategory extends MenuItem {

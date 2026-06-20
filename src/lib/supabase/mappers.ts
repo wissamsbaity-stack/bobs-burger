@@ -28,6 +28,7 @@ export function mapMenuItem(row: MenuItemRow): MenuItem {
     isBestSeller: row.is_best_seller,
     isAvailable: row.is_available,
     tags: row.tags ?? [],
+    displayOrder: row.display_order ?? 0,
   };
 }
 

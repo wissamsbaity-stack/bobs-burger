@@ -10,7 +10,38 @@ import { AddToCartModal } from "@/components/menu/AddToCartModal";
 import { StaggerGrid } from "@/components/motion/StaggerGrid";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { categoryCrossFade } from "@/lib/motion-presets";
+import {
+  groupMenuItemsByCategory,
+  sortMenuItems,
+} from "@/lib/menu-order";
 import type { Category, MenuItem } from "@/types/menu";
+
+const GRID_CLASS =
+  "grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4";
+
+function MenuItemGrid({
+  items,
+  onCustomize,
+  priorityCount = 0,
+}: {
+  items: MenuItem[];
+  onCustomize: (item: MenuItem) => void;
+  priorityCount?: number;
+}) {
+  return (
+    <StaggerGrid className={GRID_CLASS}>
+      {items.map((item, index) => (
+        <MenuItemCard
+          key={item.id}
+          item={item}
+          stagger
+          imagePriority={index < priorityCount}
+          onCustomize={onCustomize}
+        />
+      ))}
+    </StaggerGrid>
+  );
+}
 
 export default function MenuPageClient({
   categories,
@@ -70,8 +101,18 @@ export default function MenuPageClient({
       );
     }
 
-    return filtered;
+    return sortMenuItems(filtered);
   }, [activeCategory, searchQuery, menuItems]);
+
+  const showGrouped = activeCategory === "all";
+
+  const groupedSections = useMemo(
+    () =>
+      showGrouped
+        ? groupMenuItemsByCategory(filteredItems, categories)
+        : [],
+    [showGrouped, filteredItems, categories]
+  );
 
   const activeCategoryName =
     activeCategory === "all"
@@ -155,6 +196,28 @@ export default function MenuPageClient({
                   Clear filters
                 </button>
               </m.div>
+            ) : showGrouped ? (
+              <m.div
+                key={gridKey}
+                initial={categoryCrossFade.initial}
+                animate={categoryCrossFade.animate}
+                exit={categoryCrossFade.exit}
+                transition={categoryCrossFade.transition}
+                className="space-y-10 sm:space-y-12"
+              >
+                {groupedSections.map(({ category, items }, sectionIndex) => (
+                  <div key={category.id}>
+                    <h3 className="mb-4 scroll-mt-[var(--menu-category-scroll-offset)] text-base font-semibold text-cream sm:mb-5 sm:text-lg">
+                      {category.name}
+                    </h3>
+                    <MenuItemGrid
+                      items={items}
+                      onCustomize={setModalItem}
+                      priorityCount={sectionIndex === 0 ? 4 : 0}
+                    />
+                  </div>
+                ))}
+              </m.div>
             ) : (
               <m.div
                 key={gridKey}
@@ -163,19 +226,11 @@ export default function MenuPageClient({
                 exit={categoryCrossFade.exit}
                 transition={categoryCrossFade.transition}
               >
-                <StaggerGrid
-                  className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
-                >
-                  {filteredItems.map((item, index) => (
-                    <MenuItemCard
-                      key={item.id}
-                      item={item}
-                      stagger
-                      imagePriority={index < 4}
-                      onCustomize={setModalItem}
-                    />
-                  ))}
-                </StaggerGrid>
+                <MenuItemGrid
+                  items={filteredItems}
+                  onCustomize={setModalItem}
+                  priorityCount={4}
+                />
               </m.div>
             )}
           </AnimatePresence>
