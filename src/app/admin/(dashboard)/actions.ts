@@ -5,9 +5,15 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/admin";
 import { createServerClient } from "@/lib/supabase/server";
 import { slugify } from "@/lib/supabase/mappers";
-import type { Database, OpeningHour } from "@/lib/supabase/types";
+import { parseCrop } from "@/lib/image-crop";
+import type { Database, Json, OpeningHour } from "@/lib/supabase/types";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
+
+/** Read a serialized crop from a form field; returns a JSON object or null. */
+function readCrop(formData: FormData, field: string): Json | null {
+  return (parseCrop(String(formData.get(field) ?? "")) ?? null) as Json | null;
+}
 
 type Tables = Database["public"]["Tables"];
 type SupabaseFrom = Awaited<ReturnType<typeof requireAdmin>>["supabase"];
@@ -135,6 +141,7 @@ export async function createMenuItem(formData: FormData): Promise<ActionResult> 
     description: description || null,
     price,
     image_url: imageUrl,
+    image_crop: readCrop(formData, "image_crop"),
     is_popular: formData.get("is_popular") === "on",
     is_best_seller: formData.get("is_best_seller") === "on",
     is_available: formData.get("is_available") !== "off",
@@ -172,6 +179,7 @@ export async function updateMenuItem(formData: FormData): Promise<ActionResult> 
       description: description || null,
       price,
       image_url: imageUrl,
+      image_crop: readCrop(formData, "image_crop"),
       is_popular: formData.get("is_popular") === "on",
       is_best_seller: formData.get("is_best_seller") === "on",
       is_available: formData.get("is_available") === "on",
@@ -239,6 +247,7 @@ export async function updateSiteSettings(
     logo_url: String(formData.get("logo_url") ?? "").trim() || null,
     hero_image_url:
       String(formData.get("hero_image_url") ?? "").trim() || null,
+    hero_image_crop: readCrop(formData, "hero_image_crop"),
     google_maps_url:
       String(formData.get("google_maps_url") ?? "").trim() || null,
     site_url: String(formData.get("site_url") ?? "").trim() || null,

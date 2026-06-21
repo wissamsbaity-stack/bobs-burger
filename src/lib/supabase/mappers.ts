@@ -1,5 +1,6 @@
 import type { Category, MenuItem } from "@/types/menu";
 import type { CategoryRow, MenuItemRow } from "@/lib/supabase/types";
+import { parseCrop } from "@/lib/image-crop";
 
 const PLACEHOLDER_IMAGE =
   "https://s3.eu-central-1.amazonaws.com/act.omegapos.com/OmegaCloud/57069/omenu/2.jpg";
@@ -29,6 +30,7 @@ export function mapMenuItem(row: MenuItemRow): MenuItem {
     isAvailable: row.is_available,
     tags: row.tags ?? [],
     displayOrder: row.display_order ?? 0,
+    imageCrop: parseCrop(row.image_crop),
   };
 }
 

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { m } from "@/lib/motion";
 import { ChevronDown, MessageCircle } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
+import { cropToImageStyle } from "@/lib/image-crop";
 import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
 
 export function Hero() {
@@ -102,6 +103,11 @@ export function Hero() {
               fill
               priority
               className="object-cover"
+              style={
+                settings.branding.heroImage
+                  ? cropToImageStyle(settings.branding.heroImageCrop)
+                  : undefined
+              }
               sizes="(max-width: 768px) 100vw, 768px"
             />
             <div

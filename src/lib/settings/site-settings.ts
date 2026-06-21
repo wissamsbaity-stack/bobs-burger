@@ -2,6 +2,7 @@ import { createServerClient } from "@/lib/supabase/server";
 import type { SiteSettingsRow, OpeningHour } from "@/lib/supabase/types";
 import { restaurantInfo } from "@/data/restaurant";
 import { siteConfig } from "@/config/site";
+import { parseCrop, type ImageCrop } from "@/lib/image-crop";
 
 export interface PublicSiteSettings {
   name: string;
@@ -27,6 +28,7 @@ export interface PublicSiteSettings {
   branding: {
     logo: string;
     heroImage: string;
+    heroImageCrop: ImageCrop | null;
   };
   metaDescription: string;
   siteUrl: string;
@@ -47,7 +49,11 @@ function fromStatic(): PublicSiteSettings {
     deliveryFee: siteConfig.deliveryFee,
     minOrder: siteConfig.minOrder,
     social: { ...restaurantInfo.social },
-    branding: { logo: restaurantInfo.branding.logo, heroImage: "" },
+    branding: {
+      logo: restaurantInfo.branding.logo,
+      heroImage: "",
+      heroImageCrop: null,
+    },
     metaDescription: siteConfig.description,
     siteUrl: siteConfig.url,
     googleMapsUrl: "",
@@ -79,6 +85,7 @@ function mapRow(row: SiteSettingsRow): PublicSiteSettings {
     branding: {
       logo: row.logo_url ?? restaurantInfo.branding.logo,
       heroImage: row.hero_image_url ?? "",
+      heroImageCrop: parseCrop(row.hero_image_crop),
     },
     metaDescription: row.meta_description ?? siteConfig.description,
     siteUrl: row.site_url ?? siteConfig.url,

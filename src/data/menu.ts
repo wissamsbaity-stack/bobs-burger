@@ -27,6 +27,7 @@ export const menuItems: MenuItem[] = demoMenu.menuItems.map((item) => ({
   isAvailable: item.isAvailable,
   tags: item.tags,
   displayOrder: (item as { displayOrder?: number }).displayOrder ?? 0,
+  imageCrop: null,
 }));
 
 export const menuStats = demoMenu.stats;

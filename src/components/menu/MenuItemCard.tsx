@@ -91,6 +91,7 @@ function MenuItemCardComponent({
             alt={item.name}
             compact
             priority={imagePriority}
+            crop={item.imageCrop}
           />
           <MenuItemBadges item={item} />
         </div>
@@ -136,6 +137,7 @@ function MenuItemCardComponent({
           src={item.imageUrl}
           alt={item.name}
           priority={imagePriority}
+          crop={item.imageCrop}
         />
         <MenuItemBadges item={item} />
       </div>

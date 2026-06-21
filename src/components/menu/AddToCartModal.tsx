@@ -13,6 +13,7 @@ import { useOverlayLock } from "@/lib/overlay-store";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { modalSpring, overlayFade } from "@/lib/motion-presets";
 import { cn, formatPrice } from "@/lib/utils";
+import { cropToImageStyle } from "@/lib/image-crop";
 import type { MenuItem } from "@/types/menu";
 
 interface AddToCartModalProps {
@@ -171,6 +172,7 @@ export function AddToCartModal({ item, onClose }: AddToCartModalProps) {
                   alt={item.name}
                   fill
                   className="object-cover"
+                  style={cropToImageStyle(item.imageCrop)}
                   sizes="(max-width: 640px) 100vw, 512px"
                   priority
                 />

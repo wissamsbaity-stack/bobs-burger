@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useRef, useState, useTransition, useEffect } from "react";
-import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
@@ -10,10 +9,11 @@ import {
   updateMenuItem,
   deleteMenuItem,
 } from "@/app/admin/(dashboard)/actions";
-import { uploadMenuImageClient } from "@/lib/admin/client-menu-image-upload";
+import { ImageCropField } from "@/components/admin/ImageCropField";
+import { parseCrop } from "@/lib/image-crop";
 import type { CategoryRow, MenuItemRow } from "@/lib/supabase/types";
 import { cn, formatPrice } from "@/lib/utils";
-import { Pencil, Search, Trash2, Upload, X } from "lucide-react";
+import { Pencil, Search, Trash2, X } from "lucide-react";
 
 export function MenuItemsManager({
   items,
@@ -23,27 +23,22 @@ export function MenuItemsManager({
   categories: CategoryRow[];
 }) {
   const [editing, setEditing] = useState<MenuItemRow | null>(null);
-  const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterQuery, setFilterQuery] = useState("");
   const [pending, startTransition] = useTransition();
-  const fileRef = useRef<HTMLInputElement>(null);
   const formSectionRef = useRef<HTMLDivElement>(null);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const shouldScrollToFormRef = useRef(false);
 
   function resetForm() {
     setEditing(null);
-    setImageUrl("");
     setError(null);
     shouldScrollToFormRef.current = false;
   }
 
   function startEdit(item: MenuItemRow) {
     setEditing(item);
-    setImageUrl(item.image_url ?? "");
     setError(null);
     shouldScrollToFormRef.current = true;
   }
@@ -66,7 +61,6 @@ export function MenuItemsManager({
 
   function handleSubmit(formData: FormData) {
     setError(null);
-    if (imageUrl) formData.set("image_url", imageUrl);
     startTransition(async () => {
       const action = editing ? updateMenuItem : createMenuItem;
       if (editing) formData.set("id", editing.id);
@@ -77,22 +71,6 @@ export function MenuItemsManager({
       }
       resetForm();
     });
-  }
-
-  async function handleUpload(file: File) {
-    setError(null);
-    setUploading(true);
-    try {
-      const result = await uploadMenuImageClient(file);
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
-      setImageUrl(result.url);
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
   }
 
   function handleDelete(id: string, name: string) {
@@ -206,54 +184,16 @@ export function MenuItemsManager({
             defaultValue={editing?.tags?.join(", ") ?? ""}
           />
 
-          <div className="space-y-2 sm:col-span-2">
-            <label className="block text-sm font-medium text-cream/80">
-              Image
-            </label>
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              {imageUrl ? (
-                <div className="relative h-20 w-20 overflow-hidden rounded-xl border border-white/10">
-                  <Image
-                    src={imageUrl}
-                    alt="Preview"
-                    fill
-                    className="object-cover"
-                    sizes="80px"
-                  />
-                </div>
-              ) : null}
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) handleUpload(file);
-                }}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => fileRef.current?.click()}
-                isLoading={uploading}
-                disabled={uploading || pending}
-              >
-                <Upload className="h-4 w-4" />
-                Upload image
-              </Button>
-              <p className="w-full text-xs text-muted sm:w-auto">
-                Images are compressed and uploaded directly (max 5 MB).
-              </p>
-              <Input
-                name="image_url"
-                placeholder="Or paste image URL"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                className="w-full flex-1 sm:max-w-md"
-              />
-            </div>
+          <div className="sm:col-span-2">
+            <ImageCropField
+              name="image_url"
+              cropName="image_crop"
+              label="Image"
+              defaultUrl={editing?.image_url ?? ""}
+              defaultCrop={parseCrop(editing?.image_crop)}
+              previewRatio={1}
+              helpText="Shown on product cards as a square. Compressed automatically (max 5 MB)."
+            />
           </div>
 
           <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80">

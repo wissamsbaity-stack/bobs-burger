@@ -7,6 +7,8 @@ export interface Category {
   icon: string | null;
 }
 
+import type { ImageCrop } from "@/lib/image-crop";
+
 export interface MenuItem {
   id: string;
   name: string;
@@ -21,6 +23,8 @@ export interface MenuItem {
   tags: string[];
   /** Lower numbers appear first within a category; ties break alphabetically. */
   displayOrder: number;
+  /** Non-destructive crop framing for the image; null = show full image. */
+  imageCrop: ImageCrop | null;
 }
 
 export interface MenuItemWithCategory extends MenuItem {

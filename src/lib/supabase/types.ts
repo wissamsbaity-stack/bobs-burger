@@ -68,6 +68,7 @@ export interface Database {
           facebook_url: string | null;
           logo_url: string | null;
           hero_image_url: string | null;
+          hero_image_crop: Json | null;
           google_maps_url: string | null;
           site_url: string | null;
           meta_description: string | null;
@@ -95,6 +96,7 @@ export interface Database {
           facebook_url?: string | null;
           logo_url?: string | null;
           hero_image_url?: string | null;
+          hero_image_crop?: Json | null;
           google_maps_url?: string | null;
           site_url?: string | null;
           meta_description?: string | null;
@@ -122,6 +124,7 @@ export interface Database {
           facebook_url?: string | null;
           logo_url?: string | null;
           hero_image_url?: string | null;
+          hero_image_crop?: Json | null;
           google_maps_url?: string | null;
           site_url?: string | null;
           meta_description?: string | null;
@@ -177,6 +180,7 @@ export interface Database {
           is_available: boolean;
           tags: string[];
           display_order: number;
+          image_crop: Json | null;
           created_at: string;
           updated_at: string;
         };
@@ -193,6 +197,7 @@ export interface Database {
           is_available?: boolean;
           tags?: string[];
           display_order?: number;
+          image_crop?: Json | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -209,6 +214,7 @@ export interface Database {
           is_available?: boolean;
           tags?: string[];
           display_order?: number;
+          image_crop?: Json | null;
           created_at?: string;
           updated_at?: string;
         };

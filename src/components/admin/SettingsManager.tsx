@@ -8,6 +8,8 @@ import { updateSiteSettings } from "@/app/admin/(dashboard)/actions";
 import type { OpeningHour, SiteSettingsRow } from "@/lib/supabase/types";
 import { Plus, Trash2 } from "lucide-react";
 import { SettingsImageField } from "@/components/admin/SettingsImageField";
+import { ImageCropField } from "@/components/admin/ImageCropField";
+import { parseCrop } from "@/lib/image-crop";
 
 export function SettingsManager({
   settings,
@@ -234,11 +236,14 @@ export function SettingsManager({
           defaultValue={settings?.logo_url ?? ""}
           previewAlt={settings?.restaurant_name ?? "Restaurant logo"}
         />
-        <SettingsImageField
+        <ImageCropField
           name="hero_image_url"
+          cropName="hero_image_crop"
           label="Restaurant hero image"
-          defaultValue={settings?.hero_image_url ?? ""}
-          previewAlt={settings?.restaurant_name ?? "Restaurant hero image"}
+          defaultUrl={settings?.hero_image_url ?? ""}
+          defaultCrop={parseCrop(settings?.hero_image_crop)}
+          previewRatio={16 / 9}
+          helpText="Shown on the homepage at a 16:9 ratio. Upload, then adjust the framing."
         />
       </section>
 
