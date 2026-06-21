@@ -11,20 +11,6 @@ import {
   MIN_ZOOM,
   type ImageCrop,
 } from "@/lib/image-crop";
-import { cn } from "@/lib/utils";
-
-interface RatioPreset {
-  id: string;
-  label: string;
-  ratio: number;
-}
-
-const RATIO_PRESETS: RatioPreset[] = [
-  { id: "square", label: "Square 1:1", ratio: 1 },
-  { id: "landscape", label: "Landscape 16:9", ratio: 16 / 9 },
-  { id: "portrait", label: "Portrait 4:5", ratio: 4 / 5 },
-  { id: "wide", label: "Wide 3:2", ratio: 3 / 2 },
-];
 
 const ZOOM_STEP = 0.1;
 
@@ -53,7 +39,6 @@ export function ImageCropEditor({
   useBodyScrollLock(true);
 
   const [crop, setCrop] = useState<ImageCrop>(initialCrop ?? DEFAULT_CROP);
-  const [ratio, setRatio] = useState<number>(primaryRatio);
 
   const frameRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{
@@ -150,7 +135,7 @@ export function ImageCropEditor({
             onPointerUp={endDrag}
             onPointerCancel={endDrag}
             className="relative mx-auto w-full max-w-sm cursor-grab touch-none select-none overflow-hidden rounded-xl border border-white/10 bg-ink active:cursor-grabbing"
-            style={{ aspectRatio: String(ratio) }}
+            style={{ aspectRatio: String(primaryRatio) }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -171,30 +156,6 @@ export function ImageCropEditor({
           <p className="mt-2 text-center text-xs text-muted">
             Drag the image to reposition it
           </p>
-
-          {/* Crop ratio presets */}
-          <div className="mt-4">
-            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
-              Crop ratio
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {RATIO_PRESETS.map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => setRatio(preset.ratio)}
-                  className={cn(
-                    "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
-                    Math.abs(ratio - preset.ratio) < 0.001
-                      ? "bg-accent text-white"
-                      : "bg-white/5 text-cream/70 hover:bg-white/10 hover:text-cream"
-                  )}
-                >
-                  {preset.label}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Zoom controls */}
           <div className="mt-4">
@@ -263,31 +224,17 @@ export function ImageCropEditor({
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted">
               Live preview
             </p>
-            <div className="flex items-end gap-4">
-              <div className="text-center">
-                <div className="relative h-20 w-20 overflow-hidden rounded-lg border border-white/10 bg-ink">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imageUrl}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                    style={imgStyle}
-                  />
-                </div>
-                <span className="mt-1 block text-[10px] text-muted">Card</span>
-              </div>
-              <div className="text-center">
-                <div className="relative h-20 w-[142px] overflow-hidden rounded-lg border border-white/10 bg-ink">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={imageUrl}
-                    alt=""
-                    className="absolute inset-0 h-full w-full object-cover"
-                    style={imgStyle}
-                  />
-                </div>
-                <span className="mt-1 block text-[10px] text-muted">Hero 16:9</span>
-              </div>
+            <div
+              className="relative h-24 overflow-hidden rounded-lg border border-white/10 bg-ink"
+              style={{ aspectRatio: String(primaryRatio) }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover"
+                style={imgStyle}
+              />
             </div>
           </div>
         </div>
