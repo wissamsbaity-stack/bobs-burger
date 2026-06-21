@@ -115,7 +115,7 @@ export function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-8 flex flex-col items-center gap-1.5 sm:mt-10"
+          className="mt-5 flex flex-col items-center gap-1.5 sm:mt-6"
         >
           <m.span
             animate={{ y: [0, 8, 0] }}
@@ -128,7 +128,7 @@ export function Hero() {
             className="text-[#FF7A1A] drop-shadow-[0_0_10px_rgba(255,122,26,0.55)]"
             aria-hidden
           >
-            <ChevronDown className="h-[22px] w-[22px]" strokeWidth={2.5} />
+            <ChevronDown className="h-[26px] w-[26px]" strokeWidth={2.5} />
           </m.span>
           <span className="text-[15px] font-semibold uppercase tracking-[0.18em] text-[#FF7A1A] [text-shadow:0_0_12px_rgba(255,122,26,0.45)]">
             Discover Categories
