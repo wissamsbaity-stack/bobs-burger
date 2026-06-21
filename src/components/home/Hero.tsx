@@ -113,24 +113,24 @@ export function Hero() {
 
         <m.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.78 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-8 flex flex-col items-center gap-1 sm:mt-10"
+          className="mt-8 flex flex-col items-center gap-1.5 sm:mt-10"
         >
           <m.span
-            animate={{ y: [0, 5, 0] }}
+            animate={{ y: [0, 8, 0] }}
             transition={{
-              duration: 1.1,
+              duration: 0.9,
               repeat: Infinity,
-              repeatDelay: 1.4,
+              repeatDelay: 0.8,
               ease: "easeInOut",
             }}
-            className="text-accent"
+            className="text-[#FF7A1A] drop-shadow-[0_0_10px_rgba(255,122,26,0.55)]"
             aria-hidden
           >
-            <ChevronDown className="h-4 w-4" strokeWidth={2.25} />
+            <ChevronDown className="h-[22px] w-[22px]" strokeWidth={2.5} />
           </m.span>
-          <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-accent">
+          <span className="text-[15px] font-semibold uppercase tracking-[0.18em] text-[#FF7A1A] [text-shadow:0_0_12px_rgba(255,122,26,0.45)]">
             Discover Categories
           </span>
         </m.div>
