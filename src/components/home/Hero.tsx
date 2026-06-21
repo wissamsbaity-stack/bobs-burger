@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { m } from "@/lib/motion";
-import { MessageCircle } from "lucide-react";
+import { ChevronDown, MessageCircle } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
 
@@ -109,6 +109,30 @@ export function Hero() {
               aria-hidden
             />
           </div>
+        </m.div>
+
+        <m.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.78 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="mt-8 flex flex-col items-center gap-1 sm:mt-10"
+        >
+          <m.span
+            animate={{ y: [0, 5, 0] }}
+            transition={{
+              duration: 1.1,
+              repeat: Infinity,
+              repeatDelay: 1.4,
+              ease: "easeInOut",
+            }}
+            className="text-accent"
+            aria-hidden
+          >
+            <ChevronDown className="h-4 w-4" strokeWidth={2.25} />
+          </m.span>
+          <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-accent">
+            Discover Categories
+          </span>
         </m.div>
       </div>
     </section>
