@@ -111,8 +111,12 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-ink/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-[var(--site-header-height)] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 bg-ink/70 backdrop-blur-xl">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[200%] bg-[radial-gradient(ellipse_120%_140%_at_50%_-40%,rgba(255,92,0,0.12)_0%,rgba(255,92,0,0.04)_45%,transparent_75%)]"
+        />
+        <div className="relative mx-auto flex h-[var(--site-header-height)] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <div className={cn("min-w-0", mobileOpen && "max-md:hidden")}>
             <RestaurantBrand />
           </div>
