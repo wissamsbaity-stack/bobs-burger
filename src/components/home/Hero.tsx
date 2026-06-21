@@ -18,7 +18,7 @@ export function Hero() {
   const heroImage = settings.branding.heroImage || settings.branding.logo;
 
   return (
-    <section className="relative overflow-hidden bg-ink bg-hero-radial">
+    <section className="relative -mt-[var(--site-header-height)] overflow-hidden bg-ink bg-hero-radial pt-[var(--site-header-height)]">
       {/* Layered orange glow — large, soft, fades naturally into the dark bg */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_15%,rgba(255,92,0,0.10)_0%,rgba(255,92,0,0.04)_50%,transparent_85%)]"
