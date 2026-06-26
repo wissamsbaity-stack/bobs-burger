@@ -13,7 +13,7 @@ interface MenuExpandableSearchProps {
 }
 
 const SEARCH_TRANSITION = {
-  duration: 0.3,
+  duration: 0.28,
   ease: [0.4, 0, 0.2, 1] as const,
 };
 
@@ -42,7 +42,7 @@ export function MenuExpandableSearch({
 
   useEffect(() => {
     if (!isOpen) return;
-    const timer = window.setTimeout(() => inputRef.current?.focus(), 50);
+    const timer = window.setTimeout(() => inputRef.current?.focus(), 30);
     return () => window.clearTimeout(timer);
   }, [isOpen]);
 
@@ -66,43 +66,53 @@ export function MenuExpandableSearch({
   return (
     <div ref={rootRef} className={cn("relative shrink-0", className)}>
       <m.div
-        layout
         initial={false}
         animate={{ width: isOpen ? "min(100%, 17.5rem)" : "2.75rem" }}
         transition={SEARCH_TRANSITION}
-        className="overflow-hidden"
+        className={cn(
+          "menu-expandable-search flex h-11 items-center overflow-hidden rounded-full border border-white/10 bg-white/5",
+          isOpen && "bg-white/[0.06] shadow-sm shadow-black/20"
+        )}
       >
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center">
+          {isOpen ? (
+            <Search
+              className="h-[18px] w-[18px] text-cream/40"
+              aria-hidden
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={open}
+              className="flex h-full w-full items-center justify-center text-cream/70 transition-colors hover:text-cream"
+              aria-label="Open search"
+            >
+              <Search className="h-[18px] w-[18px]" />
+            </button>
+          )}
+        </div>
+
         {isOpen ? (
-          <div className="flex h-11 items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 shadow-sm shadow-black/20">
-            <Search className="h-4 w-4 shrink-0 text-cream/40" aria-hidden />
+          <>
             <input
               ref={inputRef}
               type="search"
               value={value}
               onChange={(e) => onChange(e.target.value)}
               placeholder="Search menu..."
-              className="min-w-0 flex-1 bg-transparent text-sm text-cream placeholder:text-cream/35 focus:outline-none"
+              className="min-w-0 flex-1 bg-transparent pr-2 text-sm text-cream placeholder:text-cream/35 focus:outline-none"
               aria-label="Search menu"
             />
             <button
               type="button"
               onClick={handleClose}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-cream/50 transition-colors hover:bg-white/10 hover:text-cream"
+              className="mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-cream/50 transition-colors hover:bg-white/10 hover:text-cream"
               aria-label="Close search"
             >
               <X className="h-4 w-4" />
             </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={open}
-            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-cream/70 transition-colors hover:bg-white/10 hover:text-cream motion-safe:active:scale-[0.96]"
-            aria-label="Open search"
-          >
-            <Search className="h-[18px] w-[18px]" />
-          </button>
-        )}
+          </>
+        ) : null}
       </m.div>
 
       {isOpen && value.trim() && resultCount !== undefined ? (

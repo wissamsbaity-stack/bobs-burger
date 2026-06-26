@@ -18,7 +18,7 @@ export function MenuCategorySectionHeader({
     <div
       ref={headerRef}
       className={cn(
-        "menu-category-header scroll-mt-[var(--menu-category-scroll-offset)] flex w-full items-center justify-center rounded-2xl border px-5 py-3.5 sm:py-4",
+        "menu-category-header scroll-mt-[var(--menu-category-scroll-offset)] flex w-full items-center justify-center rounded-2xl px-5 py-4 sm:px-6 sm:py-[1.125rem]",
         className
       )}
     >
