@@ -39,7 +39,7 @@ export function MenuItemImage({
       className={cn(
         "relative overflow-hidden bg-surface-overlay transition-transform duration-300 ease-out motion-safe:md:group-hover:scale-[1.03]",
         isList
-          ? "aspect-[4/3] w-full rounded-xl"
+          ? "aspect-[4/3] w-full rounded-[14px] sm:rounded-2xl"
           : "aspect-square w-full",
         className
       )}
@@ -59,7 +59,7 @@ export function MenuItemImage({
         decoding="async"
         sizes={
           isList
-            ? "(max-width: 640px) 35vw, 168px"
+            ? "(max-width: 640px) 42vw, 192px"
             : "(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
         }
         style={cropStyle}

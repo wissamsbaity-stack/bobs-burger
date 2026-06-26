@@ -16,7 +16,7 @@ import {
 import type { Category, MenuItem } from "@/types/menu";
 import type { MenuBanner } from "@/types/banner";
 
-const LIST_CLASS = "flex flex-col gap-3 sm:gap-3.5";
+const LIST_CLASS = "flex flex-col gap-3.5 sm:gap-4";
 
 function MenuItemGrid({
   items,
