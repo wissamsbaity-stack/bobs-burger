@@ -4,10 +4,8 @@ export interface MenuBanner {
   id: string;
   imageUrl: string;
   imageCrop: ImageCrop | null;
-  title: string | null;
-  subtitle: string | null;
-  ctaText: string | null;
-  ctaLink: string | null;
+  caption: string | null;
+  clickLink: string | null;
   sortOrder: number;
   isEnabled: boolean;
 }

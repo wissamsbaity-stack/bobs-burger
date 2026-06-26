@@ -48,20 +48,16 @@ export function HeroBannersManager({
 
   const [draftUrl, setDraftUrl] = useState("");
   const [draftCrop, setDraftCrop] = useState<ReturnType<typeof parseCrop>>(null);
-  const [draftTitle, setDraftTitle] = useState("");
-  const [draftSubtitle, setDraftSubtitle] = useState("");
-  const [draftCtaText, setDraftCtaText] = useState("");
-  const [draftCtaLink, setDraftCtaLink] = useState("");
+  const [draftCaption, setDraftCaption] = useState("");
+  const [draftClickLink, setDraftClickLink] = useState("");
   const [draftEnabled, setDraftEnabled] = useState(true);
 
   function resetForm() {
     setEditing(null);
     setDraftUrl("");
     setDraftCrop(null);
-    setDraftTitle("");
-    setDraftSubtitle("");
-    setDraftCtaText("");
-    setDraftCtaLink("");
+    setDraftCaption("");
+    setDraftClickLink("");
     setDraftEnabled(true);
     setError(null);
   }
@@ -70,10 +66,8 @@ export function HeroBannersManager({
     setEditing(banner);
     setDraftUrl(banner.image_url);
     setDraftCrop(parseCrop(banner.image_crop));
-    setDraftTitle(banner.title ?? "");
-    setDraftSubtitle(banner.subtitle ?? "");
-    setDraftCtaText(banner.cta_text ?? "");
-    setDraftCtaLink(banner.cta_link ?? "");
+    setDraftCaption(banner.caption ?? "");
+    setDraftClickLink(banner.click_link ?? "");
     setDraftEnabled(banner.is_enabled);
     setError(null);
   }
@@ -143,10 +137,8 @@ export function HeroBannersManager({
         id: editing?.id ?? "preview-draft",
         imageUrl: draftUrl,
         imageCrop: draftCrop,
-        title: draftTitle.trim() || null,
-        subtitle: draftSubtitle.trim() || null,
-        ctaText: draftCtaText.trim() || null,
-        ctaLink: draftCtaLink.trim() || null,
+        caption: draftCaption.trim() || null,
+        clickLink: draftClickLink.trim() || null,
         sortOrder: 0,
         isEnabled: true,
       };
@@ -162,10 +154,8 @@ export function HeroBannersManager({
     items,
     draftUrl,
     draftCrop,
-    draftTitle,
-    draftSubtitle,
-    draftCtaText,
-    draftCtaLink,
+    draftCaption,
+    draftClickLink,
     draftEnabled,
     editing,
   ]);
@@ -179,11 +169,15 @@ export function HeroBannersManager({
           </h2>
           <p className="mt-2 text-sm text-amber-100/80">{loadError}</p>
           <p className="mt-3 text-sm text-muted">
-            Open Supabase → SQL Editor → run the contents of{" "}
+            Open Supabase → SQL Editor → run{" "}
             <code className="rounded bg-ink/60 px-1.5 py-0.5 text-xs text-cream">
               supabase/migrations/010_menu_banners.sql
             </code>
-            , then refresh this page.
+            , then{" "}
+            <code className="rounded bg-ink/60 px-1.5 py-0.5 text-xs text-cream">
+              011_menu_banners_simplify.sql
+            </code>
+            , and refresh this page.
           </p>
         </div>
       ) : null}
@@ -196,221 +190,209 @@ export function HeroBannersManager({
 
       {schemaReady ? (
         <>
-      <section className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
-        <h2 className="mb-1 text-lg font-semibold text-cream">Live preview</h2>
-        <p className="mb-4 text-sm text-muted">
-          This is exactly how enabled banners appear on the menu page.
-        </p>
-        {previewBanners.length > 0 ? (
-          <MenuHeroCarousel banners={previewBanners} className="px-0" />
-        ) : (
-          <p className="rounded-xl border border-dashed border-white/10 py-12 text-center text-sm text-muted">
-            No enabled banners yet. Add one below to see the carousel.
-          </p>
-        )}
-      </section>
+          <section className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
+            <h2 className="mb-1 text-lg font-semibold text-cream">Live preview</h2>
+            <p className="mb-4 text-sm text-muted">
+              This is exactly how enabled banners appear on the menu page.
+            </p>
+            {previewBanners.length > 0 ? (
+              <MenuHeroCarousel banners={previewBanners} className="px-0" />
+            ) : (
+              <p className="rounded-xl border border-dashed border-white/10 py-12 text-center text-sm text-muted">
+                No enabled banners yet. Add one below to see the carousel.
+              </p>
+            )}
+          </section>
 
-      <section
-        className={cn(
-          "rounded-2xl border bg-surface-raised p-4 sm:p-6",
-          editing
-            ? "border-accent/50 ring-2 ring-accent/20"
-            : "border-white/10"
-        )}
-      >
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-lg font-semibold text-cream">
-            {editing ? "Edit banner" : "Add banner"}
-          </h2>
-          {editing ? (
-            <span className="inline-flex items-center rounded-full bg-accent/15 px-3 py-1 text-xs font-medium text-accent">
-              Editing banner
-            </span>
-          ) : null}
-        </div>
+          <section
+            className={cn(
+              "rounded-2xl border bg-surface-raised p-4 sm:p-6",
+              editing
+                ? "border-accent/50 ring-2 ring-accent/20"
+                : "border-white/10"
+            )}
+          >
+            <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h2 className="text-lg font-semibold text-cream">
+                {editing ? "Edit banner" : "Add banner"}
+              </h2>
+              {editing ? (
+                <span className="inline-flex items-center rounded-full bg-accent/15 px-3 py-1 text-xs font-medium text-accent">
+                  Editing banner
+                </span>
+              ) : null}
+            </div>
 
-        <form
-          key={editing?.id ?? "new-banner"}
-          action={handleSubmit}
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-        >
-          <div className="sm:col-span-2">
-            <ImageCropField
-              name="image_url"
-              cropName="image_crop"
-              label="Banner image"
-              defaultUrl={draftUrl}
-              defaultCrop={draftCrop}
-              previewRatio={BANNER_RATIO}
-              helpText="Wide banner for the menu page carousel. Drag and zoom after upload."
-              onChange={(url, crop) => {
-                setDraftUrl(url);
-                setDraftCrop(crop);
-              }}
-            />
-          </div>
+            <form
+              key={editing?.id ?? "new-banner"}
+              action={handleSubmit}
+              className="grid grid-cols-1 gap-4"
+            >
+              <ImageCropField
+                name="image_url"
+                cropName="image_crop"
+                label="Banner image"
+                defaultUrl={draftUrl}
+                defaultCrop={draftCrop}
+                previewRatio={BANNER_RATIO}
+                helpText="Wide banner for the menu page carousel. Drag and zoom after upload."
+                onChange={(url, crop) => {
+                  setDraftUrl(url);
+                  setDraftCrop(crop);
+                }}
+              />
 
-          <Input
-            name="title"
-            label="Title (optional)"
-            value={draftTitle}
-            onChange={(e) => setDraftTitle(e.target.value)}
-            placeholder="Fresh off the grill"
-          />
-          <Input
-            name="subtitle"
-            label="Subtitle (optional)"
-            value={draftSubtitle}
-            onChange={(e) => setDraftSubtitle(e.target.value)}
-            placeholder="Try our new Angus burgers"
-          />
-          <Input
-            name="cta_text"
-            label="Button text (optional)"
-            value={draftCtaText}
-            onChange={(e) => setDraftCtaText(e.target.value)}
-            placeholder="Order now"
-          />
-          <Input
-            name="cta_link"
-            label="Button link (optional)"
-            value={draftCtaLink}
-            onChange={(e) => setDraftCtaLink(e.target.value)}
-            placeholder="/menu?category=beef-burgers"
-          />
+              <Input
+                name="caption"
+                label="Banner caption (optional)"
+                value={draftCaption}
+                onChange={(e) => setDraftCaption(e.target.value)}
+                placeholder="Summer specials"
+              />
 
-          <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80 sm:col-span-2">
-            <input
-              type="checkbox"
-              checked={draftEnabled}
-              onChange={(e) => setDraftEnabled(e.target.checked)}
-              className="h-5 w-5 rounded border-white/20"
-            />
-            Show on menu page
-          </label>
+              <div>
+                <Input
+                  name="click_link"
+                  label="Banner click link (optional)"
+                  value={draftClickLink}
+                  onChange={(e) => setDraftClickLink(e.target.value)}
+                  placeholder="/menu?category=burgers"
+                />
+                <p className="mt-1.5 text-xs text-muted">
+                  When set, the entire banner becomes clickable.
+                </p>
+              </div>
 
-          {error ? (
-            <p className="text-sm text-red-400 sm:col-span-2">{error}</p>
-          ) : null}
+              <label className="flex min-h-11 items-center gap-3 text-sm text-cream/80">
+                <input
+                  type="checkbox"
+                  checked={draftEnabled}
+                  onChange={(e) => setDraftEnabled(e.target.checked)}
+                  className="h-5 w-5 rounded border-white/20"
+                />
+                Show on menu page
+              </label>
 
-          <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row">
-            <Button type="submit" isLoading={pending} className="min-h-11">
-              {editing ? "Save banner" : "Add banner"}
-            </Button>
-            {editing ? (
-              <Button type="button" variant="ghost" onClick={resetForm}>
-                <X className="h-4 w-4" />
-                Cancel
-              </Button>
-            ) : null}
-          </div>
-        </form>
-      </section>
+              {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
-      <section className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
-        <h2 className="mb-4 text-lg font-semibold text-cream">
-          All banners
-          <span className="ml-2 text-sm font-normal text-muted">
-            ({items.length})
-          </span>
-        </h2>
-        <p className="mb-4 text-sm text-muted">
-          Drag to reorder. Order is reflected on the menu page immediately after
-          saving.
-        </p>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button type="submit" isLoading={pending} className="min-h-11">
+                  {editing ? "Save banner" : "Add banner"}
+                </Button>
+                {editing ? (
+                  <Button type="button" variant="ghost" onClick={resetForm}>
+                    <X className="h-4 w-4" />
+                    Cancel
+                  </Button>
+                ) : null}
+              </div>
+            </form>
+          </section>
 
-        {items.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted">
-            No banners yet. Add your first banner above.
-          </p>
-        ) : (
-          <ul className="space-y-2">
-            {items.map((banner, index) => (
-              <li
-                key={banner.id}
-                draggable
-                onDragStart={() => setDragIndex(index)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={() => handleDrop(index)}
-                onDragEnd={() => setDragIndex(null)}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl border border-white/10 bg-ink/50 p-3 transition-opacity",
-                  dragIndex === index && "opacity-50"
-                )}
-              >
-                <button
-                  type="button"
-                  className="cursor-grab text-cream/40 hover:text-cream active:cursor-grabbing"
-                  aria-label="Drag to reorder"
-                >
-                  <GripVertical className="h-5 w-5" />
-                </button>
+          <section className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
+            <h2 className="mb-4 text-lg font-semibold text-cream">
+              All banners
+              <span className="ml-2 text-sm font-normal text-muted">
+                ({items.length})
+              </span>
+            </h2>
+            <p className="mb-4 text-sm text-muted">
+              Drag to reorder. Order is reflected on the menu page immediately after
+              saving.
+            </p>
 
-                <div className="relative h-12 w-28 shrink-0 overflow-hidden rounded-lg border border-white/10">
-                  <Image
-                    src={banner.image_url}
-                    alt=""
-                    fill
-                    className="object-cover"
-                    sizes="112px"
-                  />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-medium text-cream">
-                    {banner.title || "Untitled banner"}
-                  </p>
-                  <p className="truncate text-xs text-muted">
-                    {banner.subtitle || "No subtitle"}
-                  </p>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleToggle(banner.id, !banner.is_enabled)
-                    }
+            {items.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted">
+                No banners yet. Add your first banner above.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {items.map((banner, index) => (
+                  <li
+                    key={banner.id}
+                    draggable
+                    onDragStart={() => setDragIndex(index)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={() => handleDrop(index)}
+                    onDragEnd={() => setDragIndex(null)}
                     className={cn(
-                      "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
-                      banner.is_enabled
-                        ? "text-green-400 hover:bg-green-500/10"
-                        : "text-muted hover:bg-white/5"
+                      "flex items-center gap-3 rounded-xl border border-white/10 bg-ink/50 p-3 transition-opacity",
+                      dragIndex === index && "opacity-50"
                     )}
-                    aria-label={
-                      banner.is_enabled ? "Disable banner" : "Enable banner"
-                    }
                   >
-                    {banner.is_enabled ? (
-                      <Eye className="h-4 w-4" />
-                    ) : (
-                      <EyeOff className="h-4 w-4" />
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => startEdit(banner)}
-                    className="flex h-10 w-10 items-center justify-center rounded-lg text-cream/60 hover:bg-white/5"
-                    aria-label="Edit banner"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleDelete(banner.id, banner.title ?? "")
-                    }
-                    className="flex h-10 w-10 items-center justify-center rounded-lg text-red-400/70 hover:bg-red-500/10"
-                    aria-label="Delete banner"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+                    <button
+                      type="button"
+                      className="cursor-grab text-cream/40 hover:text-cream active:cursor-grabbing"
+                      aria-label="Drag to reorder"
+                    >
+                      <GripVertical className="h-5 w-5" />
+                    </button>
+
+                    <div className="relative h-12 w-28 shrink-0 overflow-hidden rounded-lg border border-white/10">
+                      <Image
+                        src={banner.image_url}
+                        alt=""
+                        fill
+                        className="object-cover"
+                        sizes="112px"
+                      />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-cream">
+                        {banner.caption || "No caption"}
+                      </p>
+                      <p className="truncate text-xs text-muted">
+                        {banner.click_link || "No click link"}
+                      </p>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleToggle(banner.id, !banner.is_enabled)
+                        }
+                        className={cn(
+                          "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                          banner.is_enabled
+                            ? "text-green-400 hover:bg-green-500/10"
+                            : "text-muted hover:bg-white/5"
+                        )}
+                        aria-label={
+                          banner.is_enabled ? "Disable banner" : "Enable banner"
+                        }
+                      >
+                        {banner.is_enabled ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => startEdit(banner)}
+                        className="flex h-10 w-10 items-center justify-center rounded-lg text-cream/60 hover:bg-white/5"
+                        aria-label="Edit banner"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDelete(banner.id, banner.caption ?? "")
+                        }
+                        className="flex h-10 w-10 items-center justify-center rounded-lg text-red-400/70 hover:bg-red-500/10"
+                        aria-label="Delete banner"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </>
       ) : null}
     </div>

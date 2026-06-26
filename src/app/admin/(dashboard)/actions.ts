@@ -220,10 +220,8 @@ export async function createMenuBanner(
   const { error } = await insertRow(supabase, "menu_banners", {
     image_url: imageUrl,
     image_crop: readCrop(formData, "image_crop"),
-    title: String(formData.get("title") ?? "").trim() || null,
-    subtitle: String(formData.get("subtitle") ?? "").trim() || null,
-    cta_text: String(formData.get("cta_text") ?? "").trim() || null,
-    cta_link: String(formData.get("cta_link") ?? "").trim() || null,
+    caption: String(formData.get("caption") ?? "").trim() || null,
+    click_link: String(formData.get("click_link") ?? "").trim() || null,
     sort_order: count ?? 0,
     is_enabled: formData.get("is_enabled") === "on",
   });
@@ -248,10 +246,8 @@ export async function updateMenuBanner(
     {
       image_url: imageUrl,
       image_crop: readCrop(formData, "image_crop"),
-      title: String(formData.get("title") ?? "").trim() || null,
-      subtitle: String(formData.get("subtitle") ?? "").trim() || null,
-      cta_text: String(formData.get("cta_text") ?? "").trim() || null,
-      cta_link: String(formData.get("cta_link") ?? "").trim() || null,
+      caption: String(formData.get("caption") ?? "").trim() || null,
+      click_link: String(formData.get("click_link") ?? "").trim() || null,
       is_enabled: formData.get("is_enabled") === "on",
     },
     "id",

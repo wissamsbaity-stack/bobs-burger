@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type RefObject } from "react";
 import { AnimatePresence, m } from "@/lib/motion";
 import { cropToImageStyle } from "@/lib/image-crop";
 import { cn } from "@/lib/utils";
@@ -20,71 +20,87 @@ function isExternalHref(href: string): boolean {
   return /^https?:\/\//i.test(href) || href.startsWith("//");
 }
 
-function BannerCta({ text, link }: { text: string; link: string | null }) {
-  const className =
-    "menu-banner-cta pointer-events-auto inline-flex min-h-10 items-center justify-center rounded-full px-5 py-2.5 text-sm font-bold text-white sm:min-h-11 sm:px-6 sm:text-[15px]";
+function BannerCaption({ caption }: { caption: string }) {
+  return (
+    <p className="menu-banner-caption pointer-events-none absolute bottom-0 left-0 z-10 max-w-[min(100%,28rem)] px-5 pb-5 text-base font-bold leading-snug text-white sm:px-7 sm:pb-6 sm:text-lg">
+      {caption}
+    </p>
+  );
+}
 
-  if (link?.trim()) {
-    const href = link.trim();
-    if (isExternalHref(href)) {
+function BannerSlide({
+  banner,
+  priority,
+  swipeLockRef,
+}: {
+  banner: MenuBanner;
+  priority: boolean;
+  swipeLockRef: RefObject<boolean>;
+}) {
+  const clickLink = banner.clickLink?.trim() || null;
+  const caption = banner.caption?.trim() || null;
+
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (swipeLockRef.current) {
+      event.preventDefault();
+    }
+  };
+
+  const inner = (
+    <>
+      <div className="menu-banner-ken-burns absolute inset-0 overflow-hidden">
+        <Image
+          src={banner.imageUrl}
+          alt={caption ?? "Menu banner"}
+          fill
+          priority={priority}
+          className="object-cover"
+          style={cropToImageStyle(banner.imageCrop)}
+          sizes="(max-width: 768px) 100vw, 1280px"
+        />
+      </div>
+      {caption ? <BannerCaption caption={caption} /> : null}
+    </>
+  );
+
+  if (clickLink) {
+    const interactiveClass =
+      "menu-banner-link absolute inset-0 block overflow-hidden cursor-pointer motion-safe:transition-transform motion-safe:duration-200 motion-safe:active:scale-[0.985]";
+
+    if (isExternalHref(clickLink)) {
       return (
         <a
-          href={href}
+          href={clickLink}
           target="_blank"
           rel="noopener noreferrer"
-          className={className}
+          className={interactiveClass}
+          onClick={handleClick}
+          aria-label={caption ?? "Open banner link"}
         >
-          {text}
+          {inner}
         </a>
       );
     }
 
     return (
-      <Link href={href} className={className}>
-        {text}
+      <Link
+        href={clickLink}
+        className={interactiveClass}
+        onClick={handleClick}
+        aria-label={caption ?? "Open banner link"}
+      >
+        {inner}
       </Link>
     );
   }
 
-  return <span className={cn(className, "cursor-default opacity-95")}>{text}</span>;
-}
-
-function BannerSlideContent({ banner }: { banner: MenuBanner }) {
-  const hasText = Boolean(banner.title || banner.subtitle || banner.ctaText);
-  if (!hasText) return null;
-
-  return (
-    <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex w-full items-center px-5 sm:px-8 lg:px-10">
-      <div className="relative max-w-[min(100%,34rem)]">
-        <div
-          className="menu-banner-text-shade absolute -inset-x-5 -inset-y-4 rounded-2xl sm:-inset-x-6 sm:-inset-y-5"
-          aria-hidden
-        />
-        <div className="relative space-y-2 sm:space-y-2.5">
-          {banner.title ? (
-            <h2 className="text-balance text-xl font-bold leading-tight tracking-tight text-cream sm:text-2xl lg:text-[1.65rem] lg:leading-snug">
-              {banner.title}
-            </h2>
-          ) : null}
-          {banner.subtitle ? (
-            <p className="max-w-prose text-pretty text-sm leading-relaxed text-cream/85 sm:text-base sm:leading-relaxed">
-              {banner.subtitle}
-            </p>
-          ) : null}
-          {banner.ctaText ? (
-            <div className={cn(banner.subtitle ? "pt-1.5 sm:pt-2" : banner.title ? "pt-0.5" : "")}>
-              <BannerCta text={banner.ctaText} link={banner.ctaLink} />
-            </div>
-          ) : null}
-        </div>
-      </div>
-    </div>
-  );
+  return <div className="absolute inset-0">{inner}</div>;
 }
 
 export function MenuHeroCarousel({ banners, className }: MenuHeroCarouselProps) {
   const [index, setIndex] = useState(0);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const swipeLock = useRef(false);
   const paused = useRef(false);
 
   const count = banners.length;
@@ -124,6 +140,7 @@ export function MenuHeroCarousel({ banners, className }: MenuHeroCarouselProps) 
         onTouchStart={(e) => {
           const t = e.touches[0];
           touchStart.current = { x: t.clientX, y: t.clientY };
+          swipeLock.current = false;
         }}
         onTouchEnd={(e) => {
           const start = touchStart.current;
@@ -135,6 +152,11 @@ export function MenuHeroCarousel({ banners, className }: MenuHeroCarouselProps) 
           const dy = t.clientY - start.y;
 
           if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy)) return;
+
+          swipeLock.current = true;
+          window.setTimeout(() => {
+            swipeLock.current = false;
+          }, 300);
 
           if (dx < 0) goNext();
           else goPrev();
@@ -151,18 +173,11 @@ export function MenuHeroCarousel({ banners, className }: MenuHeroCarouselProps) 
                 transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
                 className="absolute inset-0"
               >
-                <div className="menu-banner-ken-burns absolute inset-0 overflow-hidden">
-                  <Image
-                    src={active.imageUrl}
-                    alt={active.title ?? "Menu banner"}
-                    fill
-                    priority={index === 0}
-                    className="object-cover"
-                    style={cropToImageStyle(active.imageCrop)}
-                    sizes="(max-width: 768px) 100vw, 1280px"
-                  />
-                </div>
-                <BannerSlideContent banner={active} />
+                <BannerSlide
+                  banner={active}
+                  priority={index === 0}
+                  swipeLockRef={swipeLock}
+                />
               </m.div>
             </AnimatePresence>
           </div>

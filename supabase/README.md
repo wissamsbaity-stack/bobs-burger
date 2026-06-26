@@ -8,6 +8,7 @@
    - `migrations/001_initial_schema.sql`
    - `migrations/002_admin_auth_settings.sql`
    - `migrations/010_menu_banners.sql` (menu page hero carousel)
+   - `migrations/011_menu_banners_simplify.sql` (caption + click link only)
 4. Seed the menu from the POS export:
 
 ```bash

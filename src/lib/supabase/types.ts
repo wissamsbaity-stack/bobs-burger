@@ -233,10 +233,8 @@ export interface Database {
           id: string;
           image_url: string;
           image_crop: Json | null;
-          title: string | null;
-          subtitle: string | null;
-          cta_text: string | null;
-          cta_link: string | null;
+          caption: string | null;
+          click_link: string | null;
           sort_order: number;
           is_enabled: boolean;
           created_at: string;
@@ -246,10 +244,8 @@ export interface Database {
           id?: string;
           image_url: string;
           image_crop?: Json | null;
-          title?: string | null;
-          subtitle?: string | null;
-          cta_text?: string | null;
-          cta_link?: string | null;
+          caption?: string | null;
+          click_link?: string | null;
           sort_order?: number;
           is_enabled?: boolean;
           created_at?: string;
@@ -259,10 +255,8 @@ export interface Database {
           id?: string;
           image_url?: string;
           image_crop?: Json | null;
-          title?: string | null;
-          subtitle?: string | null;
-          cta_text?: string | null;
-          cta_link?: string | null;
+          caption?: string | null;
+          click_link?: string | null;
           sort_order?: number;
           is_enabled?: boolean;
           created_at?: string;

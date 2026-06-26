@@ -9,10 +9,8 @@ export function mapMenuBanner(row: MenuBannerRow): MenuBanner {
     id: row.id,
     imageUrl: row.image_url,
     imageCrop: parseCrop(row.image_crop),
-    title: row.title,
-    subtitle: row.subtitle,
-    ctaText: row.cta_text,
-    ctaLink: row.cta_link,
+    caption: row.caption,
+    clickLink: row.click_link,
     sortOrder: row.sort_order,
     isEnabled: row.is_enabled,
   };
