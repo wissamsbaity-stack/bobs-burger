@@ -103,10 +103,11 @@
   .menu-expandable-search-trigger {
     touch-action: manipulation;
     user-select: none;
+    -webkit-user-select: none;
   }
 
   .menu-expandable-search-field {
-    will-change: width;
+    will-change: width, opacity;
   }
 
   @media (hover: hover) and (pointer: fine) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,18 +13,13 @@ interface MenuExpandableSearchProps {
 
 const EXPANDED_WIDTH = "17.5rem";
 
-function focusSearchInput(input: HTMLInputElement) {
-  input.readOnly = true;
-  input.focus({ preventScroll: true });
-  input.readOnly = false;
-}
-
 export function MenuExpandableSearch({
   value,
   onChange,
   resultCount,
   className,
 }: MenuExpandableSearchProps) {
+  const inputId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -34,26 +29,9 @@ export function MenuExpandableSearch({
     inputRef.current?.blur();
   }, []);
 
-  const openAndFocus = useCallback(() => {
+  const handleInputFocus = useCallback(() => {
     setIsOpen(true);
-    const input = inputRef.current;
-    if (!input) return;
-
-    focusSearchInput(input);
-
-    // iOS Safari may defer focus until after paint when width expands.
-    requestAnimationFrame(() => {
-      focusSearchInput(input);
-    });
   }, []);
-
-  const handleOpenPointerDown = useCallback(
-    (event: PointerEvent<HTMLButtonElement>) => {
-      event.preventDefault();
-      openAndFocus();
-    },
-    [openAndFocus]
-  );
 
   const handleClose = useCallback(() => {
     onChange("");
@@ -85,60 +63,49 @@ export function MenuExpandableSearch({
           isOpen && "bg-white/[0.06] shadow-sm shadow-black/20"
         )}
       >
-        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center">
-          <Search
-            className="pointer-events-none h-[18px] w-[18px] text-cream/70"
-            aria-hidden
-          />
-          {!isOpen ? (
-            <button
-              type="button"
-              onPointerDown={handleOpenPointerDown}
-              className="menu-expandable-search-trigger absolute inset-0 flex items-center justify-center text-cream/70"
-              aria-label="Open search"
-            />
-          ) : null}
-        </div>
+        <label
+          htmlFor={inputId}
+          className="menu-expandable-search-trigger flex h-11 w-11 shrink-0 cursor-pointer select-none items-center justify-center text-cream/70"
+          aria-label="Search menu"
+        >
+          <Search className="pointer-events-none h-[18px] w-[18px]" aria-hidden />
+        </label>
 
         <div
-          className="menu-expandable-search-field flex h-11 min-w-0 items-center overflow-hidden ease-in-out"
+          className="menu-expandable-search-field flex h-11 shrink-0 items-center overflow-hidden"
           style={{
             width: isOpen ? EXPANDED_WIDTH : "0px",
-            transition: "width 280ms ease-in-out",
+            opacity: isOpen ? 1 : 0,
+            transition: "width 280ms ease-in-out, opacity 280ms ease-in-out",
           }}
         >
-          <input
-            ref={inputRef}
-            type="text"
-            inputMode="search"
-            enterKeyHint="search"
-            autoComplete="off"
-            autoCorrect="off"
-            spellCheck={false}
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="Search menu..."
-            tabIndex={isOpen ? 0 : -1}
-            aria-hidden={!isOpen}
-            className={cn(
-              "h-full min-w-0 flex-1 bg-transparent pr-2 text-sm text-cream placeholder:text-cream/35 focus:outline-none",
-              !isOpen && "pointer-events-none opacity-0"
-            )}
-            aria-label="Search menu"
-          />
-          <button
-            type="button"
-            onClick={handleClose}
-            tabIndex={isOpen ? 0 : -1}
-            aria-hidden={!isOpen}
-            className={cn(
-              "menu-expandable-search-close mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-cream/50 transition-colors hover:bg-white/10 hover:text-cream",
-              !isOpen && "pointer-events-none opacity-0"
-            )}
-            aria-label="Close search"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex h-11 w-[17.5rem] min-w-[17.5rem] items-center">
+            <input
+              ref={inputRef}
+              id={inputId}
+              type="search"
+              inputMode="search"
+              enterKeyHint="search"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              onFocus={handleInputFocus}
+              placeholder="Search menu..."
+              className="h-full min-w-0 flex-1 bg-transparent pr-2 text-sm text-cream placeholder:text-cream/35 focus:outline-none"
+              aria-label="Search menu"
+            />
+            <button
+              type="button"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={handleClose}
+              className="menu-expandable-search-close mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-cream/50 transition-colors hover:bg-white/10 hover:text-cream"
+              aria-label="Close search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
