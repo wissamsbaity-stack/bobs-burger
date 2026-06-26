@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AnimatePresence, m } from "@/lib/motion";
-import { MenuSearch } from "@/components/menu/MenuSearch";
 import { MenuHeroCarousel } from "@/components/menu/MenuHeroCarousel";
 import { CategoryTabs } from "@/components/menu/CategoryTabs";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
@@ -17,8 +16,7 @@ import {
 import type { Category, MenuItem } from "@/types/menu";
 import type { MenuBanner } from "@/types/banner";
 
-const GRID_CLASS =
-  "grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4";
+const LIST_CLASS = "flex flex-col gap-3 sm:gap-3.5";
 
 function MenuItemGrid({
   items,
@@ -30,7 +28,7 @@ function MenuItemGrid({
   priorityCount?: number;
 }) {
   return (
-    <StaggerGrid className={GRID_CLASS}>
+    <StaggerGrid className={LIST_CLASS}>
       {items.map((item, index) => (
         <MenuItemCard
           key={item.id}
@@ -132,34 +130,31 @@ export default function MenuPageClient({
 
   return (
     <div className="pb-20">
-      <section className="border-b border-cream/5 bg-surface-raised/30 py-5 sm:py-6 lg:py-8">
-        {banners.length > 0 ? (
-          <MenuHeroCarousel banners={banners} className="mb-5 sm:mb-6" />
-        ) : null}
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <MenuSearch
-            value={searchQuery}
-            onChange={setSearchQuery}
-            resultCount={searchQuery ? filteredItems.length : undefined}
-            className="mx-auto max-w-xl"
-          />
-        </div>
-      </section>
+      {banners.length > 0 ? (
+        <section className="border-b border-cream/5 bg-surface-raised/30 py-5 sm:py-6 lg:py-8">
+          <MenuHeroCarousel banners={banners} />
+        </section>
+      ) : null}
 
       <div
         id="menu-category-nav"
         className="sticky top-[var(--site-header-height)] z-40 border-b border-white/5 bg-ink/[0.98] shadow-sm shadow-black/10"
       >
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
+        <div className="mx-auto max-w-3xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8">
           <CategoryTabs
             categories={categories}
             activeCategory={activeCategory}
             onCategoryChange={handleCategoryChange}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchResultCount={
+              searchQuery.trim() ? filteredItems.length : undefined
+            }
           />
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 pt-5 sm:px-6 sm:pt-6 lg:px-8">
+      <div className="mx-auto max-w-3xl px-4 pt-5 sm:px-6 sm:pt-6 lg:px-8">
         <section>
           <div
             ref={titleRef}

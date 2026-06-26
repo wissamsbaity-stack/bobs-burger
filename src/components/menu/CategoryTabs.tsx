@@ -1,6 +1,7 @@
 "use client";
 
 import { CategoryIcon } from "@/components/menu/CategoryIcon";
+import { MenuExpandableSearch } from "@/components/menu/MenuExpandableSearch";
 import { m, LayoutGroup } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { Category } from "@/types/menu";
@@ -9,6 +10,9 @@ interface CategoryTabsProps {
   categories: Category[];
   activeCategory: string;
   onCategoryChange: (categoryId: string) => void;
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
+  searchResultCount?: number;
   className?: string;
 }
 
@@ -53,13 +57,19 @@ export function CategoryTabs({
   categories,
   activeCategory,
   onCategoryChange,
+  searchQuery,
+  onSearchChange,
+  searchResultCount,
   className,
 }: CategoryTabsProps) {
+  const showSearch =
+    searchQuery !== undefined && onSearchChange !== undefined;
+
   return (
     <LayoutGroup id="menu-category-tabs">
       <div
         className={cn(
-          "flex gap-2 overflow-x-auto pb-1 scrollbar-none",
+          "flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none",
           className
         )}
       >
@@ -69,6 +79,15 @@ export function CategoryTabs({
         >
           All Items
         </CategoryTab>
+
+        {showSearch ? (
+          <MenuExpandableSearch
+            value={searchQuery}
+            onChange={onSearchChange}
+            resultCount={searchResultCount}
+          />
+        ) : null}
+
         {categories.map((category) => (
           <CategoryTab
             key={category.id}

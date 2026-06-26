@@ -1,12 +1,11 @@
 "use client";
 
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { Transition } from "framer-motion";
 import { m, useReducedMotion } from "@/lib/motion";
-import { Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { MenuItemImage } from "@/components/menu/MenuItemImage";
-import { MenuItemBadges } from "@/components/menu/MenuItemBadges";
-import { AddToCartButton } from "@/components/menu/AddToCartButton";
+import { Badge } from "@/components/ui/Badge";
 import { useCart } from "@/contexts/CartContext";
 import {
   cardReveal,
@@ -14,25 +13,23 @@ import {
   staggerItemVariants,
 } from "@/lib/motion-presets";
 import { formatPrice } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import type { MenuItem } from "@/types/menu";
 
 interface MenuItemCardProps {
   item: MenuItem;
   onCustomize?: (item: MenuItem) => void;
-  compact?: boolean;
   imagePriority?: boolean;
   revealIndex?: number;
-  /** Use parent StaggerGrid stagger instead of individual whileInView */
   stagger?: boolean;
 }
 
 const cardBaseClass =
-  "menu-card-optimized menu-product-card group overflow-hidden rounded-xl border bg-surface-raised";
+  "menu-card-optimized menu-product-card menu-list-card group relative flex gap-3 overflow-hidden rounded-2xl border border-white/[0.08] bg-surface-raised p-3 sm:gap-4 sm:p-3.5";
 
 function MenuItemCardComponent({
   item,
   onCustomize,
-  compact = false,
   imagePriority = false,
   revealIndex = 0,
   stagger = false,
@@ -76,97 +73,79 @@ function MenuItemCardComponent({
       ? undefined
       : revealStagger(revealIndex);
 
-  if (compact) {
-    return (
-      <m.article
-        {...revealProps}
-        animate={justAdded ? { scale: [1, 0.97, 1.02, 1] } : undefined}
-        whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
-        transition={pulseTransition}
-        className={`${cardBaseClass} flex gap-3 p-2.5`}
-      >
-        <div className="relative shrink-0">
-          <MenuItemImage
-            src={item.imageUrl}
-            alt={item.name}
-            compact
-            priority={imagePriority}
-            crop={item.imageCrop}
-          />
-          <MenuItemBadges item={item} />
-        </div>
-
-        <div className="flex min-w-0 flex-1 flex-col py-0.5">
-          <div className="mb-1 min-w-0">
-            <h3 className="text-sm font-semibold leading-snug text-cream">
-              {item.name}
-            </h3>
-            <p className="mt-0.5 text-base font-bold text-accent">
-              {formatPrice(item.price)}
-            </p>
-          </div>
-          <p className="mb-2 line-clamp-1 text-xs text-muted">
-            {item.description}
-          </p>
-          <AddToCartButton
-            onAdd={handleAdd}
-            confirm={!onCustomize}
-            idleIcon={<Plus className="h-3.5 w-3.5" />}
-            idleLabel="Add"
-            className="mt-auto"
-          />
-        </div>
-      </m.article>
-    );
-  }
-
   return (
     <m.article
       {...revealProps}
       animate={
         justAdded && !prefersReducedMotion
-          ? { scale: [1, 0.97, 1.02, 1] }
+          ? { scale: [1, 0.985, 1.01, 1] }
           : undefined
       }
-      whileTap={prefersReducedMotion ? undefined : { scale: 0.98 }}
+      whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
       transition={pulseTransition}
-      className={`${cardBaseClass} flex flex-col`}
+      className={cardBaseClass}
     >
-      <div className="relative">
+      <div className="relative w-[35%] max-w-[9.5rem] shrink-0 sm:max-w-[10.5rem]">
         <MenuItemImage
           src={item.imageUrl}
           alt={item.name}
+          variant="list"
           priority={imagePriority}
           crop={item.imageCrop}
         />
-        <MenuItemBadges item={item} />
+
+        <div
+          className="pointer-events-none absolute -bottom-0.5 -right-0.5 z-10 h-12 w-12 rounded-full bg-black/40 blur-md"
+          aria-hidden
+        />
+
+        <m.button
+          type="button"
+          onClick={handleAdd}
+          aria-label={
+            onCustomize
+              ? `Customize ${item.name}`
+              : `Add ${item.name} to cart`
+          }
+          animate={
+            justAdded && !prefersReducedMotion
+              ? { scale: [1, 0.9, 1.08, 1] }
+              : undefined
+          }
+          whileTap={prefersReducedMotion ? undefined : { scale: 0.92 }}
+          className={cn(
+            "absolute -bottom-1 -right-1 z-20 flex h-11 w-11 items-center justify-center rounded-full text-white shadow-[0_4px_16px_rgba(0,0,0,0.45),0_0_20px_rgba(255,92,0,0.35)] ring-2 ring-ink/70 transition-colors motion-safe:duration-200",
+            justAdded ? "bg-green-500" : "bg-accent hover:bg-accent-hover"
+          )}
+        >
+          {justAdded ? (
+            <Check className="h-5 w-5" strokeWidth={2.5} />
+          ) : (
+            <Plus className="h-5 w-5" strokeWidth={2.5} />
+          )}
+        </m.button>
       </div>
 
-      <div className="flex flex-1 flex-col p-2.5 sm:p-3">
-        <div className="mb-1.5 min-w-0">
+      <div className="flex min-w-0 flex-1 flex-col justify-center py-0.5">
+        <div className="mb-1 flex flex-wrap items-center gap-2">
           <h3
-            className="text-[13px] font-semibold leading-[1.35] text-cream sm:text-sm"
+            className="min-w-0 flex-1 text-base font-semibold leading-snug text-cream sm:text-[17px]"
             title={item.name}
           >
             {item.name}
           </h3>
-          <p className="mt-1 text-base font-bold text-accent sm:text-lg">
-            {formatPrice(item.price)}
-          </p>
+          {item.isPopular ? <Badge variant="popular">Popular</Badge> : null}
         </div>
 
-        <p className="mb-2 line-clamp-2 flex-1 text-xs leading-relaxed text-muted">
-          {item.description}
+        <p className="mb-1.5 text-lg font-bold leading-none text-accent sm:text-xl">
+          {formatPrice(item.price)}
         </p>
 
-        <AddToCartButton
-          onAdd={handleAdd}
-          confirm={!onCustomize}
-          fullWidth
-          idleIcon={<Plus className="h-3.5 w-3.5" />}
-          idleLabel="Add to Cart"
-          className="mt-auto"
-        />
+        {item.description ? (
+          <p className="line-clamp-2 text-sm leading-relaxed text-muted">
+            {item.description}
+          </p>
+        ) : null}
       </div>
     </m.article>
   );
