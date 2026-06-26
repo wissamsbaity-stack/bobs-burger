@@ -7,6 +7,7 @@
 3. Run migrations in the SQL editor (in order):
    - `migrations/001_initial_schema.sql`
    - `migrations/002_admin_auth_settings.sql`
+   - `migrations/010_menu_banners.sql` (menu page hero carousel)
 4. Seed the menu from the POS export:
 
 ```bash

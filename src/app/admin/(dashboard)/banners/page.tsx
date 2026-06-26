@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 export default async function AdminBannersPage() {
-  const banners = await getAdminMenuBanners();
+  const { banners, schemaReady, error } = await getAdminMenuBanners();
 
   return (
     <>
@@ -15,7 +15,11 @@ export default async function AdminBannersPage() {
         title="Hero Banners"
         description="Manage the menu page carousel — upload, reorder, and enable banners."
       />
-      <HeroBannersManager banners={banners} />
+      <HeroBannersManager
+        banners={banners}
+        schemaReady={schemaReady}
+        loadError={error}
+      />
     </>
   );
 }

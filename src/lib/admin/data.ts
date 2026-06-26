@@ -1,16 +1,47 @@
 import { requireAdmin } from "@/lib/auth/admin";
+import { isMissingRelationError } from "@/lib/supabase/errors";
 import type { CategoryRow, Database, MenuItemRow } from "@/lib/supabase/types";
 
 type MenuBannerRow = Database["public"]["Tables"]["menu_banners"]["Row"];
 
-export async function getAdminMenuBanners(): Promise<MenuBannerRow[]> {
+export type AdminMenuBannersResult = {
+  banners: MenuBannerRow[];
+  /** False when the menu_banners table has not been migrated yet. */
+  schemaReady: boolean;
+  error: string | null;
+};
+
+export async function getAdminMenuBanners(): Promise<AdminMenuBannersResult> {
   const { supabase } = await requireAdmin();
   const { data, error } = await supabase
     .from("menu_banners")
     .select("*")
     .order("sort_order", { ascending: true });
-  if (error) throw error;
-  return data ?? [];
+
+  if (error) {
+    console.error("[getAdminMenuBanners]", error.message, error.code);
+
+    if (isMissingRelationError(error)) {
+      return {
+        banners: [],
+        schemaReady: false,
+        error:
+          "The menu_banners table does not exist yet. Run migration 010_menu_banners.sql in the Supabase SQL Editor.",
+      };
+    }
+
+    return {
+      banners: [],
+      schemaReady: true,
+      error: error.message,
+    };
+  }
+
+  return {
+    banners: data ?? [],
+    schemaReady: true,
+    error: null,
+  };
 }
 
 export async function getAdminCategories(): Promise<CategoryRow[]> {
@@ -43,6 +74,6 @@ export async function getAdminStats() {
   return {
     categories: categories.count ?? 0,
     menuItems: items.count ?? 0,
-    banners: bannerCount.count ?? 0,
+    banners: bannerCount.error ? 0 : (bannerCount.count ?? 0),
   };
 }

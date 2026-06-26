@@ -1,5 +1,6 @@
 import { createServerClient } from "@/lib/supabase/server";
 import { mapMenuBanner } from "@/lib/supabase/banner-mappers";
+import { isMissingRelationError } from "@/lib/supabase/errors";
 import type { MenuBanner } from "@/types/banner";
 
 export async function getMenuBanners(): Promise<MenuBanner[]> {
@@ -13,7 +14,13 @@ export async function getMenuBanners(): Promise<MenuBanner[]> {
     .order("sort_order", { ascending: true });
 
   if (error) {
-    console.error("[getMenuBanners]", error);
+    if (isMissingRelationError(error)) {
+      console.error(
+        "[getMenuBanners] menu_banners table missing — run migration 010_menu_banners.sql"
+      );
+    } else {
+      console.error("[getMenuBanners]", error.message, error.code);
+    }
     return [];
   }
 

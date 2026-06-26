@@ -31,8 +31,16 @@ type MenuBannerRow = Database["public"]["Tables"]["menu_banners"]["Row"];
 
 const BANNER_RATIO = 2.35;
 
-export function HeroBannersManager({ banners }: { banners: MenuBannerRow[] }) {
-  const [items, setItems] = useState(banners);
+export function HeroBannersManager({
+  banners: initialBanners = [],
+  schemaReady = true,
+  loadError = null,
+}: {
+  banners?: MenuBannerRow[];
+  schemaReady?: boolean;
+  loadError?: string | null;
+}) {
+  const [items, setItems] = useState(initialBanners);
   const [editing, setEditing] = useState<MenuBannerRow | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -164,6 +172,30 @@ export function HeroBannersManager({ banners }: { banners: MenuBannerRow[] }) {
 
   return (
     <div className="space-y-8">
+      {!schemaReady ? (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-6">
+          <h2 className="text-base font-semibold text-amber-200">
+            Database setup required
+          </h2>
+          <p className="mt-2 text-sm text-amber-100/80">{loadError}</p>
+          <p className="mt-3 text-sm text-muted">
+            Open Supabase → SQL Editor → run the contents of{" "}
+            <code className="rounded bg-ink/60 px-1.5 py-0.5 text-xs text-cream">
+              supabase/migrations/010_menu_banners.sql
+            </code>
+            , then refresh this page.
+          </p>
+        </div>
+      ) : null}
+
+      {loadError && schemaReady ? (
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {loadError}
+        </div>
+      ) : null}
+
+      {schemaReady ? (
+        <>
       <section className="rounded-2xl border border-white/10 bg-surface-raised p-4 sm:p-6">
         <h2 className="mb-1 text-lg font-semibold text-cream">Live preview</h2>
         <p className="mb-4 text-sm text-muted">
@@ -379,6 +411,8 @@ export function HeroBannersManager({ banners }: { banners: MenuBannerRow[] }) {
           </ul>
         )}
       </section>
+        </>
+      ) : null}
     </div>
   );
 }
