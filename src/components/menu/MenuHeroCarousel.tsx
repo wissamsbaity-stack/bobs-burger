@@ -16,6 +16,72 @@ interface MenuHeroCarouselProps {
   className?: string;
 }
 
+function isExternalHref(href: string): boolean {
+  return /^https?:\/\//i.test(href) || href.startsWith("//");
+}
+
+function BannerCta({ text, link }: { text: string; link: string | null }) {
+  const className =
+    "menu-banner-cta pointer-events-auto inline-flex min-h-10 items-center justify-center rounded-full px-5 py-2.5 text-sm font-bold text-white sm:min-h-11 sm:px-6 sm:text-[15px]";
+
+  if (link?.trim()) {
+    const href = link.trim();
+    if (isExternalHref(href)) {
+      return (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={className}
+        >
+          {text}
+        </a>
+      );
+    }
+
+    return (
+      <Link href={href} className={className}>
+        {text}
+      </Link>
+    );
+  }
+
+  return <span className={cn(className, "cursor-default opacity-95")}>{text}</span>;
+}
+
+function BannerSlideContent({ banner }: { banner: MenuBanner }) {
+  const hasText = Boolean(banner.title || banner.subtitle || banner.ctaText);
+  if (!hasText) return null;
+
+  return (
+    <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex w-full items-center px-5 sm:px-8 lg:px-10">
+      <div className="relative max-w-[min(100%,34rem)]">
+        <div
+          className="menu-banner-text-shade absolute -inset-x-5 -inset-y-4 rounded-2xl sm:-inset-x-6 sm:-inset-y-5"
+          aria-hidden
+        />
+        <div className="relative space-y-2 sm:space-y-2.5">
+          {banner.title ? (
+            <h2 className="text-balance text-xl font-bold leading-tight tracking-tight text-cream sm:text-2xl lg:text-[1.65rem] lg:leading-snug">
+              {banner.title}
+            </h2>
+          ) : null}
+          {banner.subtitle ? (
+            <p className="max-w-prose text-pretty text-sm leading-relaxed text-cream/85 sm:text-base sm:leading-relaxed">
+              {banner.subtitle}
+            </p>
+          ) : null}
+          {banner.ctaText ? (
+            <div className={cn(banner.subtitle ? "pt-1.5 sm:pt-2" : banner.title ? "pt-0.5" : "")}>
+              <BannerCta text={banner.ctaText} link={banner.ctaLink} />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MenuHeroCarousel({ banners, className }: MenuHeroCarouselProps) {
   const [index, setIndex] = useState(0);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -75,14 +141,14 @@ export function MenuHeroCarousel({ banners, className }: MenuHeroCarouselProps) 
         }}
       >
         <div className="menu-hero-carousel relative overflow-hidden rounded-[22px] border border-white/[0.08] bg-ink shadow-[0_16px_48px_-12px_rgba(0,0,0,0.55),0_0_40px_-8px_rgba(255,92,0,0.18)]">
-          <div className="relative aspect-[2.35/1] max-h-[200px] w-full sm:max-h-[240px] lg:max-h-[280px]">
+          <div className="relative aspect-[2.35/1] max-h-[240px] w-full sm:max-h-[280px] lg:max-h-[340px]">
             <AnimatePresence mode="wait">
               <m.div
                 key={active.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.65, ease: [0.25, 0.1, 0.25, 1] }}
+                transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
                 className="absolute inset-0"
               >
                 <div className="menu-banner-ken-burns absolute inset-0 overflow-hidden">
@@ -96,35 +162,9 @@ export function MenuHeroCarousel({ banners, className }: MenuHeroCarouselProps) 
                     sizes="(max-width: 768px) 100vw, 1280px"
                   />
                 </div>
-                <div
-                  className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/20 to-transparent"
-                  aria-hidden
-                />
+                <BannerSlideContent banner={active} />
               </m.div>
             </AnimatePresence>
-
-            {(active.title || active.subtitle || active.ctaText) && (
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 p-4 sm:p-6">
-                {active.title ? (
-                  <p className="text-lg font-semibold tracking-tight text-cream sm:text-xl">
-                    {active.title}
-                  </p>
-                ) : null}
-                {active.subtitle ? (
-                  <p className="mt-0.5 max-w-lg text-sm text-cream/75 sm:text-base">
-                    {active.subtitle}
-                  </p>
-                ) : null}
-                {active.ctaText && active.ctaLink ? (
-                  <Link
-                    href={active.ctaLink}
-                    className="pointer-events-auto mt-3 inline-flex rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white transition-transform motion-safe:active:scale-[0.97]"
-                  >
-                    {active.ctaText}
-                  </Link>
-                ) : null}
-              </div>
-            )}
           </div>
         </div>
 
