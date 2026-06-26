@@ -6,6 +6,7 @@ import { AnimatePresence, m } from "@/lib/motion";
 import { MenuHeroCarousel } from "@/components/menu/MenuHeroCarousel";
 import { CategoryTabs } from "@/components/menu/CategoryTabs";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
+import { MenuCategorySectionHeader } from "@/components/menu/MenuCategorySectionHeader";
 import { AddToCartModal } from "@/components/menu/AddToCartModal";
 import { StaggerGrid } from "@/components/motion/StaggerGrid";
 import { categoryCrossFade } from "@/lib/motion-presets";
@@ -57,7 +58,7 @@ export default function MenuPageClient({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [modalItem, setModalItem] = useState<MenuItem | null>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
 
   const scrollToCategoryTitle = useCallback(() => {
     requestAnimationFrame(() => {
@@ -156,23 +157,26 @@ export default function MenuPageClient({
 
       <div className="mx-auto max-w-3xl px-4 pt-5 sm:px-6 sm:pt-6 lg:px-8">
         <section>
-          <div
-            ref={titleRef}
-            className="scroll-mt-[var(--menu-category-scroll-offset)] mb-4 sm:mb-5"
-          >
-            <AnimatePresence mode="wait">
-              <m.h2
-                key={activeCategoryName ?? "all"}
-                initial={categoryCrossFade.initial}
-                animate={categoryCrossFade.animate}
-                exit={categoryCrossFade.exit}
-                transition={categoryCrossFade.transition}
-                className="text-lg font-semibold text-cream sm:text-xl"
-              >
-                {activeCategoryName}
-              </m.h2>
-            </AnimatePresence>
-          </div>
+          {!showGrouped ? (
+            <div
+              ref={titleRef}
+              className="mb-5 scroll-mt-[var(--menu-category-scroll-offset)] sm:mb-6"
+            >
+              <AnimatePresence mode="wait">
+                <m.div
+                  key={activeCategoryName ?? "all"}
+                  initial={categoryCrossFade.initial}
+                  animate={categoryCrossFade.animate}
+                  exit={categoryCrossFade.exit}
+                  transition={categoryCrossFade.transition}
+                >
+                  <MenuCategorySectionHeader title={activeCategoryName ?? "All Items"} />
+                </m.div>
+              </AnimatePresence>
+            </div>
+          ) : (
+            <div ref={titleRef} className="scroll-mt-[var(--menu-category-scroll-offset)]" aria-hidden />
+          )}
 
           <AnimatePresence mode="wait">
             {filteredItems.length === 0 ? (
@@ -209,13 +213,11 @@ export default function MenuPageClient({
                 animate={categoryCrossFade.animate}
                 exit={categoryCrossFade.exit}
                 transition={categoryCrossFade.transition}
-                className="space-y-10 sm:space-y-12"
+                className="space-y-8 sm:space-y-10"
               >
                 {groupedSections.map(({ category, items }, sectionIndex) => (
-                  <div key={category.id}>
-                    <h3 className="mb-4 scroll-mt-[var(--menu-category-scroll-offset)] text-base font-semibold text-cream sm:mb-5 sm:text-lg">
-                      {category.name}
-                    </h3>
+                  <div key={category.id} className="space-y-4 sm:space-y-5">
+                    <MenuCategorySectionHeader title={category.name} />
                     <MenuItemGrid
                       items={items}
                       onCustomize={setModalItem}

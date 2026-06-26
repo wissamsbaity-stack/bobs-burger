@@ -73,13 +73,6 @@ export function CategoryTabs({
           className
         )}
       >
-        <CategoryTab
-          active={activeCategory === "all"}
-          onClick={() => onCategoryChange("all")}
-        >
-          All Items
-        </CategoryTab>
-
         {showSearch ? (
           <MenuExpandableSearch
             value={searchQuery}
@@ -87,6 +80,13 @@ export function CategoryTabs({
             resultCount={searchResultCount}
           />
         ) : null}
+
+        <CategoryTab
+          active={activeCategory === "all"}
+          onClick={() => onCategoryChange("all")}
+        >
+          All Items
+        </CategoryTab>
 
         {categories.map((category) => (
           <CategoryTab

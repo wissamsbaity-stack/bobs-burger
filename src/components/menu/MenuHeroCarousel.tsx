@@ -65,7 +65,7 @@ function BannerSlide({
 
   if (clickLink) {
     const interactiveClass =
-      "menu-banner-link absolute inset-0 block overflow-hidden cursor-pointer motion-safe:transition-transform motion-safe:duration-200 motion-safe:active:scale-[0.985]";
+      "menu-banner-link absolute inset-0 block cursor-pointer overflow-hidden motion-safe:transition-opacity motion-safe:duration-150 motion-safe:active:opacity-[0.92]";
 
     if (isExternalHref(clickLink)) {
       return (
