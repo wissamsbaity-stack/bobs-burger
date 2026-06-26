@@ -1,8 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { Search, X } from "lucide-react";
-import { m } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 interface MenuExpandableSearchProps {
@@ -12,10 +11,13 @@ interface MenuExpandableSearchProps {
   className?: string;
 }
 
-const SEARCH_TRANSITION = {
-  duration: 0.28,
-  ease: [0.4, 0, 0.2, 1] as const,
-};
+const EXPANDED_WIDTH = "17.5rem";
+
+function focusSearchInput(input: HTMLInputElement) {
+  input.readOnly = true;
+  input.focus({ preventScroll: true });
+  input.readOnly = false;
+}
 
 export function MenuExpandableSearch({
   value,
@@ -29,22 +31,34 @@ export function MenuExpandableSearch({
 
   const collapse = useCallback(() => {
     setIsOpen(false);
+    inputRef.current?.blur();
   }, []);
 
-  const open = useCallback(() => {
+  const openAndFocus = useCallback(() => {
     setIsOpen(true);
+    const input = inputRef.current;
+    if (!input) return;
+
+    focusSearchInput(input);
+
+    // iOS Safari may defer focus until after paint when width expands.
+    requestAnimationFrame(() => {
+      focusSearchInput(input);
+    });
   }, []);
+
+  const handleOpenPointerDown = useCallback(
+    (event: PointerEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      openAndFocus();
+    },
+    [openAndFocus]
+  );
 
   const handleClose = useCallback(() => {
     onChange("");
     collapse();
   }, [collapse, onChange]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const timer = window.setTimeout(() => inputRef.current?.focus(), 30);
-    return () => window.clearTimeout(timer);
-  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -65,55 +79,68 @@ export function MenuExpandableSearch({
 
   return (
     <div ref={rootRef} className={cn("relative shrink-0", className)}>
-      <m.div
-        initial={false}
-        animate={{ width: isOpen ? "min(100%, 17.5rem)" : "2.75rem" }}
-        transition={SEARCH_TRANSITION}
+      <div
         className={cn(
           "menu-expandable-search flex h-11 items-center overflow-hidden rounded-full border border-white/10 bg-white/5",
           isOpen && "bg-white/[0.06] shadow-sm shadow-black/20"
         )}
       >
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center">
-          {isOpen ? (
-            <Search
-              className="h-[18px] w-[18px] text-cream/40"
-              aria-hidden
-            />
-          ) : (
+        <div className="relative flex h-11 w-11 shrink-0 items-center justify-center">
+          <Search
+            className="pointer-events-none h-[18px] w-[18px] text-cream/70"
+            aria-hidden
+          />
+          {!isOpen ? (
             <button
               type="button"
-              onClick={open}
-              className="flex h-full w-full items-center justify-center text-cream/70 transition-colors hover:text-cream"
+              onPointerDown={handleOpenPointerDown}
+              className="menu-expandable-search-trigger absolute inset-0 flex items-center justify-center text-cream/70"
               aria-label="Open search"
-            >
-              <Search className="h-[18px] w-[18px]" />
-            </button>
-          )}
+            />
+          ) : null}
         </div>
 
-        {isOpen ? (
-          <>
-            <input
-              ref={inputRef}
-              type="search"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              placeholder="Search menu..."
-              className="min-w-0 flex-1 bg-transparent pr-2 text-sm text-cream placeholder:text-cream/35 focus:outline-none"
-              aria-label="Search menu"
-            />
-            <button
-              type="button"
-              onClick={handleClose}
-              className="mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-cream/50 transition-colors hover:bg-white/10 hover:text-cream"
-              aria-label="Close search"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </>
-        ) : null}
-      </m.div>
+        <div
+          className="menu-expandable-search-field flex h-11 min-w-0 items-center overflow-hidden ease-in-out"
+          style={{
+            width: isOpen ? EXPANDED_WIDTH : "0px",
+            transition: "width 280ms ease-in-out",
+          }}
+        >
+          <input
+            ref={inputRef}
+            type="text"
+            inputMode="search"
+            enterKeyHint="search"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="Search menu..."
+            tabIndex={isOpen ? 0 : -1}
+            aria-hidden={!isOpen}
+            className={cn(
+              "h-full min-w-0 flex-1 bg-transparent pr-2 text-sm text-cream placeholder:text-cream/35 focus:outline-none",
+              !isOpen && "pointer-events-none opacity-0"
+            )}
+            aria-label="Search menu"
+          />
+          <button
+            type="button"
+            onClick={handleClose}
+            tabIndex={isOpen ? 0 : -1}
+            aria-hidden={!isOpen}
+            className={cn(
+              "menu-expandable-search-close mr-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-cream/50 transition-colors hover:bg-white/10 hover:text-cream",
+              !isOpen && "pointer-events-none opacity-0"
+            )}
+            aria-label="Close search"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
 
       {isOpen && value.trim() && resultCount !== undefined ? (
         <p className="absolute left-0 top-full mt-1 whitespace-nowrap text-xs text-cream/40">
