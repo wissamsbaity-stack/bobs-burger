@@ -78,6 +78,25 @@
     }
   }
 
+  @keyframes menu-banner-ken-burns {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.07);
+    }
+  }
+
+  .menu-banner-ken-burns {
+    animation: menu-banner-ken-burns 5s ease-out forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu-banner-ken-burns {
+      animation: none;
+    }
+  }
+
   /* Branded splash — CSS-only for smooth low-end performance */
 
   /* Absolute safety net: even if JS never hydrates or throws, the overlay is

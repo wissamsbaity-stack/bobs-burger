@@ -206,6 +206,110 @@ export async function deleteMenuItem(id: string): Promise<ActionResult> {
   return { ok: true };
 }
 
+export async function createMenuBanner(
+  formData: FormData
+): Promise<ActionResult> {
+  const { supabase } = await requireAdmin();
+  const imageUrl = String(formData.get("image_url") ?? "").trim();
+  if (!imageUrl) return fail("Banner image is required");
+
+  const { count } = await supabase
+    .from("menu_banners")
+    .select("id", { count: "exact", head: true });
+
+  const { error } = await insertRow(supabase, "menu_banners", {
+    image_url: imageUrl,
+    image_crop: readCrop(formData, "image_crop"),
+    title: String(formData.get("title") ?? "").trim() || null,
+    subtitle: String(formData.get("subtitle") ?? "").trim() || null,
+    cta_text: String(formData.get("cta_text") ?? "").trim() || null,
+    cta_link: String(formData.get("cta_link") ?? "").trim() || null,
+    sort_order: count ?? 0,
+    is_enabled: formData.get("is_enabled") === "on",
+  });
+
+  if (error) return fail(error.message);
+  revalidatePath("/admin/banners");
+  revalidatePath("/menu");
+  return { ok: true };
+}
+
+export async function updateMenuBanner(
+  formData: FormData
+): Promise<ActionResult> {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const imageUrl = String(formData.get("image_url") ?? "").trim();
+  if (!id || !imageUrl) return fail("Banner id and image are required");
+
+  const { error } = await updateRow(
+    supabase,
+    "menu_banners",
+    {
+      image_url: imageUrl,
+      image_crop: readCrop(formData, "image_crop"),
+      title: String(formData.get("title") ?? "").trim() || null,
+      subtitle: String(formData.get("subtitle") ?? "").trim() || null,
+      cta_text: String(formData.get("cta_text") ?? "").trim() || null,
+      cta_link: String(formData.get("cta_link") ?? "").trim() || null,
+      is_enabled: formData.get("is_enabled") === "on",
+    },
+    "id",
+    id
+  );
+
+  if (error) return fail(error.message);
+  revalidatePath("/admin/banners");
+  revalidatePath("/menu");
+  return { ok: true };
+}
+
+export async function deleteMenuBanner(id: string): Promise<ActionResult> {
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase.from("menu_banners").delete().eq("id", id);
+  if (error) return fail(error.message);
+  revalidatePath("/admin/banners");
+  revalidatePath("/menu");
+  return { ok: true };
+}
+
+export async function reorderMenuBanners(
+  orderedIds: string[]
+): Promise<ActionResult> {
+  const { supabase } = await requireAdmin();
+  if (!orderedIds.length) return { ok: true };
+
+  const updates = orderedIds.map((id, index) =>
+    updateRow(supabase, "menu_banners", { sort_order: index }, "id", id)
+  );
+
+  const results = await Promise.all(updates);
+  const failed = results.find((r) => r.error);
+  if (failed?.error) return fail(failed.error.message);
+
+  revalidatePath("/admin/banners");
+  revalidatePath("/menu");
+  return { ok: true };
+}
+
+export async function toggleMenuBanner(
+  id: string,
+  enabled: boolean
+): Promise<ActionResult> {
+  const { supabase } = await requireAdmin();
+  const { error } = await updateRow(
+    supabase,
+    "menu_banners",
+    { is_enabled: enabled },
+    "id",
+    id
+  );
+  if (error) return fail(error.message);
+  revalidatePath("/admin/banners");
+  revalidatePath("/menu");
+  return { ok: true };
+}
+
 export async function updateSiteSettings(
   formData: FormData
 ): Promise<ActionResult> {

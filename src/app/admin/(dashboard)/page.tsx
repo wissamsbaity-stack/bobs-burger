@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 import { getAdminStats } from "@/lib/admin/data";
-import { FolderOpen, UtensilsCrossed, Settings } from "lucide-react";
+import { FolderOpen, UtensilsCrossed, Settings, Images } from "lucide-react";
 
 export const metadata = {
   title: "Admin Dashboard",
@@ -24,6 +24,12 @@ export default async function AdminDashboardPage() {
       icon: UtensilsCrossed,
     },
     {
+      label: "Hero banners",
+      value: stats.banners,
+      href: "/admin/banners",
+      icon: Images,
+    },
+    {
       label: "Settings",
       value: "—",
       href: "/admin/settings",
@@ -37,7 +43,7 @@ export default async function AdminDashboardPage() {
         title="Dashboard"
         description="Manage your restaurant menu, settings, and content."
       />
-      <div className="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-3">
+      <div className="mx-auto grid max-w-4xl gap-5 sm:grid-cols-2 lg:max-w-5xl lg:grid-cols-4">
         {cards.map(({ label, value, href, icon: Icon }) => (
           <Link
             key={label}

@@ -9,6 +9,7 @@ import {
   Settings,
   LogOut,
   ExternalLink,
+  Images,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AdminBrandMark } from "@/components/admin/AdminBrandMark";
@@ -18,6 +19,7 @@ const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/categories", label: "Categories", icon: FolderOpen },
   { href: "/admin/menu", label: "Menu Items", icon: UtensilsCrossed },
+  { href: "/admin/banners", label: "Hero Banners", icon: Images },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

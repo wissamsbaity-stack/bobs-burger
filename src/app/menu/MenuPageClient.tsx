@@ -4,17 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AnimatePresence, m } from "@/lib/motion";
 import { MenuSearch } from "@/components/menu/MenuSearch";
+import { MenuHeroCarousel } from "@/components/menu/MenuHeroCarousel";
 import { CategoryTabs } from "@/components/menu/CategoryTabs";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { AddToCartModal } from "@/components/menu/AddToCartModal";
 import { StaggerGrid } from "@/components/motion/StaggerGrid";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { categoryCrossFade } from "@/lib/motion-presets";
 import {
   groupMenuItemsByCategory,
   sortMenuItems,
 } from "@/lib/menu-order";
 import type { Category, MenuItem } from "@/types/menu";
+import type { MenuBanner } from "@/types/banner";
 
 const GRID_CLASS =
   "grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4";
@@ -46,9 +47,11 @@ function MenuItemGrid({
 export default function MenuPageClient({
   categories: categoriesProp,
   menuItems: menuItemsProp,
+  banners = [],
 }: {
   categories: Category[];
   menuItems: MenuItem[];
+  banners?: MenuBanner[];
 }) {
   const categories = categoriesProp ?? [];
   const menuItems = menuItemsProp ?? [];
@@ -129,15 +132,11 @@ export default function MenuPageClient({
 
   return (
     <div className="pb-20">
-      <section className="border-b border-cream/5 bg-surface-raised/30 py-12 lg:py-16">
+      <section className="border-b border-cream/5 bg-surface-raised/30 py-5 sm:py-6 lg:py-8">
+        {banners.length > 0 ? (
+          <MenuHeroCarousel banners={banners} className="mb-5 sm:mb-6" />
+        ) : null}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <SectionHeading
-            eyebrow="Our Menu"
-            title="Crafted to perfection"
-            description="Search, browse by category, and add your favorites to cart."
-            align="center"
-            className="mb-8"
-          />
           <MenuSearch
             value={searchQuery}
             onChange={setSearchQuery}
