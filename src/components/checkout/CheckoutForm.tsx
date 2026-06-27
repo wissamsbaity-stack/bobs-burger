@@ -13,7 +13,6 @@ import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { OrderTypeSelector } from "@/components/checkout/OrderTypeSelector";
 import { OrderConfirmDialog } from "@/components/checkout/OrderConfirmDialog";
 import { OrderSubmittingOverlay } from "@/components/checkout/OrderSubmittingOverlay";
-import { OrderSuccessToast } from "@/components/checkout/OrderSuccessToast";
 import type { OrderType } from "@/types/order";
 import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/contexts/SettingsContext";
@@ -21,6 +20,7 @@ import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { isValidLebanonPhone, formatPrice } from "@/lib/utils";
 import { placeOrder } from "@/app/checkout/actions";
 import { logSupabaseError } from "@/lib/orders/supabase-error";
+import { markOrderSuccessForHome } from "@/lib/order-success";
 import type { DeliveryDetails } from "@/types/order";
 
 interface FormErrors {
@@ -68,7 +68,6 @@ export function CheckoutForm({
   const [errors, setErrors] = useState<FormErrors>({});
   const [showConfirm, setShowConfirm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isBuiltIn = settings.checkoutMethod === "builtin";
@@ -180,14 +179,11 @@ export function CheckoutForm({
       }
 
       setIsSubmitting(false);
-      setShowSuccess(true);
       clearCart();
       setForm(initialForm);
       onOrderTypeChange("delivery");
-
-      window.setTimeout(() => {
-        router.push("/");
-      }, 2200);
+      markOrderSuccessForHome();
+      router.replace("/", { scroll: false });
     })();
   };
 
@@ -383,7 +379,6 @@ export function CheckoutForm({
             onCancel={() => setShowConfirm(false)}
           />
           <OrderSubmittingOverlay open={isSubmitting} />
-          <OrderSuccessToast open={showSuccess} />
         </>
       ) : null}
     </>
