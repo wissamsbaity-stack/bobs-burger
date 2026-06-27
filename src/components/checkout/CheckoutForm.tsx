@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Truck } from "lucide-react";
 import { AnimatePresence, m } from "@/lib/motion";
 import { WhatsAppIcon } from "@/components/icons/BrandIcons";
@@ -9,14 +10,15 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
-import {
-  OrderTypeSelector,
-} from "@/components/checkout/OrderTypeSelector";
+import { OrderTypeSelector } from "@/components/checkout/OrderTypeSelector";
+import { OrderConfirmDialog } from "@/components/checkout/OrderConfirmDialog";
+import { OrderSuccessToast } from "@/components/checkout/OrderSuccessToast";
 import type { OrderType } from "@/types/order";
 import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
-import { isValidLebanonPhone } from "@/lib/utils";
+import { isValidLebanonPhone, formatPrice } from "@/lib/utils";
+import { placeOrder } from "@/app/checkout/actions";
 import type { DeliveryDetails } from "@/types/order";
 
 interface FormErrors {
@@ -57,11 +59,17 @@ export function CheckoutForm({
   orderType: OrderType;
   onOrderTypeChange: (type: OrderType) => void;
 }) {
+  const router = useRouter();
   const { items, subtotal, deliveryFee, clearCart } = useCart();
   const settings = useSettings();
   const [form, setForm] = useState<DeliveryDetails>(initialForm);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
+  const isBuiltIn = settings.checkoutMethod === "builtin";
   const isDelivery = orderType === "delivery";
   const appliedDeliveryFee = isDelivery ? deliveryFee : 0;
   const total = subtotal + appliedDeliveryFee;
@@ -103,7 +111,7 @@ export function CheckoutForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleWhatsAppSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!validate() || items.length === 0) return;
 
@@ -124,6 +132,53 @@ export function CheckoutForm({
     onOrderTypeChange("delivery");
   };
 
+  const handleBuiltInPlaceOrder = (e: FormEvent) => {
+    e.preventDefault();
+    setSubmitError(null);
+    if (!validate() || items.length === 0) return;
+    setShowConfirm(true);
+  };
+
+  const handleConfirmBuiltInOrder = () => {
+    startTransition(async () => {
+      setSubmitError(null);
+      const result = await placeOrder({
+        orderType,
+        customerName: form.name,
+        customerPhone: form.phone,
+        city: isDelivery ? form.city : null,
+        street: isDelivery ? form.street : null,
+        building: isDelivery ? form.building : null,
+        deliveryInstructions: form.deliveryInstructions || null,
+        items: items.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          notes: item.notes.trim() ? item.notes.trim() : null,
+        })),
+        subtotal,
+        deliveryFee: appliedDeliveryFee,
+        total,
+      });
+
+      if (!result.success) {
+        setSubmitError(result.error ?? "Could not place your order.");
+        setShowConfirm(false);
+        return;
+      }
+
+      setShowConfirm(false);
+      setShowSuccess(true);
+      clearCart();
+      setForm(initialForm);
+      onOrderTypeChange("delivery");
+
+      window.setTimeout(() => {
+        router.push("/");
+      }, 2200);
+    });
+  };
+
   if (items.length === 0) {
     return (
       <div className="rounded-2xl border border-white/5 bg-surface-raised p-8 text-center">
@@ -136,136 +191,183 @@ export function CheckoutForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <OrderTypeSelector value={orderType} onChange={handleOrderTypeChange} />
+    <>
+      <form
+        onSubmit={isBuiltIn ? handleBuiltInPlaceOrder : handleWhatsAppSubmit}
+        className="space-y-5"
+      >
+        <OrderTypeSelector value={orderType} onChange={handleOrderTypeChange} />
 
-      <Input
-        label="Full Name"
-        placeholder="Your name"
-        value={form.name}
-        onChange={(e) => updateField("name", e.target.value)}
-        error={errors.name}
-        required
-      />
+        <Input
+          label="Full Name"
+          placeholder="Your name"
+          value={form.name}
+          onChange={(e) => updateField("name", e.target.value)}
+          error={errors.name}
+          required
+        />
 
-      <Input
-        label="Phone Number"
-        type="tel"
-        placeholder="70123456"
-        value={form.phone}
-        onChange={(e) => updateField("phone", e.target.value)}
-        error={errors.phone}
-        required
-      />
-      <p className="-mt-3 text-xs text-muted">
-        Lebanon mobile only — no country code (e.g. 70, 71, 03, 76, 78, 79, 81)
-      </p>
+        <Input
+          label="Phone Number"
+          type="tel"
+          placeholder="70123456"
+          value={form.phone}
+          onChange={(e) => updateField("phone", e.target.value)}
+          error={errors.phone}
+          required
+        />
+        <p className="-mt-3 text-xs text-muted">
+          Lebanon mobile only — no country code (e.g. 70, 71, 03, 76, 78, 79, 81)
+        </p>
 
-      <AnimatePresence initial={false} mode="wait">
-        {isDelivery ? (
-          <m.div
-            key="delivery-fields"
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={fieldCollapse}
-            className="space-y-5 overflow-hidden"
-          >
-            <div className="grid gap-5 sm:grid-cols-2">
+        <AnimatePresence initial={false} mode="wait">
+          {isDelivery ? (
+            <m.div
+              key="delivery-fields"
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={fieldCollapse}
+              className="space-y-5 overflow-hidden"
+            >
+              <div className="grid gap-5 sm:grid-cols-2">
+                <Input
+                  label="City"
+                  placeholder={settings.address.city || "City"}
+                  value={form.city}
+                  onChange={(e) => updateField("city", e.target.value)}
+                  error={errors.city}
+                  required
+                />
+                <Input
+                  label="Street"
+                  placeholder="Near Zarifa Cafe"
+                  value={form.street}
+                  onChange={(e) => updateField("street", e.target.value)}
+                  error={errors.street}
+                  required
+                />
+              </div>
+
               <Input
-                label="City"
-                placeholder={settings.address.city || "City"}
-                value={form.city}
-                onChange={(e) => updateField("city", e.target.value)}
-                error={errors.city}
+                label="Building"
+                placeholder="Apt 4B, Floor 2, Villa 12..."
+                value={form.building}
+                onChange={(e) => updateField("building", e.target.value)}
+                error={errors.building}
                 required
               />
-              <Input
-                label="Street"
-                placeholder="Near Zarifa Cafe"
-                value={form.street}
-                onChange={(e) => updateField("street", e.target.value)}
-                error={errors.street}
-                required
+
+              <Textarea
+                label="Delivery Instructions"
+                labelHint="(Optional)"
+                placeholder="Ring the doorbell, gate code, landmarks..."
+                value={form.deliveryInstructions}
+                onChange={(e) =>
+                  updateField("deliveryInstructions", e.target.value)
+                }
+                rows={3}
               />
-            </div>
+            </m.div>
+          ) : (
+            <m.div
+              key="pickup-note"
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={fieldCollapse}
+              className="overflow-hidden"
+            >
+              <Textarea
+                label="Order Note"
+                labelHint="(Optional)"
+                placeholder="Allergies, pickup time, special requests..."
+                value={form.deliveryInstructions}
+                onChange={(e) =>
+                  updateField("deliveryInstructions", e.target.value)
+                }
+                rows={3}
+              />
+            </m.div>
+          )}
+        </AnimatePresence>
 
-            <Input
-              label="Building"
-              placeholder="Apt 4B, Floor 2, Villa 12..."
-              value={form.building}
-              onChange={(e) => updateField("building", e.target.value)}
-              error={errors.building}
-              required
-            />
+        <OrderSummary orderType={orderType} />
 
-            <Textarea
-              label="Delivery Instructions"
-              labelHint="(Optional)"
-              placeholder="Ring the doorbell, gate code, landmarks..."
-              value={form.deliveryInstructions}
-              onChange={(e) => updateField("deliveryInstructions", e.target.value)}
-              rows={3}
-            />
-          </m.div>
-        ) : (
-          <m.div
-            key="pickup-note"
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={fieldCollapse}
-            className="overflow-hidden"
-          >
-            <Textarea
-              label="Order Note"
-              labelHint="(Optional)"
-              placeholder="Allergies, pickup time, special requests..."
-              value={form.deliveryInstructions}
-              onChange={(e) => updateField("deliveryInstructions", e.target.value)}
-              rows={3}
-            />
-          </m.div>
-        )}
-      </AnimatePresence>
-
-      <OrderSummary orderType={orderType} />
-
-      <AnimatePresence initial={false}>
-        {isDelivery ? (
-          <m.div
-            key="delivery-fee-notice"
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            variants={fieldCollapse}
-            className="overflow-hidden"
-          >
-            <div className="rounded-xl border border-white/10 bg-accent/5 p-4 sm:p-5">
-              <div className="flex gap-3 sm:gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
-                  <Truck className="h-5 w-5 text-accent" aria-hidden />
-                </div>
-                <div className="min-w-0 space-y-1">
-                  <p className="text-sm font-medium text-cream">Delivery fee</p>
-                  <p className="text-sm text-cream/75">
-                    Delivery fee confirmed via WhatsApp.
-                  </p>
+        <AnimatePresence initial={false}>
+          {isDelivery ? (
+            <m.div
+              key={isBuiltIn ? "builtin-delivery-fee" : "whatsapp-delivery-fee"}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={fieldCollapse}
+              className="overflow-hidden"
+            >
+              <div className="rounded-xl border border-white/10 bg-accent/5 p-4 sm:p-5">
+                <div className="flex gap-3 sm:gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
+                    <Truck className="h-5 w-5 text-accent" aria-hidden />
+                  </div>
+                  <div className="min-w-0 space-y-1">
+                    <p className="text-sm font-medium text-cream">Delivery fee</p>
+                    {isBuiltIn ? (
+                      <p className="text-sm text-cream/75">
+                        Delivery Fee:{" "}
+                        <span className="font-semibold text-accent">
+                          {formatPrice(appliedDeliveryFee)}
+                        </span>
+                      </p>
+                    ) : (
+                      <p className="text-sm text-cream/75">
+                        Delivery fee confirmed via WhatsApp.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </m.div>
+            </m.div>
+          ) : null}
+        </AnimatePresence>
+
+        {submitError ? (
+          <p className="text-sm text-red-400">{submitError}</p>
         ) : null}
-      </AnimatePresence>
 
-      <Button type="submit" variant="whatsapp" size="lg" className="w-full">
-        <WhatsAppIcon size={20} />
-        Send Order via WhatsApp
-      </Button>
+        {isBuiltIn ? (
+          <>
+            <Button type="submit" variant="primary" size="lg" className="w-full">
+              Place Order
+            </Button>
+            <p className="text-center text-xs text-muted">
+              Your order is sent directly to the restaurant
+            </p>
+          </>
+        ) : (
+          <>
+            <Button type="submit" variant="whatsapp" size="lg" className="w-full">
+              <WhatsAppIcon size={20} />
+              Send Order via WhatsApp
+            </Button>
 
-      <p className="text-center text-xs text-muted">
-        Your order opens in WhatsApp with all details pre-filled
-      </p>
-    </form>
+            <p className="text-center text-xs text-muted">
+              Your order opens in WhatsApp with all details pre-filled
+            </p>
+          </>
+        )}
+      </form>
+
+      {isBuiltIn ? (
+        <>
+          <OrderConfirmDialog
+            open={showConfirm}
+            isLoading={isPending}
+            onConfirm={handleConfirmBuiltInOrder}
+            onCancel={() => setShowConfirm(false)}
+          />
+          <OrderSuccessToast open={showSuccess} />
+        </>
+      ) : null}
+    </>
   );
 }

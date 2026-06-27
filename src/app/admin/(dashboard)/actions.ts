@@ -341,6 +341,10 @@ export async function updateSiteSettings(
     opening_hours: openingHours,
     delivery_fee: Number(formData.get("delivery_fee") ?? 0),
     min_order: Number(formData.get("min_order") ?? 0),
+    checkout_method:
+      String(formData.get("checkout_method") ?? "whatsapp") === "builtin"
+        ? "builtin"
+        : "whatsapp",
     instagram_url:
       String(formData.get("instagram_url") ?? "").trim() || null,
     facebook_url: String(formData.get("facebook_url") ?? "").trim() || null,

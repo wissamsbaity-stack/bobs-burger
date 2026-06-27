@@ -64,6 +64,7 @@ export interface Database {
           opening_hours: OpeningHour[];
           delivery_fee: number;
           min_order: number;
+          checkout_method: string;
           instagram_url: string | null;
           facebook_url: string | null;
           tiktok_url: string | null;
@@ -93,6 +94,7 @@ export interface Database {
           opening_hours?: OpeningHour[];
           delivery_fee?: number;
           min_order?: number;
+          checkout_method?: string;
           instagram_url?: string | null;
           facebook_url?: string | null;
           logo_url?: string | null;
@@ -121,6 +123,7 @@ export interface Database {
           opening_hours?: OpeningHour[];
           delivery_fee?: number;
           min_order?: number;
+          checkout_method?: string;
           instagram_url?: string | null;
           facebook_url?: string | null;
           logo_url?: string | null;

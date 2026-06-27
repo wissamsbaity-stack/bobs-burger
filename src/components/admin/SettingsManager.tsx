@@ -9,7 +9,9 @@ import type { OpeningHour, SiteSettingsRow } from "@/lib/supabase/types";
 import { Plus, Trash2 } from "lucide-react";
 import { SettingsImageField } from "@/components/admin/SettingsImageField";
 import { ImageCropField } from "@/components/admin/ImageCropField";
+import { CheckoutMethodSelector } from "@/components/admin/CheckoutMethodSelector";
 import { parseCrop } from "@/lib/image-crop";
+import type { CheckoutMethod } from "@/types/checkout";
 
 export function SettingsManager({
   settings,
@@ -20,6 +22,9 @@ export function SettingsManager({
     (settings?.opening_hours as OpeningHour[]) ?? [
       { days: "Daily", time: "10:00 AM – 11:00 PM" },
     ]
+  );
+  const [checkoutMethod, setCheckoutMethod] = useState<CheckoutMethod>(
+    settings?.checkout_method === "builtin" ? "builtin" : "whatsapp"
   );
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -142,6 +147,40 @@ export function SettingsManager({
       </section>
 
       <section className="space-y-4">
+        <h2 className="text-lg font-semibold text-cream">Checkout Method</h2>
+        <p className="text-sm text-muted">
+          Choose how customers complete orders on your website. Only one method
+          can be active at a time.
+        </p>
+        <CheckoutMethodSelector
+          value={checkoutMethod}
+          onChange={setCheckoutMethod}
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Input
+            name="delivery_fee"
+            label="Delivery fee (USD)"
+            type="number"
+            min={0}
+            step={0.5}
+            defaultValue={settings?.delivery_fee ?? 0}
+          />
+          <Input
+            name="min_order"
+            label="Minimum order (USD)"
+            type="number"
+            min={0}
+            step={0.5}
+            defaultValue={settings?.min_order ?? 0}
+          />
+        </div>
+        <p className="text-xs text-muted">
+          Delivery fee is shown at checkout and applied to built-in delivery
+          orders. WhatsApp orders keep their existing message format.
+        </p>
+      </section>
+
+      <section className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold text-cream">Opening hours</h2>
           <Button
@@ -194,28 +233,6 @@ export function SettingsManager({
             </button>
           </div>
         ))}
-      </section>
-
-      <section className="space-y-4">
-        <h2 className="text-lg font-semibold text-cream">Ordering</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Input
-            name="delivery_fee"
-            label="Delivery fee (USD)"
-            type="number"
-            min={0}
-            step={0.5}
-            defaultValue={settings?.delivery_fee ?? 0}
-          />
-          <Input
-            name="min_order"
-            label="Minimum order (USD)"
-            type="number"
-            min={0}
-            step={0.5}
-            defaultValue={settings?.min_order ?? 0}
-          />
-        </div>
       </section>
 
       <section className="space-y-4">

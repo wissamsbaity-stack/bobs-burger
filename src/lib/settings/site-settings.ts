@@ -3,6 +3,7 @@ import type { SiteSettingsRow, OpeningHour } from "@/lib/supabase/types";
 import { restaurantInfo } from "@/data/restaurant";
 import { siteConfig } from "@/config/site";
 import { parseCrop, type ImageCrop } from "@/lib/image-crop";
+import type { CheckoutMethod } from "@/types/checkout";
 
 export interface PublicSiteSettings {
   name: string;
@@ -21,6 +22,7 @@ export interface PublicSiteSettings {
   hours: OpeningHour[];
   deliveryFee: number;
   minOrder: number;
+  checkoutMethod: CheckoutMethod;
   social: {
     instagram: string;
     facebook: string;
@@ -49,6 +51,7 @@ function fromStatic(): PublicSiteSettings {
     hours: [...restaurantInfo.hours],
     deliveryFee: siteConfig.deliveryFee,
     minOrder: siteConfig.minOrder,
+    checkoutMethod: "whatsapp",
     social: {
       instagram: restaurantInfo.social.instagram,
       facebook: restaurantInfo.social.facebook,
@@ -83,6 +86,8 @@ function mapRow(row: SiteSettingsRow): PublicSiteSettings {
     hours: (row.opening_hours as OpeningHour[]) ?? [],
     deliveryFee: Number(row.delivery_fee),
     minOrder: Number(row.min_order),
+    checkoutMethod:
+      row.checkout_method === "builtin" ? "builtin" : "whatsapp",
     social: {
       instagram: row.instagram_url ?? "",
       facebook: row.facebook_url ?? "",
