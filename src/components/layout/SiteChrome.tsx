@@ -12,8 +12,9 @@ import { SplashScreen } from "@/components/layout/SplashScreen";
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+  const isOrders = pathname.startsWith("/orders");
 
-  if (isAdmin) {
+  if (isAdmin || isOrders) {
     return <>{children}</>;
   }
 

@@ -45,9 +45,13 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/admin") &&
     !request.nextUrl.pathname.startsWith("/admin/login");
 
-  if (isAdminRoute && !user) {
+  const isOrdersRoute =
+    request.nextUrl.pathname.startsWith("/orders") &&
+    !request.nextUrl.pathname.startsWith("/orders/login");
+
+  if ((isAdminRoute || isOrdersRoute) && !user) {
     const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/admin/login";
+    loginUrl.pathname = isOrdersRoute ? "/orders/login" : "/admin/login";
     loginUrl.searchParams.set("redirect", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -56,6 +60,12 @@ export async function updateSession(request: NextRequest) {
     const adminUrl = request.nextUrl.clone();
     adminUrl.pathname = "/admin";
     return NextResponse.redirect(adminUrl);
+  }
+
+  if (request.nextUrl.pathname === "/orders/login" && user) {
+    const ordersUrl = request.nextUrl.clone();
+    ordersUrl.pathname = "/orders";
+    return NextResponse.redirect(ordersUrl);
   }
 
   return supabaseResponse;

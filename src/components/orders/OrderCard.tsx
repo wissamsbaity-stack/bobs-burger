@@ -1,0 +1,324 @@
+"use client";
+
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  ChevronDown,
+  Check,
+  MapPin,
+  Phone,
+  StickyNote,
+  Truck,
+  ShoppingBag,
+} from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/BrandIcons";
+import { buildWhatsAppCustomerUrl } from "@/lib/orders/whatsapp-customer";
+import {
+  formatDeliveryAddress,
+  type StaffOrder,
+} from "@/lib/orders/map-order";
+import { formatOrderTime } from "@/lib/orders/format-order-time";
+import { formatPrice, cn } from "@/lib/utils";
+
+interface OrderCardProps {
+  order: StaffOrder;
+  variant: "new" | "history";
+  isNew?: boolean;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
+  onMarkAsRead?: (orderId: string) => void;
+  onDelete?: (orderId: string) => void;
+  markReadSuccess?: boolean;
+}
+
+export function OrderCard({
+  order,
+  variant,
+  isNew = false,
+  isExpanded = false,
+  onToggleExpand,
+  onMarkAsRead,
+  onDelete,
+  markReadSuccess = false,
+}: OrderCardProps) {
+  const [confirmMarkRead, setConfirmMarkRead] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const address = formatDeliveryAddress(order);
+  const isDelivery = order.orderType === "delivery";
+
+  const cardBody = (
+    <>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-display text-2xl tracking-wide text-cream">
+              #{order.orderNumber || "—"}
+            </h3>
+            {isNew ? (
+              <span className="rounded-full bg-red-500/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-red-400 ring-1 ring-red-500/30">
+                New
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-1 text-sm text-muted">{formatOrderTime(order.createdAt)}</p>
+        </div>
+
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide",
+            isDelivery
+              ? "bg-accent/15 text-accent ring-1 ring-accent/25"
+              : "bg-white/5 text-cream ring-1 ring-white/10"
+          )}
+        >
+          {isDelivery ? (
+            <Truck className="h-3.5 w-3.5" />
+          ) : (
+            <ShoppingBag className="h-3.5 w-3.5" />
+          )}
+          {isDelivery ? "Delivery" : "Pickup"}
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <div className="rounded-xl bg-white/[0.03] p-3 ring-1 ring-white/5">
+          <p className="text-xs uppercase tracking-wider text-muted">Customer</p>
+          <p className="mt-1 font-medium text-cream">{order.customerName}</p>
+          <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-muted">
+            <Phone className="h-3.5 w-3.5" />
+            {order.customerPhone}
+          </p>
+        </div>
+
+        {isDelivery && address ? (
+          <div className="rounded-xl bg-white/[0.03] p-3 ring-1 ring-white/5">
+            <p className="text-xs uppercase tracking-wider text-muted">
+              Delivery Address
+            </p>
+            <p className="mt-1 inline-flex items-start gap-1.5 text-sm text-cream">
+              <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" />
+              {address}
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      {order.deliveryInstructions ? (
+        <div className="mt-3 rounded-xl bg-white/[0.03] p-3 ring-1 ring-white/5">
+          <p className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider text-muted">
+            <StickyNote className="h-3.5 w-3.5" />
+            Order Notes
+          </p>
+          <p className="mt-1 text-sm text-cream">{order.deliveryInstructions}</p>
+        </div>
+      ) : null}
+
+      <div className="mt-5">
+        <p className="mb-2 text-xs uppercase tracking-wider text-muted">
+          Ordered Items
+        </p>
+        <ul className="space-y-2">
+          {order.items.map((item, index) => (
+            <li
+              key={`${item.name}-${index}`}
+              className="flex items-start justify-between gap-3 rounded-xl bg-black/30 px-3 py-2.5 ring-1 ring-white/5"
+            >
+              <div className="min-w-0">
+                <p className="font-medium text-cream">
+                  <span className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded-md bg-accent/15 px-1.5 text-xs font-bold text-accent">
+                    {item.quantity}x
+                  </span>
+                  {item.name}
+                </p>
+                {item.notes ? (
+                  <p className="mt-1 pl-8 text-xs text-muted">{item.notes}</p>
+                ) : null}
+              </div>
+              <p className="shrink-0 text-sm font-medium text-cream">
+                {formatPrice(item.price * item.quantity)}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mt-5 space-y-1.5 border-t border-white/5 pt-4 text-sm">
+        <div className="flex justify-between text-muted">
+          <span>Subtotal</span>
+          <span>{formatPrice(order.subtotal)}</span>
+        </div>
+        {isDelivery ? (
+          <div className="flex justify-between text-muted">
+            <span>Delivery Fee</span>
+            <span>{formatPrice(order.deliveryFee)}</span>
+          </div>
+        ) : null}
+        <div className="flex justify-between pt-1 text-base font-semibold text-cream">
+          <span>Total</span>
+          <span className="text-accent">{formatPrice(order.total)}</span>
+        </div>
+      </div>
+    </>
+  );
+
+  if (variant === "history") {
+    return (
+      <article className="overflow-hidden rounded-2xl border border-white/8 bg-surface-raised shadow-card">
+        <button
+          type="button"
+          onClick={onToggleExpand}
+          className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition hover:bg-white/[0.02]"
+        >
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-display text-xl tracking-wide text-cream">
+                #{order.orderNumber || "—"}
+              </span>
+              <span className="text-sm text-muted">
+                {order.customerName}
+              </span>
+            </div>
+            <p className="mt-0.5 text-xs text-muted">
+              {formatOrderTime(order.createdAt)} · {order.customerPhone}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="hidden text-sm font-medium text-accent sm:inline">
+              {formatPrice(order.total)}
+            </span>
+            <ChevronDown
+              className={cn(
+                "h-5 w-5 text-muted transition-transform",
+                isExpanded && "rotate-180"
+              )}
+            />
+          </div>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {isExpanded ? (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-white/5 px-5 pb-5 pt-4">
+                {cardBody}
+                {onDelete ? (
+                  <div className="mt-5 border-t border-white/5 pt-4">
+                    {confirmDelete ? (
+                      <div className="flex flex-wrap items-center gap-3 rounded-xl bg-red-500/10 p-3 ring-1 ring-red-500/20">
+                        <p className="text-sm text-red-200">
+                          Delete this order from history?
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => onDelete(order.id)}
+                          className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white"
+                        >
+                          Confirm Delete
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDelete(false)}
+                          className="rounded-lg px-3 py-1.5 text-xs text-muted"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDelete(true)}
+                        className="text-sm font-medium text-red-400 transition hover:text-red-300"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                ) : null}
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </article>
+    );
+  }
+
+  return (
+    <motion.article
+      layout
+      initial={{ opacity: 0, y: -20, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 40, scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 380, damping: 28 }}
+      className={cn(
+        "overflow-hidden rounded-2xl border bg-surface-raised shadow-card",
+        markReadSuccess
+          ? "border-emerald-500/40 ring-1 ring-emerald-500/20"
+          : "border-white/8"
+      )}
+    >
+      <div className="p-5 sm:p-6">{cardBody}</div>
+
+      <div className="flex flex-col gap-3 border-t border-white/5 bg-black/20 p-4 sm:flex-row">
+        <a
+          href={buildWhatsAppCustomerUrl(order.customerPhone)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-whatsapp px-4 py-3 text-sm font-semibold text-white shadow-[0_8px_24px_-8px_rgba(37,211,102,0.55)] transition hover:brightness-110"
+        >
+          <WhatsAppIcon size={18} />
+          WhatsApp Customer
+        </a>
+
+        {onMarkAsRead ? (
+          confirmMarkRead ? (
+            <div className="flex flex-1 flex-col gap-2 rounded-xl bg-accent/10 p-3 ring-1 ring-accent/20 sm:flex-row sm:items-center">
+              <p className="flex-1 text-sm text-cream">
+                Move order #{order.orderNumber} to history?
+              </p>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => onMarkAsRead(order.id)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-semibold text-white"
+                >
+                  {markReadSuccess ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : null}
+                  Confirm
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmMarkRead(false)}
+                  className="rounded-lg px-3 py-2 text-xs text-muted"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmMarkRead(true)}
+              disabled={markReadSuccess}
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm font-semibold text-cream transition hover:bg-white/[0.06] disabled:opacity-60"
+            >
+              {markReadSuccess ? (
+                <>
+                  <Check className="h-4 w-4 text-emerald-400" />
+                  Moved to History
+                </>
+              ) : (
+                "Mark as Read"
+              )}
+            </button>
+          )
+        ) : null}
+      </div>
+    </motion.article>
+  );
+}
