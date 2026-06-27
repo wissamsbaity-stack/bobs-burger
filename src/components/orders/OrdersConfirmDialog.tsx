@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import {
   ordersDangerButtonClassName,
@@ -30,14 +32,41 @@ export function OrdersConfirmDialog({
   onConfirm,
   onCancel,
 }: OrdersConfirmDialogProps) {
-  if (!open) return null;
+  const [mounted, setMounted] = useState(false);
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const scrollEl = document.querySelector(
+      ".orders-app-scroll"
+    ) as HTMLElement | null;
+    const prevOverflow = scrollEl?.style.overflow ?? "";
+    if (scrollEl) {
+      scrollEl.style.overflow = "hidden";
+    }
+
+    return () => {
+      if (scrollEl) {
+        scrollEl.style.overflow = prevOverflow;
+      }
+    };
+  }, [open]);
+
+  if (!mounted || !open) return null;
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      role="presentation"
+    >
       <button
         type="button"
         aria-label="Close dialog"
-        className="orders-touch-btn absolute inset-0 bg-black/70"
+        className="orders-touch-btn absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onCancel}
       />
       <div
@@ -80,6 +109,7 @@ export function OrdersConfirmDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -74,8 +74,8 @@ export function OrdersDashboard({
     setToasts((current) => [
       {
         id,
-        title: "New order received",
-        message: `#${order.orderNumber} · ${order.customerName}`,
+        title: "🔔 New Order Received",
+        message: `Order #${order.orderNumber} has just arrived.`,
       },
       ...current.slice(0, 3),
     ]);
@@ -106,10 +106,23 @@ export function OrdersDashboard({
     });
   }, []);
 
+  const handleRealtimeResync = useCallback((orders: StaffOrder[]) => {
+    setNewOrders((current) => {
+      const merged = [...current];
+      for (const order of orders) {
+        if (!merged.some((item) => item.id === order.id)) {
+          merged.push(order);
+        }
+      }
+      return sortOrdersNewestFirst(merged);
+    });
+  }, []);
+
   useOrdersRealtime({
     initialOrderIds,
     onInsert: handleRealtimeInsert,
     onMarkRead: handleRealtimeMarkRead,
+    onResync: handleRealtimeResync,
   });
 
   const dismissToast = useCallback((id: string) => {

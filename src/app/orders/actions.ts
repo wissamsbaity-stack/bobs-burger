@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireStaff } from "@/lib/auth/staff";
+import { fetchUnreadOrders as fetchUnreadOrdersQuery } from "@/lib/orders/queries";
 import { mapOrderRow } from "@/lib/orders/map-order";
 import { dateInputToRange } from "@/lib/orders/format-order-time";
 import { HISTORY_PAGE_SIZE } from "@/lib/orders/constants";
@@ -9,6 +10,11 @@ import type { StaffOrder } from "@/lib/orders/map-order";
 import type { Database } from "@/lib/supabase/types";
 
 type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
+
+export async function fetchUnreadOrders(): Promise<StaffOrder[]> {
+  const { supabase } = await requireStaff();
+  return fetchUnreadOrdersQuery(supabase);
+}
 
 export async function markOrderAsRead(
   orderId: string
