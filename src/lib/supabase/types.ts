@@ -97,6 +97,7 @@ export interface Database {
           checkout_method?: string;
           instagram_url?: string | null;
           facebook_url?: string | null;
+          tiktok_url?: string | null;
           logo_url?: string | null;
           hero_image_url?: string | null;
           hero_image_crop?: Json | null;
@@ -126,6 +127,7 @@ export interface Database {
           checkout_method?: string;
           instagram_url?: string | null;
           facebook_url?: string | null;
+          tiktok_url?: string | null;
           logo_url?: string | null;
           hero_image_url?: string | null;
           hero_image_crop?: Json | null;
