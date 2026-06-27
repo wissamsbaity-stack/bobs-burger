@@ -20,7 +20,6 @@ import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { isValidLebanonPhone, formatPrice } from "@/lib/utils";
 import { placeOrder } from "@/app/checkout/actions";
 import { logSupabaseError } from "@/lib/orders/supabase-error";
-import { markOrderSuccessForHome } from "@/lib/order-success";
 import type { DeliveryDetails } from "@/types/order";
 
 interface FormErrors {
@@ -182,7 +181,6 @@ export function CheckoutForm({
       clearCart();
       setForm(initialForm);
       onOrderTypeChange("delivery");
-      markOrderSuccessForHome();
       router.replace("/", { scroll: false });
     })();
   };

@@ -1,23 +1,12 @@
 "use client";
 
-import { useLayoutEffect, useState } from "react";
-import { OrderSuccessToast } from "@/components/checkout/OrderSuccessToast";
-import { consumeOrderSuccessForHome } from "@/lib/order-success";
+import { useLayoutEffect } from "react";
 import { scrollToTopInstant } from "@/lib/scroll";
 
-/**
- * Ensures the homepage opens at scroll 0 and shows a post-checkout success toast.
- */
+/** Ensures the homepage opens at scroll position 0 (incl. Safari bfcache). */
 export function HomePageClientEffects() {
-  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
-
   useLayoutEffect(() => {
     scrollToTopInstant();
-
-    if (consumeOrderSuccessForHome()) {
-      setShowOrderSuccess(true);
-      window.setTimeout(() => setShowOrderSuccess(false), 4000);
-    }
 
     const handlePageShow = () => {
       scrollToTopInstant();
@@ -27,5 +16,5 @@ export function HomePageClientEffects() {
     return () => window.removeEventListener("pageshow", handlePageShow);
   }, []);
 
-  return <OrderSuccessToast open={showOrderSuccess} />;
+  return null;
 }
