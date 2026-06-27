@@ -19,6 +19,7 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { isValidLebanonPhone, formatPrice } from "@/lib/utils";
 import { placeOrder } from "@/app/checkout/actions";
+import { logSupabaseError } from "@/lib/orders/supabase-error";
 import type { DeliveryDetails } from "@/types/order";
 
 interface FormErrors {
@@ -162,7 +163,14 @@ export function CheckoutForm({
       });
 
       if (!result.success) {
-        setSubmitError(result.error ?? "Could not place your order.");
+        if (result.debug) {
+          logSupabaseError("placeOrder", result.debug);
+        } else {
+          console.error("[placeOrder] Order submission failed", {
+            error: result.error,
+          });
+        }
+        setSubmitError(result.error ?? "Order submission failed.");
         setShowConfirm(false);
         return;
       }

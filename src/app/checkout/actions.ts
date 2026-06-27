@@ -1,15 +1,21 @@
 "use server";
 
 import { createServerClient } from "@/lib/supabase/server";
-import { isValidLebanonPhone } from "@/lib/utils";
+import {
+  buildOrderInsertPayload,
+  buildOrderRpcPayload,
+  validateOrderInput,
+  type PlaceOrderItem,
+} from "@/lib/orders/build-order-insert";
+import {
+  buildSupabaseErrorDebug,
+  formatSupabaseErrorMessage,
+  logSupabaseError,
+  type SupabaseErrorDebug,
+} from "@/lib/orders/supabase-error";
 import type { OrderType } from "@/types/order";
 
-export interface PlaceOrderItem {
-  name: string;
-  quantity: number;
-  price: number;
-  notes: string | null;
-}
+export type { PlaceOrderItem } from "@/lib/orders/build-order-insert";
 
 export interface PlaceOrderInput {
   orderType: OrderType;
@@ -25,67 +31,95 @@ export interface PlaceOrderInput {
   total: number;
 }
 
+export interface PlaceOrderResult {
+  success: boolean;
+  orderNumber?: number;
+  error?: string;
+  debug?: SupabaseErrorDebug;
+}
+
+const ORDERS_TABLE = "orders" as const;
+
 export async function placeOrder(
   input: PlaceOrderInput
-): Promise<{ success: boolean; orderNumber?: number; error?: string }> {
+): Promise<PlaceOrderResult> {
   const supabase = await createServerClient();
   if (!supabase) {
     return { success: false, error: "Ordering is temporarily unavailable." };
   }
 
-  const name = input.customerName.trim();
-  const phone = input.customerPhone.trim();
-
-  if (!name) {
-    return { success: false, error: "Name is required." };
+  const validationError = validateOrderInput(input);
+  if (validationError) {
+    return { success: false, error: validationError };
   }
 
-  if (!phone || !isValidLebanonPhone(phone)) {
+  const payload = buildOrderInsertPayload(input);
+  const rpcPayload = buildOrderRpcPayload(input);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const client = supabase as any;
+
+  const { data, error } = await client.rpc("create_public_order", rpcPayload);
+
+  if (!error && data) {
+    const row = Array.isArray(data) ? data[0] : data;
+    const orderNumber =
+      row && typeof row === "object" && "order_number" in row
+        ? Number((row as { order_number: number }).order_number)
+        : undefined;
+
     return {
-      success: false,
-      error: "Enter a valid Lebanon mobile number (e.g. 70123456).",
+      success: true,
+      orderNumber: Number.isFinite(orderNumber) ? orderNumber : undefined,
     };
   }
 
-  if (!input.items.length) {
-    return { success: false, error: "Your cart is empty." };
-  }
+  if (error?.code === "PGRST202") {
+    const fallback = await client.from(ORDERS_TABLE).insert(payload);
 
-  if (input.orderType === "delivery") {
-    if (!input.city?.trim() || !input.street?.trim() || !input.building?.trim()) {
-      return { success: false, error: "Delivery address is required." };
+    if (!fallback.error) {
+      return { success: true };
     }
+
+    const debug = buildSupabaseErrorDebug(
+      ORDERS_TABLE,
+      payload as unknown as Record<string, unknown>,
+      fallback.error
+    );
+    logSupabaseError("placeOrder", debug);
+
+    return {
+      success: false,
+      error: formatSupabaseErrorMessage(fallback.error),
+      debug,
+    };
   }
-
-  const payload = {
-    customer_name: name,
-    customer_phone: phone,
-    city: input.orderType === "delivery" ? input.city!.trim() : null,
-    street: input.orderType === "delivery" ? input.street!.trim() : null,
-    building: input.orderType === "delivery" ? input.building!.trim() : null,
-    delivery_instructions: input.deliveryInstructions?.trim() || null,
-    items: input.items,
-    subtotal: input.subtotal,
-    delivery_fee: input.deliveryFee,
-    total: input.total,
-    order_type: input.orderType,
-    is_read: false,
-    status: "pending",
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data, error } = await (supabase as any)
-    .from("orders")
-    .insert(payload)
-    .select("order_number")
-    .single();
 
   if (error) {
-    return { success: false, error: "Could not place your order. Please try again." };
+    const debug = buildSupabaseErrorDebug(
+      ORDERS_TABLE,
+      rpcPayload as unknown as Record<string, unknown>,
+      error
+    );
+    logSupabaseError("placeOrder", debug);
+
+    return {
+      success: false,
+      error: formatSupabaseErrorMessage(error),
+      debug,
+    };
   }
 
   return {
-    success: true,
-    orderNumber: data?.order_number ?? undefined,
+    success: false,
+    error: "Order was submitted but no confirmation was returned.",
+    debug: {
+      table: ORDERS_TABLE,
+      payload: rpcPayload as unknown as Record<string, unknown>,
+      code: null,
+      message: "RPC returned no data and no error.",
+      details: null,
+      hint: "Apply migration 016_create_public_order.sql if this persists.",
+    },
   };
 }

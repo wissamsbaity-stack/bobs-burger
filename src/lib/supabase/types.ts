@@ -334,6 +334,25 @@ export interface Database {
     Views: Record<string, never>;
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      create_public_order: {
+        Args: {
+          p_customer_name: string;
+          p_customer_phone: string;
+          p_city: string | null;
+          p_street: string | null;
+          p_building: string | null;
+          p_delivery_instructions: string | null;
+          p_items: Json;
+          p_subtotal: number;
+          p_delivery_fee: number;
+          p_total: number;
+          p_order_type: string;
+        };
+        Returns: {
+          id: string;
+          order_number: number;
+        }[];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
