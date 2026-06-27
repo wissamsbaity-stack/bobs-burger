@@ -1,25 +1,37 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { ViewportPortal } from "@/components/ui/ViewportPortal";
 import { Button } from "@/components/ui/Button";
 
 interface OrderConfirmDialogProps {
   open: boolean;
-  isLoading?: boolean;
   onConfirm: () => void;
   onCancel: () => void;
 }
 
 export function OrderConfirmDialog({
   open,
-  isLoading = false,
   onConfirm,
   onCancel,
 }: OrderConfirmDialogProps) {
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setIsConfirming(false);
+    }
+  }, [open]);
+
+  const handleConfirm = () => {
+    setIsConfirming(true);
+    onConfirm();
+  };
+
   return (
     <ViewportPortal
       open={open}
-      onBackdropClick={onCancel}
+      onBackdropClick={isConfirming ? undefined : onCancel}
       ariaLabelledBy="order-confirm-title"
       modalClassName="overflow-y-auto rounded-2xl border border-white/10 bg-surface-overlay p-6 shadow-[0_24px_64px_-16px_rgba(0,0,0,0.75)]"
     >
@@ -37,7 +49,7 @@ export function OrderConfirmDialog({
           type="button"
           variant="outline"
           onClick={onCancel}
-          disabled={isLoading}
+          disabled={isConfirming}
           className="w-full sm:w-auto"
         >
           Cancel
@@ -45,8 +57,8 @@ export function OrderConfirmDialog({
         <Button
           type="button"
           variant="primary"
-          onClick={onConfirm}
-          isLoading={isLoading}
+          onClick={handleConfirm}
+          disabled={isConfirming}
           className="w-full sm:w-auto"
         >
           Confirm Order

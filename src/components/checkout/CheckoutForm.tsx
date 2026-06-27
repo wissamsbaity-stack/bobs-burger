@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Truck } from "lucide-react";
@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
 import { OrderTypeSelector } from "@/components/checkout/OrderTypeSelector";
 import { OrderConfirmDialog } from "@/components/checkout/OrderConfirmDialog";
+import { OrderSubmittingOverlay } from "@/components/checkout/OrderSubmittingOverlay";
 import { OrderSuccessToast } from "@/components/checkout/OrderSuccessToast";
 import type { OrderType } from "@/types/order";
 import { useCart } from "@/contexts/CartContext";
@@ -66,9 +67,9 @@ export function CheckoutForm({
   const [form, setForm] = useState<DeliveryDetails>(initialForm);
   const [errors, setErrors] = useState<FormErrors>({});
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
 
   const isBuiltIn = settings.checkoutMethod === "builtin";
   const isDelivery = orderType === "delivery";
@@ -141,8 +142,11 @@ export function CheckoutForm({
   };
 
   const handleConfirmBuiltInOrder = () => {
-    startTransition(async () => {
-      setSubmitError(null);
+    setShowConfirm(false);
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    void (async () => {
       const result = await placeOrder({
         orderType,
         customerName: form.name,
@@ -170,12 +174,12 @@ export function CheckoutForm({
             error: result.error,
           });
         }
+        setIsSubmitting(false);
         setSubmitError(result.error ?? "Order submission failed.");
-        setShowConfirm(false);
         return;
       }
 
-      setShowConfirm(false);
+      setIsSubmitting(false);
       setShowSuccess(true);
       clearCart();
       setForm(initialForm);
@@ -184,7 +188,7 @@ export function CheckoutForm({
       window.setTimeout(() => {
         router.push("/");
       }, 2200);
-    });
+    })();
   };
 
   if (items.length === 0) {
@@ -344,7 +348,13 @@ export function CheckoutForm({
 
         {isBuiltIn ? (
           <>
-            <Button type="submit" variant="primary" size="lg" className="w-full">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              className="w-full"
+              disabled={isSubmitting}
+            >
               Place Order
             </Button>
             <p className="text-center text-xs text-muted">
@@ -369,10 +379,10 @@ export function CheckoutForm({
         <>
           <OrderConfirmDialog
             open={showConfirm}
-            isLoading={isPending}
             onConfirm={handleConfirmBuiltInOrder}
             onCancel={() => setShowConfirm(false)}
           />
+          <OrderSubmittingOverlay open={isSubmitting} />
           <OrderSuccessToast open={showSuccess} />
         </>
       ) : null}

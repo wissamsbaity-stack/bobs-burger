@@ -1,6 +1,7 @@
 "use client";
 
 import { m, LayoutGroup } from "@/lib/motion";
+import { ShoppingBag, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import type { OrderType } from "@/types/order";
@@ -10,9 +11,24 @@ interface OrderTypeSelectorProps {
   onChange: (value: OrderType) => void;
 }
 
-const OPTIONS: { value: OrderType; label: string; emoji: string }[] = [
-  { value: "delivery", label: "Delivery", emoji: "🚚" },
-  { value: "pickup", label: "Pickup", emoji: "🏃" },
+const OPTIONS: {
+  value: OrderType;
+  label: string;
+  Icon: typeof Truck;
+  iconClassName: string;
+}[] = [
+  {
+    value: "delivery",
+    label: "Delivery",
+    Icon: Truck,
+    iconClassName: "text-accent",
+  },
+  {
+    value: "pickup",
+    label: "Pickup",
+    Icon: ShoppingBag,
+    iconClassName: "text-emerald-400",
+  },
 ];
 
 const pillSpring = {
@@ -32,6 +48,8 @@ export function OrderTypeSelector({ value, onChange }: OrderTypeSelectorProps) {
       >
         {OPTIONS.map((option) => {
           const selected = value === option.value;
+          const { Icon } = option;
+
           return (
             <button
               key={option.value}
@@ -51,9 +69,14 @@ export function OrderTypeSelector({ value, onChange }: OrderTypeSelectorProps) {
                   transition={pillSpring}
                 />
               ) : null}
-              <span className="relative z-10" aria-hidden>
-                {option.emoji}
-              </span>
+              <Icon
+                className={cn(
+                  "relative z-10 h-6 w-6 shrink-0 transition-transform duration-200",
+                  option.iconClassName,
+                  selected && "scale-110"
+                )}
+                aria-hidden
+              />
               <span className="relative z-10">{option.label}</span>
             </button>
           );
