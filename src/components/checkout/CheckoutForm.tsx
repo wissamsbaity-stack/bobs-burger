@@ -50,10 +50,15 @@ const fieldCollapse = {
   },
 };
 
-export function CheckoutForm() {
+export function CheckoutForm({
+  orderType,
+  onOrderTypeChange,
+}: {
+  orderType: OrderType;
+  onOrderTypeChange: (type: OrderType) => void;
+}) {
   const { items, subtotal, deliveryFee, clearCart } = useCart();
   const settings = useSettings();
-  const [orderType, setOrderType] = useState<OrderType>("delivery");
   const [form, setForm] = useState<DeliveryDetails>(initialForm);
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -62,7 +67,7 @@ export function CheckoutForm() {
   const total = subtotal + appliedDeliveryFee;
 
   const handleOrderTypeChange = (type: OrderType) => {
-    setOrderType(type);
+    onOrderTypeChange(type);
     if (type === "pickup") {
       setErrors((prev) => ({
         ...prev,
@@ -116,7 +121,7 @@ export function CheckoutForm() {
     window.open(url, "_blank", "noopener,noreferrer");
     clearCart();
     setForm(initialForm);
-    setOrderType("delivery");
+    onOrderTypeChange("delivery");
   };
 
   if (items.length === 0) {
