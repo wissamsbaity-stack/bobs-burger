@@ -4,12 +4,21 @@ import { useState } from "react";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import type { OrderType } from "@/types/order";
 import { getCartLineTotal } from "@/lib/cart";
 import { cn, formatPrice } from "@/lib/utils";
 
-export function OrderSummary() {
-  const { items, subtotal, deliveryFee, total } = useCart();
+interface OrderSummaryProps {
+  orderType?: OrderType;
+}
+
+export function OrderSummary({ orderType = "delivery" }: OrderSummaryProps) {
+  const { items, subtotal, deliveryFee } = useCart();
   const [expanded, setExpanded] = useState(false);
+
+  const isDelivery = orderType === "delivery";
+  const appliedDeliveryFee = isDelivery ? deliveryFee : 0;
+  const total = subtotal + appliedDeliveryFee;
 
   if (items.length === 0) {
     return null;
@@ -85,10 +94,12 @@ export function OrderSummary() {
               <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
-            <div className="flex justify-between text-cream/60">
-              <span>Delivery Fee</span>
-              <span>{formatPrice(deliveryFee)}</span>
-            </div>
+            {isDelivery ? (
+              <div className="flex justify-between text-cream/60">
+                <span>Delivery Fee</span>
+                <span>{formatPrice(appliedDeliveryFee)}</span>
+              </div>
+            ) : null}
             <div className="flex justify-between border-t border-cream/5 pt-2 font-semibold text-cream">
               <span>Total</span>
               <span className="text-accent">{formatPrice(total)}</span>

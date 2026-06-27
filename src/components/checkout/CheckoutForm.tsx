@@ -3,16 +3,19 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Truck } from "lucide-react";
+import { AnimatePresence, m } from "@/lib/motion";
 import { WhatsAppIcon } from "@/components/icons/BrandIcons";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { OrderSummary } from "@/components/checkout/OrderSummary";
+import {
+  OrderTypeSelector,
+} from "@/components/checkout/OrderTypeSelector";
+import type { OrderType } from "@/types/order";
 import { useCart } from "@/contexts/CartContext";
 import { useSettings } from "@/contexts/SettingsContext";
-import {
-  buildWhatsAppOrderUrl,
-} from "@/lib/whatsapp";
+import { buildWhatsAppOrderUrl } from "@/lib/whatsapp";
 import { isValidLebanonPhone } from "@/lib/utils";
 import type { DeliveryDetails } from "@/types/order";
 
@@ -33,11 +36,42 @@ const initialForm: DeliveryDetails = {
   deliveryInstructions: "",
 };
 
+const fieldCollapse = {
+  initial: { height: 0, opacity: 0 },
+  animate: {
+    height: "auto",
+    opacity: 1,
+    transition: { duration: 0.28, ease: [0.4, 0, 0.2, 1] as const },
+  },
+  exit: {
+    height: 0,
+    opacity: 0,
+    transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] as const },
+  },
+};
+
 export function CheckoutForm() {
-  const { items, subtotal, deliveryFee, total, clearCart } = useCart();
+  const { items, subtotal, deliveryFee, clearCart } = useCart();
   const settings = useSettings();
+  const [orderType, setOrderType] = useState<OrderType>("delivery");
   const [form, setForm] = useState<DeliveryDetails>(initialForm);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  const isDelivery = orderType === "delivery";
+  const appliedDeliveryFee = isDelivery ? deliveryFee : 0;
+  const total = subtotal + appliedDeliveryFee;
+
+  const handleOrderTypeChange = (type: OrderType) => {
+    setOrderType(type);
+    if (type === "pickup") {
+      setErrors((prev) => ({
+        ...prev,
+        city: undefined,
+        street: undefined,
+        building: undefined,
+      }));
+    }
+  };
 
   const updateField = (field: keyof DeliveryDetails, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -53,9 +87,12 @@ export function CheckoutForm() {
     if (!form.phone.trim()) newErrors.phone = "Phone number is required";
     else if (!isValidLebanonPhone(form.phone))
       newErrors.phone = "Enter a valid Lebanon number (e.g. 70123456)";
-    if (!form.city.trim()) newErrors.city = "City is required";
-    if (!form.street.trim()) newErrors.street = "Street is required";
-    if (!form.building.trim()) newErrors.building = "Building is required";
+
+    if (isDelivery) {
+      if (!form.city.trim()) newErrors.city = "City is required";
+      if (!form.street.trim()) newErrors.street = "Street is required";
+      if (!form.building.trim()) newErrors.building = "Building is required";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -68,16 +105,18 @@ export function CheckoutForm() {
     const url = buildWhatsAppOrderUrl({
       phone: settings.whatsapp,
       restaurantName: settings.name,
+      orderType,
       customer: form,
       items,
       subtotal,
-      deliveryFee,
+      deliveryFee: appliedDeliveryFee,
       total,
     });
 
     window.open(url, "_blank", "noopener,noreferrer");
     clearCart();
     setForm(initialForm);
+    setOrderType("delivery");
   };
 
   if (items.length === 0) {
@@ -93,6 +132,8 @@ export function CheckoutForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <OrderTypeSelector value={orderType} onChange={handleOrderTypeChange} />
+
       <Input
         label="Full Name"
         placeholder="Your name"
@@ -115,58 +156,102 @@ export function CheckoutForm() {
         Lebanon mobile only — no country code (e.g. 70, 71, 03, 76, 78, 79, 81)
       </p>
 
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Input
-          label="City"
-          placeholder={settings.address.city || "City"}
-          value={form.city}
-          onChange={(e) => updateField("city", e.target.value)}
-          error={errors.city}
-          required
-        />
-        <Input
-          label="Street"
-          placeholder="Near Zarifa Cafe"
-          value={form.street}
-          onChange={(e) => updateField("street", e.target.value)}
-          error={errors.street}
-          required
-        />
-      </div>
+      <AnimatePresence initial={false} mode="wait">
+        {isDelivery ? (
+          <m.div
+            key="delivery-fields"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={fieldCollapse}
+            className="space-y-5 overflow-hidden"
+          >
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Input
+                label="City"
+                placeholder={settings.address.city || "City"}
+                value={form.city}
+                onChange={(e) => updateField("city", e.target.value)}
+                error={errors.city}
+                required
+              />
+              <Input
+                label="Street"
+                placeholder="Near Zarifa Cafe"
+                value={form.street}
+                onChange={(e) => updateField("street", e.target.value)}
+                error={errors.street}
+                required
+              />
+            </div>
 
-      <Input
-        label="Building"
-        placeholder="Apt 4B, Floor 2, Villa 12..."
-        value={form.building}
-        onChange={(e) => updateField("building", e.target.value)}
-        error={errors.building}
-        required
-      />
+            <Input
+              label="Building"
+              placeholder="Apt 4B, Floor 2, Villa 12..."
+              value={form.building}
+              onChange={(e) => updateField("building", e.target.value)}
+              error={errors.building}
+              required
+            />
 
-      <Textarea
-        label="Delivery Instructions"
-        labelHint="(Optional)"
-        placeholder="Ring the doorbell, gate code, landmarks..."
-        value={form.deliveryInstructions}
-        onChange={(e) => updateField("deliveryInstructions", e.target.value)}
-        rows={3}
-      />
+            <Textarea
+              label="Delivery Instructions"
+              labelHint="(Optional)"
+              placeholder="Ring the doorbell, gate code, landmarks..."
+              value={form.deliveryInstructions}
+              onChange={(e) => updateField("deliveryInstructions", e.target.value)}
+              rows={3}
+            />
+          </m.div>
+        ) : (
+          <m.div
+            key="pickup-note"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={fieldCollapse}
+            className="overflow-hidden"
+          >
+            <Textarea
+              label="Order Note"
+              labelHint="(Optional)"
+              placeholder="Allergies, pickup time, special requests..."
+              value={form.deliveryInstructions}
+              onChange={(e) => updateField("deliveryInstructions", e.target.value)}
+              rows={3}
+            />
+          </m.div>
+        )}
+      </AnimatePresence>
 
-      <OrderSummary />
+      <OrderSummary orderType={orderType} />
 
-      <div className="rounded-xl border border-white/10 bg-accent/5 p-4 sm:p-5">
-        <div className="flex gap-3 sm:gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
-            <Truck className="h-5 w-5 text-accent" aria-hidden />
-          </div>
-          <div className="min-w-0 space-y-1">
-            <p className="text-sm font-medium text-cream">Delivery fee</p>
-            <p className="text-sm text-cream/75">
-              Delivery fee confirmed via WhatsApp.
-            </p>
-          </div>
-        </div>
-      </div>
+      <AnimatePresence initial={false}>
+        {isDelivery ? (
+          <m.div
+            key="delivery-fee-notice"
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            variants={fieldCollapse}
+            className="overflow-hidden"
+          >
+            <div className="rounded-xl border border-white/10 bg-accent/5 p-4 sm:p-5">
+              <div className="flex gap-3 sm:gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent/10">
+                  <Truck className="h-5 w-5 text-accent" aria-hidden />
+                </div>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-sm font-medium text-cream">Delivery fee</p>
+                  <p className="text-sm text-cream/75">
+                    Delivery fee confirmed via WhatsApp.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </m.div>
+        ) : null}
+      </AnimatePresence>
 
       <Button type="submit" variant="whatsapp" size="lg" className="w-full">
         <WhatsAppIcon size={20} />

@@ -1,5 +1,6 @@
 import type { CartItem } from "@/types/cart";
 import type { DeliveryDetails } from "@/types/order";
+import type { OrderType } from "@/types/order";
 import { getCartLineTotal } from "@/lib/cart";
 import { formatLebanonPhoneForWhatsApp, formatPrice } from "./utils";
 import { siteConfig } from "@/config/site";
@@ -7,6 +8,7 @@ import { siteConfig } from "@/config/site";
 interface WhatsAppOrderParams {
   phone: string;
   restaurantName: string;
+  orderType: OrderType;
   customer: DeliveryDetails;
   items: CartItem[];
   subtotal: number;
@@ -16,6 +18,7 @@ interface WhatsAppOrderParams {
 
 export function buildWhatsAppOrderMessage({
   restaurantName,
+  orderType,
   customer,
   items,
   subtotal,
@@ -23,22 +26,33 @@ export function buildWhatsAppOrderMessage({
   total,
 }: Omit<WhatsAppOrderParams, "phone">): string {
   const customerPhone = formatLebanonPhoneForWhatsApp(customer.phone);
+  const isDelivery = orderType === "delivery";
 
   const lines: string[] = [
     `🍔 *New Order — ${restaurantName}*`,
     "",
+    "*Order Type*",
+    isDelivery ? "🚚 Delivery" : "🏃 Pickup",
+    "",
     "*Customer Details*",
     `Name: ${customer.name}`,
     `Phone: +${customerPhone}`,
-    "",
-    "*Delivery Address*",
-    `City: ${customer.city}`,
-    `Street: ${customer.street}`,
-    `Building: ${customer.building}`,
   ];
 
-  if (customer.deliveryInstructions.trim()) {
-    lines.push(`Instructions: ${customer.deliveryInstructions}`);
+  if (isDelivery) {
+    lines.push(
+      "",
+      "*Delivery Address*",
+      `City: ${customer.city}`,
+      `Street: ${customer.street}`,
+      `Building: ${customer.building}`
+    );
+
+    if (customer.deliveryInstructions.trim()) {
+      lines.push(`Instructions: ${customer.deliveryInstructions}`);
+    }
+  } else if (customer.deliveryInstructions.trim()) {
+    lines.push("", `Order Note: ${customer.deliveryInstructions}`);
   }
 
   lines.push("", "*Order Items*");
@@ -67,6 +81,7 @@ export function buildWhatsAppOrderMessage({
 export function buildWhatsAppOrderUrl({
   phone,
   restaurantName,
+  orderType,
   customer,
   items,
   subtotal,
@@ -76,6 +91,7 @@ export function buildWhatsAppOrderUrl({
   const sanitizedPhone = phone.replace(/\D/g, "");
   const message = buildWhatsAppOrderMessage({
     restaurantName,
+    orderType,
     customer,
     items,
     subtotal,

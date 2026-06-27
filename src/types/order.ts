@@ -1,3 +1,5 @@
+export type OrderType = "delivery" | "pickup";
+
 export interface DeliveryDetails {
   name: string;
   phone: string;
