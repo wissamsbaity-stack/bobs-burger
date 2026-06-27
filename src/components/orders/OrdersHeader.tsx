@@ -1,9 +1,12 @@
 "use client";
 
+import { memo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { LogOut, Radio } from "lucide-react";
 import { createBrowserClient } from "@/lib/supabase/client";
+import { ordersSecondaryButtonClassName } from "@/components/orders/orders-ui";
+import { cn } from "@/lib/utils";
 
 interface OrdersHeaderProps {
   restaurantName: string;
@@ -11,7 +14,7 @@ interface OrdersHeaderProps {
   newOrderCount: number;
 }
 
-export function OrdersHeader({
+export const OrdersHeader = memo(function OrdersHeader({
   restaurantName,
   logoUrl,
   newOrderCount,
@@ -28,10 +31,10 @@ export function OrdersHeader({
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/8 bg-ink/90 backdrop-blur-xl">
+    <header className="z-50 shrink-0 border-b border-white/8 bg-ink/95 supports-[backdrop-filter]:bg-ink/90 supports-[backdrop-filter]:backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10 shadow-card">
+          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10">
             <Image
               src={logoUrl}
               alt={restaurantName}
@@ -44,17 +47,16 @@ export function OrdersHeader({
             <p className="truncate font-display text-xl tracking-wide text-accent sm:text-2xl">
               {restaurantName}
             </p>
-            <p className="text-xs text-muted">Orders Dashboard</p>
+            <p className="text-sm text-muted">Orders Dashboard</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface-overlay px-3 py-2 text-sm font-semibold text-cream shadow-card sm:px-4">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-60" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-surface-overlay px-3 py-2 text-sm font-semibold text-cream sm:px-4">
+            <span className="inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
+            <span>
+              {newOrderCount} New Order{newOrderCount === 1 ? "" : "s"}
             </span>
-            <span>{newOrderCount} New Order{newOrderCount === 1 ? "" : "s"}</span>
           </div>
 
           <div className="hidden items-center gap-1.5 text-xs text-emerald-400 sm:inline-flex">
@@ -65,7 +67,10 @@ export function OrdersHeader({
           <button
             type="button"
             onClick={handleSignOut}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-sm text-muted transition hover:bg-white/5 hover:text-cream"
+            className={cn(
+              ordersSecondaryButtonClassName,
+              "px-3 py-2 text-sm text-muted"
+            )}
           >
             <LogOut className="h-4 w-4" />
             <span className="hidden sm:inline">Sign out</span>
@@ -74,4 +79,4 @@ export function OrdersHeader({
       </div>
     </header>
   );
-}
+});

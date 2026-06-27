@@ -1,6 +1,11 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import {
+  ordersDangerButtonClassName,
+  ordersPrimaryButtonClassName,
+  ordersSecondaryButtonClassName,
+} from "@/components/orders/orders-ui";
 
 interface OrdersConfirmDialogProps {
   open: boolean;
@@ -32,7 +37,7 @@ export function OrdersConfirmDialog({
       <button
         type="button"
         aria-label="Close dialog"
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+        className="orders-touch-btn absolute inset-0 bg-black/70"
         onClick={onCancel}
       />
       <div
@@ -47,13 +52,16 @@ export function OrdersConfirmDialog({
         >
           {title}
         </h3>
-        <p className="mt-2 text-sm leading-relaxed text-muted">{description}</p>
+        <p className="mt-2 text-base leading-relaxed text-muted">{description}</p>
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-cream transition hover:bg-white/5 disabled:opacity-50"
+            className={cn(
+              ordersSecondaryButtonClassName,
+              "px-4 py-2.5 text-sm"
+            )}
           >
             {cancelLabel}
           </button>
@@ -62,10 +70,10 @@ export function OrdersConfirmDialog({
             onClick={onConfirm}
             disabled={isLoading}
             className={cn(
-              "rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition disabled:opacity-50",
               tone === "danger"
-                ? "bg-red-600 hover:bg-red-500"
-                : "bg-accent hover:bg-accent-hover"
+                ? cn(ordersDangerButtonClassName, "border-0 bg-red-600 text-white")
+                : ordersPrimaryButtonClassName,
+              "px-4 py-2.5 text-sm"
             )}
           >
             {isLoading ? "Please wait…" : confirmLabel}

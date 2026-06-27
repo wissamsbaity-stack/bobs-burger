@@ -1,9 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 import { Search, Calendar, Trash2, Loader2 } from "lucide-react";
-import { OrderCard } from "@/components/orders/OrderCard";
+import { HistoryOrderCard } from "@/components/orders/OrderCard";
 import { OrdersConfirmDialog } from "@/components/orders/OrdersConfirmDialog";
+import {
+  ordersDangerButtonClassName,
+  ordersInputClassName,
+  ordersSecondaryButtonClassName,
+} from "@/components/orders/orders-ui";
 import {
   clearOrderHistory,
   deleteHistoryOrder,
@@ -12,6 +24,7 @@ import {
 import { HISTORY_PAGE_SIZE } from "@/lib/orders/constants";
 import type { StaffOrder } from "@/lib/orders/map-order";
 import { sortOrdersNewestFirst } from "@/lib/orders/map-order";
+import { cn } from "@/lib/utils";
 
 interface OrderHistorySectionProps {
   initialOrders: StaffOrder[];
@@ -21,7 +34,28 @@ interface OrderHistorySectionProps {
   onPrependConsumed?: () => void;
 }
 
-export function OrderHistorySection({
+const HistoryOrderListItem = memo(function HistoryOrderListItem({
+  order,
+  isExpanded,
+  onToggleExpand,
+  onDelete,
+}: {
+  order: StaffOrder;
+  isExpanded: boolean;
+  onToggleExpand: (orderId: string) => void;
+  onDelete: (orderId: string) => void;
+}) {
+  return (
+    <HistoryOrderCard
+      order={order}
+      isExpanded={isExpanded}
+      onToggleExpand={() => onToggleExpand(order.id)}
+      onDelete={onDelete}
+    />
+  );
+});
+
+export const OrderHistorySection = memo(function OrderHistorySection({
   initialOrders,
   initialHasMore,
   initialTotalCount,
@@ -38,6 +72,7 @@ export function OrderHistorySection({
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const skipInitialSearchRef = useRef(true);
 
   const reloadHistory = useCallback(
     (nextPage: number, nextSearch: string, nextDate: string) => {
@@ -52,6 +87,7 @@ export function OrderHistorySection({
           setHasMore(result.hasMore);
           setTotalCount(result.totalCount);
           setPage(nextPage);
+          setExpandedId(null);
         } catch {
           // Keep existing list on failure.
         }
@@ -61,9 +97,15 @@ export function OrderHistorySection({
   );
 
   useEffect(() => {
+    if (skipInitialSearchRef.current) {
+      skipInitialSearchRef.current = false;
+      return;
+    }
+
     const timer = window.setTimeout(() => {
       reloadHistory(0, search, dateFilter);
     }, 300);
+
     return () => window.clearTimeout(timer);
   }, [search, dateFilter, reloadHistory]);
 
@@ -84,10 +126,25 @@ export function OrderHistorySection({
     onPrependConsumed?.();
   }, [prependOrder, search, dateFilter, page, onPrependConsumed]);
 
-  function removeFromHistory(orderId: string) {
-    setOrders((current) => current.filter((order) => order.id !== orderId));
-    setTotalCount((count) => Math.max(0, count - 1));
-  }
+  const handleToggleExpand = useCallback((orderId: string) => {
+    setExpandedId((current) => (current === orderId ? null : orderId));
+  }, []);
+
+  const handleDelete = useCallback(
+    (orderId: string) => {
+      startTransition(async () => {
+        const result = await deleteHistoryOrder(orderId);
+        if (result.success) {
+          setOrders((current) =>
+            current.filter((order) => order.id !== orderId)
+          );
+          setTotalCount((count) => Math.max(0, count - 1));
+          setExpandedId((current) => (current === orderId ? null : current));
+        }
+      });
+    },
+    [startTransition]
+  );
 
   async function handleLoadMore() {
     const nextPage = page + 1;
@@ -114,16 +171,6 @@ export function OrderHistorySection({
     }
   }
 
-  function handleDelete(orderId: string) {
-    startTransition(async () => {
-      const result = await deleteHistoryOrder(orderId);
-      if (result.success) {
-        removeFromHistory(orderId);
-        if (expandedId === orderId) setExpandedId(null);
-      }
-    });
-  }
-
   function handleClearHistory() {
     startTransition(async () => {
       const result = await clearOrderHistory();
@@ -139,13 +186,13 @@ export function OrderHistorySection({
   }
 
   return (
-    <section className="mt-12">
+    <section className="mt-10 pb-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-display text-3xl tracking-wide text-cream">
             Order History
           </h2>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-base text-muted">
             {totalCount} archived order{totalCount === 1 ? "" : "s"}
           </p>
         </div>
@@ -154,40 +201,47 @@ export function OrderHistorySection({
           type="button"
           onClick={() => setShowClearConfirm(true)}
           disabled={totalCount === 0 || isPending}
-          className="inline-flex items-center justify-center gap-2 self-start rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-300 transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-40"
+          className={cn(
+            ordersDangerButtonClassName,
+            "self-start px-4 py-2.5 text-sm"
+          )}
         >
           <Trash2 className="h-4 w-4" />
           Clear Entire History
         </button>
       </div>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-[1fr_auto]">
-        <label className="relative block">
+      <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto]">
+        <label className="relative block min-w-0">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by order #, name, or phone…"
-            className="w-full rounded-xl border border-white/10 bg-surface-overlay py-3 pl-10 pr-4 text-sm text-cream outline-none transition placeholder:text-muted focus:border-accent/40 focus:ring-2 focus:ring-accent/20"
+            enterKeyHint="search"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            className={cn(ordersInputClassName, "py-3 pl-10 pr-4")}
           />
         </label>
 
-        <label className="relative block sm:w-48">
+        <label className="relative block min-w-0 sm:w-48">
           <Calendar className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
           <input
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full rounded-xl border border-white/10 bg-surface-overlay py-3 pl-10 pr-3 text-sm text-cream outline-none transition focus:border-accent/40 focus:ring-2 focus:ring-accent/20"
+            className={cn(ordersInputClassName, "py-3 pl-10 pr-3")}
           />
         </label>
       </div>
 
-      <div className="relative mt-6 space-y-3">
+      <div className="relative mt-5 space-y-3">
         {isPending && orders.length > 0 ? (
           <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex justify-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-surface-overlay px-3 py-1 text-xs text-muted ring-1 ring-white/10">
+            <span className="inline-flex items-center gap-2 rounded-full bg-surface-overlay px-3 py-1 text-sm text-muted ring-1 ring-white/10">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               Updating…
             </span>
@@ -196,7 +250,7 @@ export function OrderHistorySection({
 
         {orders.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-white/10 bg-surface-raised/50 px-6 py-12 text-center">
-            <p className="text-sm text-muted">
+            <p className="text-base text-muted">
               {search || dateFilter
                 ? "No orders match your search."
                 : "No archived orders yet."}
@@ -204,16 +258,11 @@ export function OrderHistorySection({
           </div>
         ) : (
           orders.map((order) => (
-            <OrderCard
+            <HistoryOrderListItem
               key={order.id}
               order={order}
-              variant="history"
               isExpanded={expandedId === order.id}
-              onToggleExpand={() =>
-                setExpandedId((current) =>
-                  current === order.id ? null : order.id
-                )
-              }
+              onToggleExpand={handleToggleExpand}
               onDelete={handleDelete}
             />
           ))
@@ -221,12 +270,15 @@ export function OrderHistorySection({
       </div>
 
       {hasMore ? (
-        <div className="mt-6 flex justify-center">
+        <div className="mt-5 flex justify-center">
           <button
             type="button"
             onClick={handleLoadMore}
             disabled={isLoadingMore}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-5 py-2.5 text-sm font-medium text-cream transition hover:bg-white/[0.06] disabled:opacity-50"
+            className={cn(
+              ordersSecondaryButtonClassName,
+              "px-5 py-2.5 text-sm"
+            )}
           >
             {isLoadingMore ? (
               <>
@@ -252,6 +304,6 @@ export function OrderHistorySection({
       />
     </section>
   );
-}
+});
 
-export { type OrderHistorySectionProps };
+export type { OrderHistorySectionProps };

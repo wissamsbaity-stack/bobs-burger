@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition } from "react";
-import { AnimatePresence } from "framer-motion";
+import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import { Inbox } from "lucide-react";
 import { markOrderAsRead } from "@/app/orders/actions";
-import { OrderCard } from "@/components/orders/OrderCard";
+import { NewOrderCard } from "@/components/orders/OrderCard";
 import { OrderHistorySection } from "@/components/orders/OrderHistorySection";
 import { OrdersHeader } from "@/components/orders/OrdersHeader";
+import { OrdersMobileShell } from "@/components/orders/OrdersMobileShell";
 import {
   OrdersToastStack,
   type OrdersToastItem,
@@ -40,16 +40,34 @@ export function OrdersDashboard({
   );
   const [toasts, setToasts] = useState<OrdersToastItem[]>([]);
   const [successIds, setSuccessIds] = useState<Set<string>>(new Set());
+  const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
+  const [enteringIds, setEnteringIds] = useState<Set<string>>(new Set());
   const [historyPrepend, setHistoryPrepend] = useState<StaffOrder | null>(
     null
   );
   const [, startTransition] = useTransition();
   const { play } = useOrderNotificationSound();
+  const enteringTimersRef = useRef<Map<string, number>>(new Map());
 
   const initialOrderIds = useMemo(
     () => initialNewOrders.map((order) => order.id),
     [initialNewOrders]
   );
+
+  const markEntering = useCallback((orderId: string) => {
+    setEnteringIds((current) => new Set(current).add(orderId));
+    const existing = enteringTimersRef.current.get(orderId);
+    if (existing) window.clearTimeout(existing);
+    const timer = window.setTimeout(() => {
+      setEnteringIds((current) => {
+        const next = new Set(current);
+        next.delete(orderId);
+        return next;
+      });
+      enteringTimersRef.current.delete(orderId);
+    }, 240);
+    enteringTimersRef.current.set(orderId, timer);
+  }, []);
 
   const pushToast = useCallback((order: StaffOrder) => {
     const id = `toast-${order.id}-${Date.now()}`;
@@ -59,7 +77,7 @@ export function OrdersDashboard({
         title: "New order received",
         message: `#${order.orderNumber} · ${order.customerName}`,
       },
-      ...current.slice(0, 4),
+      ...current.slice(0, 3),
     ]);
     window.setTimeout(() => {
       setToasts((current) => current.filter((toast) => toast.id !== id));
@@ -72,14 +90,20 @@ export function OrdersDashboard({
         if (current.some((item) => item.id === order.id)) return current;
         return sortOrdersNewestFirst([order, ...current]);
       });
+      markEntering(order.id);
       play();
       pushToast(order);
     },
-    [play, pushToast]
+    [markEntering, play, pushToast]
   );
 
   const handleRealtimeMarkRead = useCallback((orderId: string) => {
     setNewOrders((current) => current.filter((order) => order.id !== orderId));
+    setExitingIds((current) => {
+      const next = new Set(current);
+      next.delete(orderId);
+      return next;
+    });
   }, []);
 
   useOrdersRealtime({
@@ -88,34 +112,43 @@ export function OrdersDashboard({
     onMarkRead: handleRealtimeMarkRead,
   });
 
-  function dismissToast(id: string) {
+  const dismissToast = useCallback((id: string) => {
     setToasts((current) => current.filter((toast) => toast.id !== id));
-  }
+  }, []);
 
-  function handleMarkAsRead(orderId: string) {
-    startTransition(async () => {
-      const result = await markOrderAsRead(orderId);
-      if (!result.success || !result.order) return;
+  const handleMarkAsRead = useCallback(
+    (orderId: string) => {
+      startTransition(async () => {
+        const result = await markOrderAsRead(orderId);
+        if (!result.success || !result.order) return;
 
-      setSuccessIds((current) => new Set(current).add(orderId));
+        setSuccessIds((current) => new Set(current).add(orderId));
+        setExitingIds((current) => new Set(current).add(orderId));
 
-      window.setTimeout(() => {
-        setNewOrders((current) =>
-          current.filter((order) => order.id !== orderId)
-        );
-        setHistoryPrepend(result.order!);
-        setSuccessIds((current) => {
-          const next = new Set(current);
-          next.delete(orderId);
-          return next;
-        });
-      }, 650);
-    });
-  }
+        window.setTimeout(() => {
+          setNewOrders((current) =>
+            current.filter((order) => order.id !== orderId)
+          );
+          setHistoryPrepend(result.order!);
+          setSuccessIds((current) => {
+            const next = new Set(current);
+            next.delete(orderId);
+            return next;
+          });
+          setExitingIds((current) => {
+            const next = new Set(current);
+            next.delete(orderId);
+            return next;
+          });
+        }, 180);
+      });
+    },
+    [startTransition]
+  );
 
   return (
-    <div className="min-h-screen bg-ink">
-      <div className="pointer-events-none fixed inset-0 bg-hero-radial opacity-70" />
+    <OrdersMobileShell className="relative">
+      <div className="pointer-events-none absolute inset-0 bg-hero-radial opacity-50" />
 
       <OrdersHeader
         restaurantName={restaurantName}
@@ -125,53 +158,53 @@ export function OrdersDashboard({
 
       <OrdersToastStack toasts={toasts} onDismiss={dismissToast} />
 
-      <main className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-        <section>
-          <div className="mb-6">
-            <h2 className="font-display text-3xl tracking-wide text-cream">
-              New Orders
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Incoming orders appear instantly — no refresh needed.
-            </p>
-          </div>
-
-          {newOrders.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-white/10 bg-surface-raised/60 px-6 py-16 text-center shadow-card">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.03] ring-1 ring-white/10">
-                <Inbox className="h-7 w-7 text-muted" />
-              </div>
-              <p className="font-medium text-cream">All caught up</p>
-              <p className="mt-1 text-sm text-muted">
-                New orders will appear here with a sound alert.
+      <div className="orders-app-scroll relative">
+        <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+          <section>
+            <div className="mb-5">
+              <h2 className="font-display text-3xl tracking-wide text-cream">
+                New Orders
+              </h2>
+              <p className="mt-1 text-base text-muted">
+                Incoming orders appear instantly — no refresh needed.
               </p>
             </div>
-          ) : (
-            <div className="space-y-4">
-              <AnimatePresence mode="popLayout" initial={false}>
+
+            {newOrders.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-white/10 bg-surface-raised/60 px-6 py-14 text-center">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.03] ring-1 ring-white/10">
+                  <Inbox className="h-7 w-7 text-muted" />
+                </div>
+                <p className="font-medium text-cream">All caught up</p>
+                <p className="mt-1 text-base text-muted">
+                  New orders will appear here with a sound alert.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
                 {newOrders.map((order) => (
-                  <OrderCard
+                  <NewOrderCard
                     key={order.id}
                     order={order}
-                    variant="new"
-                    isNew
                     onMarkAsRead={handleMarkAsRead}
                     markReadSuccess={successIds.has(order.id)}
+                    isExiting={exitingIds.has(order.id)}
+                    isEntering={enteringIds.has(order.id)}
                   />
                 ))}
-              </AnimatePresence>
-            </div>
-          )}
-        </section>
+              </div>
+            )}
+          </section>
 
-        <OrderHistorySection
-          initialOrders={initialHistoryOrders}
-          initialHasMore={initialHistoryHasMore}
-          initialTotalCount={initialHistoryTotalCount}
-          prependOrder={historyPrepend}
-          onPrependConsumed={() => setHistoryPrepend(null)}
-        />
-      </main>
-    </div>
+          <OrderHistorySection
+            initialOrders={initialHistoryOrders}
+            initialHasMore={initialHistoryHasMore}
+            initialTotalCount={initialHistoryTotalCount}
+            prependOrder={historyPrepend}
+            onPrependConsumed={() => setHistoryPrepend(null)}
+          />
+        </main>
+      </div>
+    </OrdersMobileShell>
   );
 }

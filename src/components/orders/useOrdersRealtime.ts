@@ -21,10 +21,20 @@ export function useOrdersRealtime({
 }: UseOrdersRealtimeOptions) {
   const seenIdsRef = useRef(new Set(initialOrderIds));
   const readyRef = useRef(false);
+  const onInsertRef = useRef(onInsert);
+  const onMarkReadRef = useRef(onMarkRead);
 
   useEffect(() => {
     seenIdsRef.current = new Set(initialOrderIds);
   }, [initialOrderIds]);
+
+  useEffect(() => {
+    onInsertRef.current = onInsert;
+  }, [onInsert]);
+
+  useEffect(() => {
+    onMarkReadRef.current = onMarkRead;
+  }, [onMarkRead]);
 
   useEffect(() => {
     const supabase = createBrowserClient();
@@ -45,11 +55,9 @@ export function useOrdersRealtime({
           if (seenIdsRef.current.has(row.id)) return;
 
           seenIdsRef.current.add(row.id);
-          const order = mapOrderRow(row);
+          if (!readyRef.current) return;
 
-          if (readyRef.current) {
-            onInsert(order);
-          }
+          onInsertRef.current(mapOrderRow(row));
         }
       )
       .on(
@@ -58,7 +66,7 @@ export function useOrdersRealtime({
         (payload) => {
           const row = payload.new as OrderRow;
           if (row.is_read) {
-            onMarkRead(row.id);
+            onMarkReadRef.current(row.id);
           }
         }
       )
@@ -68,5 +76,5 @@ export function useOrdersRealtime({
       window.clearTimeout(readyTimer);
       void supabase.removeChannel(channel);
     };
-  }, [onInsert, onMarkRead]);
+  }, []);
 }
