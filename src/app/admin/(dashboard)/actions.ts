@@ -344,6 +344,7 @@ export async function updateSiteSettings(
     instagram_url:
       String(formData.get("instagram_url") ?? "").trim() || null,
     facebook_url: String(formData.get("facebook_url") ?? "").trim() || null,
+    tiktok_url: String(formData.get("tiktok_url") ?? "").trim() || null,
     logo_url: String(formData.get("logo_url") ?? "").trim() || null,
     hero_image_url:
       String(formData.get("hero_image_url") ?? "").trim() || null,

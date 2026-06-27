@@ -24,6 +24,7 @@ export interface PublicSiteSettings {
   social: {
     instagram: string;
     facebook: string;
+    tiktok: string;
   };
   branding: {
     logo: string;
@@ -48,7 +49,11 @@ function fromStatic(): PublicSiteSettings {
     hours: [...restaurantInfo.hours],
     deliveryFee: siteConfig.deliveryFee,
     minOrder: siteConfig.minOrder,
-    social: { ...restaurantInfo.social },
+    social: {
+      instagram: restaurantInfo.social.instagram,
+      facebook: restaurantInfo.social.facebook,
+      tiktok: "",
+    },
     branding: {
       logo: restaurantInfo.branding.logo,
       heroImage: "",
@@ -81,6 +86,7 @@ function mapRow(row: SiteSettingsRow): PublicSiteSettings {
     social: {
       instagram: row.instagram_url ?? "",
       facebook: row.facebook_url ?? "",
+      tiktok: row.tiktok_url ?? "",
     },
     branding: {
       logo: row.logo_url ?? restaurantInfo.branding.logo,

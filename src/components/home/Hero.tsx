@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { m } from "@/lib/motion";
-import { ChevronDown, MessageCircle } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/BrandIcons";
+import { HeroSocialLinks } from "@/components/home/HeroSocialLinks";
 import { useSettings } from "@/contexts/SettingsContext";
 import { cropToImageStyle } from "@/lib/image-crop";
 import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
@@ -20,7 +22,6 @@ export function Hero() {
 
   return (
     <section className="relative -mt-[var(--site-header-height)] overflow-hidden bg-ink bg-hero-radial pt-[var(--site-header-height)]">
-      {/* Layered orange glow — large, soft, fades naturally into the dark bg */}
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_15%,rgba(255,92,0,0.10)_0%,rgba(255,92,0,0.04)_50%,transparent_85%)]"
         aria-hidden
@@ -59,24 +60,26 @@ export function Hero() {
           Burgers built for serious cravings.
         </m.h1>
 
+        <HeroSocialLinks />
+
         <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="mt-8 flex w-full flex-col gap-3 sm:mt-10 sm:w-auto sm:flex-row sm:justify-center sm:gap-4"
+          className="mt-6 flex w-full flex-col gap-3 sm:mt-7 sm:w-auto sm:flex-row sm:justify-center sm:gap-4"
         >
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-whatsapp px-7 py-4 text-base font-semibold text-white transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.97]"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-whatsapp px-7 py-3.5 text-base font-semibold text-white transition-transform duration-200 ease-out hover:scale-[1.02] active:scale-[0.97]"
           >
-            <MessageCircle className="h-5 w-5" />
+            <WhatsAppIcon size={20} />
             Order on WhatsApp
           </a>
           <Link
             href="/menu"
-            className="inline-flex items-center justify-center rounded-full border-2 border-white/30 bg-white/[0.03] px-7 py-4 text-base font-semibold text-cream shadow-[0_0_0_1px_rgba(255,255,255,0.04)] transition-all duration-300 ease-out hover:border-accent/50 hover:bg-accent/10 hover:text-cream hover:shadow-[0_0_24px_rgba(255,92,0,0.22)] active:scale-[0.97]"
+            className="inline-flex items-center justify-center rounded-full border-2 border-white/30 bg-white/[0.03] px-7 py-3.5 text-base font-semibold text-cream shadow-[0_0_0_1px_rgba(255,255,255,0.04)] transition-all duration-300 ease-out hover:border-accent/50 hover:bg-accent/10 hover:text-cream hover:shadow-[0_0_24px_rgba(255,92,0,0.22)] active:scale-[0.97]"
           >
             Browse the menu
           </Link>
@@ -95,7 +98,6 @@ export function Hero() {
             className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-accent/20 blur-3xl"
             aria-hidden
           />
-          {/* Fixed 16:9 box reserves height before the image paints — prevents CLS */}
           <div className="relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 shadow-ember ring-1 ring-white/5">
             <Image
               src={heroImage}

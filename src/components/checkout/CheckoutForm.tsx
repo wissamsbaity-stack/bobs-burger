@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { MessageCircle, Truck } from "lucide-react";
+import { Truck } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/BrandIcons";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
@@ -168,7 +169,7 @@ export function CheckoutForm() {
       </div>
 
       <Button type="submit" variant="whatsapp" size="lg" className="w-full">
-        <MessageCircle className="h-5 w-5" />
+        <WhatsAppIcon size={20} />
         Send Order via WhatsApp
       </Button>
 

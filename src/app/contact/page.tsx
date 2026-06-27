@@ -3,9 +3,10 @@ import {
   Clock,
   Mail,
   MapPin,
-  MessageCircle,
   Phone,
+  type LucideIcon,
 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/BrandIcons";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Button } from "@/components/ui/Button";
 import { ContactForm } from "@/components/contact/ContactForm";
@@ -34,6 +35,40 @@ export default async function ContactPage() {
   );
   const mapEmbedUrl = mapsEmbedUrlFromAddress(settings.address);
 
+  const contactCards: {
+    label: string;
+    value: string;
+    href?: string;
+    external?: boolean;
+    icon?: LucideIcon;
+    brand?: "whatsapp";
+  }[] = [
+    {
+      icon: Phone,
+      label: "Phone",
+      value: settings.phone,
+      href: `tel:${settings.phone.replace(/\D/g, "")}`,
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      value: settings.email,
+      href: `mailto:${settings.email}`,
+    },
+    {
+      icon: MapPin,
+      label: "Address",
+      value: fullAddress,
+    },
+    {
+      brand: "whatsapp",
+      label: "WhatsApp",
+      value: settings.whatsapp,
+      href: whatsappUrl,
+      external: true,
+    },
+  ];
+
   return (
     <div className="pb-20">
       <section className="border-b border-cream/5 bg-surface-raised/30 py-12 lg:py-16">
@@ -51,48 +86,24 @@ export default async function ContactPage() {
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2">
-              {[
-                {
-                  icon: Phone,
-                  label: "Phone",
-                  value: settings.phone,
-                  href: `tel:${settings.phone.replace(/\D/g, "")}`,
-                },
-                {
-                  icon: Mail,
-                  label: "Email",
-                  value: settings.email,
-                  href: `mailto:${settings.email}`,
-                },
-                {
-                  icon: MapPin,
-                  label: "Address",
-                  value: fullAddress,
-                },
-                {
-                  icon: MessageCircle,
-                  label: "WhatsApp",
-                  value: settings.whatsapp,
-                  href: whatsappUrl,
-                },
-              ].map((item) => (
+              {contactCards.map((item) => (
                 <div
                   key={item.label}
                   className="rounded-2xl border border-cream/5 bg-surface-raised p-5"
                 >
-                  <item.icon className="mb-3 h-5 w-5 text-accent" />
+                  {item.brand === "whatsapp" ? (
+                    <WhatsAppIcon size={20} className="mb-3 text-accent" />
+                  ) : item.icon ? (
+                    <item.icon className="mb-3 h-5 w-5 text-accent" />
+                  ) : null}
                   <p className="mb-1 text-xs font-medium uppercase tracking-wider text-muted">
                     {item.label}
                   </p>
                   {item.href ? (
                     <a
                       href={item.href}
-                      target={item.label === "WhatsApp" ? "_blank" : undefined}
-                      rel={
-                        item.label === "WhatsApp"
-                          ? "noopener noreferrer"
-                          : undefined
-                      }
+                      target={item.external ? "_blank" : undefined}
+                      rel={item.external ? "noopener noreferrer" : undefined}
                       className="text-sm font-medium text-cream transition-colors hover:text-accent"
                     >
                       {item.value}
@@ -126,7 +137,7 @@ export default async function ContactPage() {
 
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
               <Button variant="whatsapp" size="lg" className="w-full sm:w-auto">
-                <MessageCircle className="h-5 w-5" />
+                <WhatsAppIcon size={20} />
                 Message on WhatsApp
               </Button>
             </a>

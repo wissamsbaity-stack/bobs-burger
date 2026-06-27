@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { m } from "@/lib/motion";
-import { MessageCircle, Truck } from "lucide-react";
+import { Truck } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/BrandIcons";
 import { Button } from "@/components/ui/Button";
 import { useSettings } from "@/contexts/SettingsContext";
 import { buildWhatsAppContactUrl } from "@/lib/whatsapp";
@@ -42,7 +43,7 @@ export function OrderCTA() {
                   Fast delivery
                 </div>
                 <div className="flex items-center gap-2 text-sm text-muted">
-                  <MessageCircle className="h-5 w-5 text-accent" />
+                  <WhatsAppIcon size={20} className="text-accent" />
                   WhatsApp ordering
                 </div>
               </div>
@@ -51,7 +52,7 @@ export function OrderCTA() {
             <div className="flex flex-col gap-3 sm:flex-row md:flex-col lg:flex-row">
               <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
                 <Button variant="whatsapp" size="lg" className="w-full">
-                  <MessageCircle className="h-5 w-5" />
+                  <WhatsAppIcon size={20} />
                   Order on WhatsApp
                 </Button>
               </a>

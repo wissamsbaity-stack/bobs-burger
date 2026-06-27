@@ -222,14 +222,26 @@ export function SettingsManager({
         <h2 className="text-lg font-semibold text-cream">Social & branding</h2>
         <Input
           name="instagram_url"
-          label="Instagram URL"
+          label="Instagram URL (optional)"
+          placeholder="https://instagram.com/..."
           defaultValue={settings?.instagram_url ?? ""}
         />
         <Input
           name="facebook_url"
-          label="Facebook URL"
+          label="Facebook URL (optional)"
+          placeholder="https://facebook.com/..."
           defaultValue={settings?.facebook_url ?? ""}
         />
+        <Input
+          name="tiktok_url"
+          label="TikTok URL (optional)"
+          placeholder="https://tiktok.com/@..."
+          defaultValue={settings?.tiktok_url ?? ""}
+        />
+        <p className="text-xs text-muted">
+          Social links appear on the homepage. Empty fields hide the icon
+          automatically.
+        </p>
         <SettingsImageField
           name="logo_url"
           label="Logo image"

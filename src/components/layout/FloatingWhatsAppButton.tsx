@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { MessageCircle } from "lucide-react";
+import { WhatsAppIcon } from "@/components/icons/BrandIcons";
 import { AnimatePresence, m } from "@/lib/motion";
 import { useSettings } from "@/contexts/SettingsContext";
 import { useAnyOverlayOpen } from "@/lib/overlay-store";
@@ -40,7 +40,7 @@ export function FloatingWhatsAppButton() {
           style={{ bottom: "max(1.5rem, env(safe-area-inset-bottom, 0px))" }}
           aria-label="Contact us on WhatsApp"
         >
-          <MessageCircle className="h-5 w-5" />
+          <WhatsAppIcon size={20} />
         </m.a>
       ) : null}
     </AnimatePresence>
