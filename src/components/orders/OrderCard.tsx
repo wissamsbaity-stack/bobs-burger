@@ -3,13 +3,12 @@
 import { memo, useState } from "react";
 import {
   ChevronDown,
-  Check,
+  Loader2,
   MapPin,
   Phone,
   StickyNote,
-  Truck,
-  ShoppingBag,
 } from "lucide-react";
+import { OrderTypeBadge } from "@/components/orders/OrderTypeBadge";
 import { WhatsAppIcon } from "@/components/icons/BrandIcons";
 import { buildWhatsAppCustomerUrl } from "@/lib/orders/whatsapp-customer";
 import {
@@ -53,21 +52,7 @@ const OrderCardBody = memo(function OrderCardBody({
           </p>
         </div>
 
-        <span
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide",
-            isDelivery
-              ? "bg-accent/15 text-accent ring-1 ring-accent/25"
-              : "bg-white/5 text-cream ring-1 ring-white/10"
-          )}
-        >
-          {isDelivery ? (
-            <Truck className="h-3.5 w-3.5" />
-          ) : (
-            <ShoppingBag className="h-3.5 w-3.5" />
-          )}
-          {isDelivery ? "Delivery" : "Pickup"}
-        </span>
+        <OrderTypeBadge orderType={order.orderType} />
       </div>
 
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
@@ -157,27 +142,25 @@ const OrderCardBody = memo(function OrderCardBody({
 export const NewOrderCard = memo(function NewOrderCard({
   order,
   onMarkAsRead,
-  markReadSuccess = false,
-  isExiting = false,
   isEntering = false,
 }: {
   order: StaffOrder;
   onMarkAsRead: (orderId: string) => void;
-  markReadSuccess?: boolean;
-  isExiting?: boolean;
   isEntering?: boolean;
 }) {
   const [confirmMarkRead, setConfirmMarkRead] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
+
+  const handleConfirmMarkRead = () => {
+    setIsConfirming(true);
+    onMarkAsRead(order.id);
+  };
 
   return (
     <article
       className={cn(
-        "overflow-hidden rounded-2xl border bg-surface-raised shadow-card",
-        markReadSuccess
-          ? "border-emerald-500/40 ring-1 ring-emerald-500/20"
-          : "border-white/8",
-        isEntering && "orders-card-enter",
-        isExiting && "orders-card-exit"
+        "overflow-hidden rounded-2xl border border-white/8 bg-surface-raised shadow-card",
+        isEntering && "orders-card-enter"
       )}
     >
       <div className="p-5 sm:p-6">
@@ -203,21 +186,23 @@ export const NewOrderCard = memo(function NewOrderCard({
             <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => onMarkAsRead(order.id)}
+                onClick={handleConfirmMarkRead}
+                disabled={isConfirming}
                 className={cn(
                   ordersPrimaryButtonClassName,
                   "px-3 py-2 text-sm"
                 )}
               >
-                {markReadSuccess ? (
-                  <Check className="h-3.5 w-3.5" />
+                {isConfirming ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
                 ) : null}
                 Confirm
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmMarkRead(false)}
-                className="orders-touch-btn rounded-lg px-3 py-2 text-sm text-muted"
+                disabled={isConfirming}
+                className="orders-touch-btn rounded-lg px-3 py-2 text-sm text-muted disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -227,20 +212,12 @@ export const NewOrderCard = memo(function NewOrderCard({
           <button
             type="button"
             onClick={() => setConfirmMarkRead(true)}
-            disabled={markReadSuccess}
             className={cn(
               ordersSecondaryButtonClassName,
               "flex-1 px-4 py-3 text-sm"
             )}
           >
-            {markReadSuccess ? (
-              <>
-                <Check className="h-4 w-4 text-emerald-400" />
-                Moved to History
-              </>
-            ) : (
-              "Mark as Read"
-            )}
+            Mark as Read
           </button>
         )}
       </div>

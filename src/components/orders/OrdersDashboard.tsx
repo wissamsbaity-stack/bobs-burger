@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Inbox } from "lucide-react";
 import { markOrderAsRead } from "@/app/orders/actions";
 import { NewOrderCard } from "@/components/orders/OrderCard";
@@ -39,15 +39,15 @@ export function OrdersDashboard({
     sortOrdersNewestFirst(initialNewOrders)
   );
   const [toasts, setToasts] = useState<OrdersToastItem[]>([]);
-  const [successIds, setSuccessIds] = useState<Set<string>>(new Set());
-  const [exitingIds, setExitingIds] = useState<Set<string>>(new Set());
   const [enteringIds, setEnteringIds] = useState<Set<string>>(new Set());
   const [historyPrepend, setHistoryPrepend] = useState<StaffOrder | null>(
     null
   );
-  const [, startTransition] = useTransition();
   const { play } = useOrderNotificationSound();
   const enteringTimersRef = useRef<Map<string, number>>(new Map());
+  const newOrdersRef = useRef(newOrders);
+
+  newOrdersRef.current = newOrders;
 
   const initialOrderIds = useMemo(
     () => initialNewOrders.map((order) => order.id),
@@ -69,18 +69,11 @@ export function OrdersDashboard({
     enteringTimersRef.current.set(orderId, timer);
   }, []);
 
-  const pushToast = useCallback((order: StaffOrder) => {
-    const id = `toast-${order.id}-${Date.now()}`;
-    setToasts((current) => [
-      {
-        id,
-        title: "🔔 New Order Received",
-        message: `Order #${order.orderNumber} has just arrived.`,
-      },
-      ...current.slice(0, 3),
-    ]);
+  const pushToast = useCallback((toast: Omit<OrdersToastItem, "id">) => {
+    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    setToasts((current) => [{ ...toast, id }, ...current.slice(0, 3)]);
     window.setTimeout(() => {
-      setToasts((current) => current.filter((toast) => toast.id !== id));
+      setToasts((current) => current.filter((item) => item.id !== id));
     }, 5000);
   }, []);
 
@@ -92,18 +85,16 @@ export function OrdersDashboard({
       });
       markEntering(order.id);
       play();
-      pushToast(order);
+      pushToast({
+        title: "🔔 New Order Received",
+        message: `Order #${order.orderNumber} has just arrived.`,
+      });
     },
     [markEntering, play, pushToast]
   );
 
   const handleRealtimeMarkRead = useCallback((orderId: string) => {
     setNewOrders((current) => current.filter((order) => order.id !== orderId));
-    setExitingIds((current) => {
-      const next = new Set(current);
-      next.delete(orderId);
-      return next;
-    });
   }, []);
 
   const handleRealtimeResync = useCallback((orders: StaffOrder[]) => {
@@ -131,32 +122,31 @@ export function OrdersDashboard({
 
   const handleMarkAsRead = useCallback(
     (orderId: string) => {
-      startTransition(async () => {
+      const order = newOrdersRef.current.find((item) => item.id === orderId);
+      if (!order) return;
+
+      setNewOrders((current) => current.filter((item) => item.id !== orderId));
+
+      void (async () => {
         const result = await markOrderAsRead(orderId);
-        if (!result.success || !result.order) return;
 
-        setSuccessIds((current) => new Set(current).add(orderId));
-        setExitingIds((current) => new Set(current).add(orderId));
+        if (!result.success || !result.order) {
+          setNewOrders((current) => {
+            if (current.some((item) => item.id === orderId)) return current;
+            return sortOrdersNewestFirst([order, ...current]);
+          });
+          pushToast({
+            title: "Couldn't update order",
+            message: result.error ?? "Failed to mark order as read.",
+            tone: "error",
+          });
+          return;
+        }
 
-        window.setTimeout(() => {
-          setNewOrders((current) =>
-            current.filter((order) => order.id !== orderId)
-          );
-          setHistoryPrepend(result.order!);
-          setSuccessIds((current) => {
-            const next = new Set(current);
-            next.delete(orderId);
-            return next;
-          });
-          setExitingIds((current) => {
-            const next = new Set(current);
-            next.delete(orderId);
-            return next;
-          });
-        }, 180);
-      });
+        setHistoryPrepend(result.order);
+      })();
     },
-    [startTransition]
+    [pushToast]
   );
 
   return (
@@ -200,8 +190,6 @@ export function OrdersDashboard({
                     key={order.id}
                     order={order}
                     onMarkAsRead={handleMarkAsRead}
-                    markReadSuccess={successIds.has(order.id)}
-                    isExiting={exitingIds.has(order.id)}
                     isEntering={enteringIds.has(order.id)}
                   />
                 ))}

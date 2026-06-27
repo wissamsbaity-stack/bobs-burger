@@ -15,20 +15,9 @@ const OPTIONS: {
   value: OrderType;
   label: string;
   Icon: typeof Truck;
-  iconClassName: string;
 }[] = [
-  {
-    value: "delivery",
-    label: "Delivery",
-    Icon: Truck,
-    iconClassName: "text-accent",
-  },
-  {
-    value: "pickup",
-    label: "Pickup",
-    Icon: ShoppingBag,
-    iconClassName: "text-emerald-400",
-  },
+  { value: "delivery", label: "Delivery", Icon: Truck },
+  { value: "pickup", label: "Pickup", Icon: ShoppingBag },
 ];
 
 const pillSpring = {
@@ -37,6 +26,14 @@ const pillSpring = {
   damping: 34,
   mass: 0.85,
 };
+
+function iconClassName(value: OrderType, selected: boolean): string {
+  if (selected) {
+    return "text-white";
+  }
+
+  return value === "delivery" ? "text-accent" : "text-emerald-400";
+}
 
 export function OrderTypeSelector({ value, onChange }: OrderTypeSelectorProps) {
   return (
@@ -71,8 +68,8 @@ export function OrderTypeSelector({ value, onChange }: OrderTypeSelectorProps) {
               ) : null}
               <Icon
                 className={cn(
-                  "relative z-10 h-6 w-6 shrink-0 transition-transform duration-200",
-                  option.iconClassName,
+                  "relative z-10 h-6 w-6 shrink-0 transition-[color,transform] duration-200",
+                  iconClassName(option.value, selected),
                   selected && "scale-110"
                 )}
                 aria-hidden

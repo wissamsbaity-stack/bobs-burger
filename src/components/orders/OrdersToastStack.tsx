@@ -7,6 +7,7 @@ export interface OrdersToastItem {
   id: string;
   title: string;
   message: string;
+  tone?: "default" | "error";
 }
 
 interface OrdersToastStackProps {
@@ -30,12 +31,20 @@ function ToastItem({
 
   return (
     <div
-      className={`pointer-events-auto overflow-hidden rounded-2xl border border-accent/30 bg-surface-overlay shadow-card ${
-        isExiting ? "orders-toast-exit" : "orders-toast-enter"
-      }`}
+      className={`pointer-events-auto overflow-hidden rounded-2xl border bg-surface-overlay shadow-card ${
+        toast.tone === "error"
+          ? "border-red-500/35"
+          : "border-accent/30"
+      } ${isExiting ? "orders-toast-exit" : "orders-toast-enter"}`}
     >
       <div className="flex items-start gap-3 p-4">
-        <span className="orders-live-dot mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
+        <span
+          className={`mt-1 inline-flex h-2.5 w-2.5 shrink-0 rounded-full ${
+            toast.tone === "error"
+              ? "bg-red-500"
+              : "orders-live-dot bg-red-500"
+          }`}
+        />
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-cream">{toast.title}</p>
           <p className="mt-0.5 text-base text-muted">{toast.message}</p>
